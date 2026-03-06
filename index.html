@@ -257,6 +257,8 @@ Ciel étoilé
 
 <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
 <script>
 
 const sheetURL="https://docs.google.com/spreadsheets/d/1T7AJBCvfomGbjdrm3ydughenuqPdKpYHmmW4DD_sz2M/gviz/tq?tqx=out:csv&gid=0"
@@ -282,7 +284,138 @@ const c=r.split(",")
 database.push({
 
 marque:clean(c[0]),
-modele:clean(c[1])
+modele:clean(c[1]),
+
+prix_ciel:parseInt(clean(c[5]))||0,
+prix_rideau:parseInt(clean(c[7]))||0,
+prix_couleur:parseInt(clean(c[8]))||0,
+prix_alcantara:parseInt(clean(c[9]))||0
+
+})
+
+})
+
+initBrands()
+initYears()
+
+new TomSelect("#marque",{create:true})
+modeleSelect=new TomSelect("#modele",{create:true})
+
+}
+
+function initBrands(){
+
+const marques=[...new Set(database.map(d=>d.marque))]
+
+marques.forEach(m=>{
+
+const opt=document.createElement("option")
+opt.value=m
+opt.textContent=m
+
+marque.appendChild(opt)
+
+})
+
+}
+
+function initYears(){
+
+for(let y=1970;y<=2030;y++){
+
+const opt=document.createElement("option")
+
+opt.value=y
+opt.textContent=y
+
+annee.appendChild(opt)
+
+}
+
+}
+
+marque.addEventListener("change",function(){
+
+const models=database.filter(d=>d.marque===this.value)
+
+modeleSelect.clearOptions()
+
+models.forEach(m=>{
+
+modeleSelect.addOption({
+value:m.modele,
+text:m.modele
+})
+
+})
+
+modeleSelect.refreshOptions(false)
+
+})
+
+/* TOIT STYLE */
+
+document.querySelectorAll(".toit-option").forEach(card=>{
+
+card.onclick=()=>{
+
+document.querySelectorAll(".toit-option").forEach(c=>c.classList.remove("active"))
+
+card.classList.add("active")
+
+card.querySelector("input").checked=true
+
+}
+
+})
+
+/* SERVICES + CALCUL PRIX */
+
+document.querySelectorAll(".service-row").forEach(row=>{
+
+row.onclick=()=>{
+
+row.classList.toggle("active")
+
+const checkbox=row.querySelector("input")
+checkbox.checked=!checkbox.checked
+
+calculPrix()
+
+}
+
+})
+
+function calculPrix(){
+
+const marque=document.getElementById("marque").value
+const modele=document.getElementById("modele").value
+
+const voiture=database.find(v=>v.marque===marque && v.modele===modele)
+
+if(!voiture)return
+
+let total=0
+
+document.querySelectorAll(".service-row input:checked").forEach(service=>{
+
+const val=service.value
+
+if(val==="Rénovation ciel de toit") total+=voiture.prix_ciel
+if(val==="Rideau toit ouvrant") total+=voiture.prix_rideau
+if(val==="Changement couleur") total+=voiture.prix_couleur
+if(val==="Alcantara") total+=voiture.prix_alcantara
+
+})
+
+document.getElementById("prix").value=total
+
+}
+
+loadData()
+
+</script>
+
 
 })
 
@@ -385,3 +518,4 @@ loadData()
 </body>
 
 </html>
+
