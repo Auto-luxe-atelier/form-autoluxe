@@ -65,7 +65,7 @@ margin-top:20px;
 cursor:pointer;
 }
 
-/* TomSelect correction couleur */
+/* correction couleur tomselect */
 
 .ts-control{
 background:#111 !important;
@@ -78,57 +78,50 @@ background:#111 !important;
 color:white !important;
 }
 
-/* Boutons radio design */
-
-.radio-group{
-display:flex;
-gap:10px;
-margin-top:10px;
-}
-
-.radio-card{
-flex:1;
-border:1px solid #444;
-padding:12px;
-border-radius:6px;
-text-align:center;
-cursor:pointer;
-}
-
-.radio-card input{
-display:none;
-}
-
-.radio-card.active{
-background:#ffd000;
-color:black;
-font-weight:bold;
-}
-
-/* Services design */
+/* SERVICES STYLE */
 
 .services{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
 margin-top:10px;
 }
 
-.service-card{
+.service-row{
+
+display:flex;
+align-items:center;
+gap:10px;
+
 border:1px solid #444;
 padding:12px;
 border-radius:6px;
+margin-bottom:8px;
+
 cursor:pointer;
+transition:0.2s;
 }
 
-.service-card input{
+.service-row:hover{
+border-color:#ffd000;
+}
+
+.service-row input{
 display:none;
 }
 
-.service-card.active{
+.service-box{
+
+width:18px;
+height:18px;
+
+border:2px solid #ffd000;
+
+border-radius:3px;
+
+}
+
+.service-row.active .service-box{
+
 background:#ffd000;
-color:black;
-font-weight:bold;
+
 }
 
 </style>
@@ -143,63 +136,53 @@ font-weight:bold;
 
 <form id="form">
 
-<label>Marque *</label> <select id="marque"></select>
+<label>Marque</label> <select id="marque"></select>
 
-<label>Modèle *</label> <select id="modele"></select>
+<label>Modèle</label> <select id="modele"></select>
 
-<label>Année *</label> <select id="annee"></select>
+<label>Année</label> <select id="annee"></select>
 
 <label>Matricule</label> <input id="matricule">
-
-<label>Toit ouvrant</label>
-
-<div class="radio-group">
-
-<label class="radio-card">
-<input type="radio" name="toit" value="avec">
-avec toit ouvrant
-</label>
-
-<label class="radio-card">
-<input type="radio" name="toit" value="sans">
-sans toit ouvrant
-</label>
-
-</div>
 
 <label>Services</label>
 
 <div class="services">
 
-<label class="service-card">
-<input type="checkbox" value="ciel">
+<div class="service-row">
+<div class="service-box"></div>
+<input type="checkbox" value="Rénovation ciel de toit">
 Rénovation ciel de toit
-</label>
+</div>
 
-<label class="service-card">
-<input type="checkbox" value="rideau">
+<div class="service-row">
+<div class="service-box"></div>
+<input type="checkbox" value="Rideau toit ouvrant">
 Rideau toit ouvrant
-</label>
+</div>
 
-<label class="service-card">
-<input type="checkbox" value="couleur">
-Changement couleur
-</label>
+<div class="service-row">
+<div class="service-box"></div>
+<input type="checkbox" value="Changement couleur">
+Changement couleur ciel de toit
+</div>
 
-<label class="service-card">
-<input type="checkbox" value="alcantara">
+<div class="service-row">
+<div class="service-box"></div>
+<input type="checkbox" value="Alcantara">
 Alcantara
-</label>
+</div>
 
-<label class="service-card">
-<input type="checkbox" value="portes">
-Tissu portes
-</label>
+<div class="service-row">
+<div class="service-box"></div>
+<input type="checkbox" value="Tissu portes">
+Rénovation tissu portes
+</div>
 
-<label class="service-card">
-<input type="checkbox" value="etoile">
+<div class="service-row">
+<div class="service-box"></div>
+<input type="checkbox" value="Ciel étoilé">
 Ciel étoilé
-</label>
+</div>
 
 </div>
 
@@ -221,114 +204,24 @@ Ciel étoilé
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
-
 <script>
 
-const sheetURL="https://docs.google.com/spreadsheets/d/1T7AJBCvfomGbjdrm3ydughenuqPdKpYHmmW4DD_sz2M/gviz/tq?tqx=out:csv&gid=0"
+document.querySelectorAll(".service-row").forEach(row=>{
 
-let database=[]
-let modeleSelect
+row.onclick=()=>{
 
-async function loadData(){
+row.classList.toggle("active")
 
-const res=await fetch(sheetURL)
-const text=await res.text()
+const checkbox=row.querySelector("input")
 
-const rows=text.split("\n").slice(1)
-
-rows.forEach(r=>{
-
-const c=r.split(",")
-
-database.push({
-
-marque:c[0],
-modele:c[1],
-prix:c[5]
-
-})
-
-})
-
-initBrands()
-initYears()
-
-new TomSelect("#marque",{create:true})
-modeleSelect=new TomSelect("#modele",{create:true})
+checkbox.checked=!checkbox.checked
 
 }
 
-function initBrands(){
-
-const marques=[...new Set(database.map(d=>d.marque))]
-
-marques.forEach(m=>{
-
-const opt=document.createElement("option")
-opt.value=m
-opt.textContent=m
-
-marque.appendChild(opt)
-
 })
-
-}
-
-function initYears(){
-
-for(let y=1970;y<=2030;y++){
-
-const opt=document.createElement("option")
-
-opt.value=y
-opt.textContent=y
-
-annee.appendChild(opt)
-
-}
-
-}
-
-marque.addEventListener("change",function(){
-
-const models=database.filter(d=>d.marque===this.value)
-
-modeleSelect.clearOptions()
-
-models.forEach(m=>{
-
-modeleSelect.addOption({
-value:m.modele,
-text:m.modele
-})
-
-})
-
-modeleSelect.refreshOptions(false)
-
-})
-
-/* activation design */
-
-document.querySelectorAll(".radio-card").forEach(card=>{
-card.onclick=()=>{
-document.querySelectorAll(".radio-card").forEach(c=>c.classList.remove("active"))
-card.classList.add("active")
-card.querySelector("input").checked=true
-}
-})
-
-document.querySelectorAll(".service-card").forEach(card=>{
-card.onclick=()=>{
-card.classList.toggle("active")
-card.querySelector("input").checked=!card.querySelector("input").checked
-}
-})
-
-loadData()
 
 </script>
 
 </body>
+
 </html>
