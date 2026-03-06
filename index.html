@@ -26,7 +26,6 @@ margin:auto;
 background:#1a1a1a;
 padding:30px;
 border-radius:12px;
-box-shadow:0 10px 40px rgba(0,0,0,0.8);
 border:2px solid #ffd000;
 }
 
@@ -45,7 +44,6 @@ color:#ffd000;
 margin-bottom:25px;
 font-size:26px;
 letter-spacing:2px;
-text-transform:uppercase;
 }
 
 label{
@@ -65,12 +63,6 @@ color:white;
 font-size:16px;
 }
 
-input:focus,select:focus{
-outline:none;
-border:1px solid #ffd000;
-box-shadow:0 0 6px #ffd000;
-}
-
 button{
 background:#ffd000;
 color:black;
@@ -81,12 +73,6 @@ border-radius:6px;
 font-size:16px;
 font-weight:bold;
 cursor:pointer;
-transition:0.2s;
-}
-
-button:hover{
-background:#ffea00;
-transform:scale(1.03);
 }
 
 .ts-control{
@@ -146,7 +132,7 @@ color:white !important;
 </select>
 
 <label>Prix</label>
-<input id="prix" readonly>
+<input id="prix">
 
 <label>Prénom</label>
 <input id="prenom">
@@ -173,48 +159,55 @@ color:white !important;
 
 <script>
 
-const sheetURL = "https://docs.google.com/spreadsheets/d/1T7AJBCvfomGbjdrm3ydughenuqPdKpYHmmW4DD_sz2M/gviz/tq?tqx=out:csv&gid=0"
+const sheetURL="https://docs.google.com/spreadsheets/d/1T7AJBCvfomGbjdrm3ydughenuqPdKpYHmmW4DD_sz2M/gviz/tq?tqx=out:csv&gid=0"
 
 let database=[]
 
+function clean(v){
+return v.replace(/"/g,"").trim()
+}
+
 async function loadData(){
 
-const response = await fetch(sheetURL)
-const text = await response.text()
+const res=await fetch(sheetURL)
+const text=await res.text()
 
-const rows = text.split("\n").slice(1)
+const rows=text.split("\n").slice(1)
 
 rows.forEach(r=>{
-const c = r.split(",")
+
+const c=r.split(",")
 
 database.push({
 
-marque:c[0],
-modele:c[1],
-prix_ciel:c[5],
-prix_rideau:c[7],
-prix_couleur:c[8],
-prix_alcantara:c[9]
+marque:clean(c[0]),
+modele:clean(c[1]),
+prix_ciel:clean(c[5]),
+prix_rideau:clean(c[7]),
+prix_couleur:clean(c[8]),
+prix_alcantara:clean(c[9])
 
 })
 
 })
 
-populateBrands()
+initBrands()
 
 }
 
-function populateBrands(){
+function initBrands(){
 
 const marques=[...new Set(database.map(d=>d.marque))]
 
 const select=document.getElementById("marque")
 
 marques.forEach(m=>{
+
 const opt=document.createElement("option")
 opt.value=m
 opt.textContent=m
 select.appendChild(opt)
+
 })
 
 }
@@ -230,10 +223,12 @@ const select=document.getElementById("modele")
 select.innerHTML=""
 
 models.forEach(m=>{
+
 const opt=document.createElement("option")
 opt.value=m.modele
 opt.textContent=m.modele
 select.appendChild(opt)
+
 })
 
 })
@@ -242,16 +237,17 @@ document.getElementById("service").addEventListener("change",function(){
 
 const marque=document.getElementById("marque").value
 const modele=document.getElementById("modele").value
-const service=this.value
 
 const car=database.find(d=>d.marque===marque && d.modele===modele)
 
+if(!car) return
+
 let prix=""
 
-if(service==="ciel") prix=car.prix_ciel
-if(service==="rideau") prix=car.prix_rideau
-if(service==="couleur") prix=car.prix_couleur
-if(service==="alcantara") prix=car.prix_alcantara
+if(this.value==="ciel") prix=car.prix_ciel
+if(this.value==="rideau") prix=car.prix_rideau
+if(this.value==="couleur") prix=car.prix_couleur
+if(this.value==="alcantara") prix=car.prix_alcantara
 
 document.getElementById("prix").value=prix
 
@@ -294,9 +290,13 @@ alert("Client ajouté")
 
 })
 
+new TomSelect("#marque",{create:true})
+new TomSelect("#modele",{create:true})
+
 loadData()
 
 </script>
 
 </body>
+
 </html>
