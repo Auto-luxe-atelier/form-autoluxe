@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+<title>Auto Luxe Atelier</title>
+
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+
+<style>
+
+body{
+font-family:Arial;
+background:#0f0f0f;
+color:white;
+padding:40px;
+}
+
+.container{
+max-width:650px;
+margin:auto;
+background:#1a1a1a;
+padding:40px;
+border-radius:12px;
+box-shadow:0 10px 40px rgba(0,0,0,0.8);
+border:2px solid #ffd000;
+}
+
+.logo{
+text-align:center;
+margin-bottom:20px;
+}
+
+.logo img{
+max-width:200px;
+}
+
+h2{
+text-align:center;
+color:#ffd000;
+margin-bottom:25px;
+font-size:28px;
+letter-spacing:2px;
+text-transform:uppercase;
+}
+
+label{
+font-weight:bold;
+color:#ffd000;
+}
+
+input,select{
+width:100%;
+padding:12px;
+margin-top:8px;
+margin-bottom:20px;
+border-radius:6px;
+border:1px solid #444;
+background:#111;
+color:white;
+}
+
+input:focus,select:focus{
+outline:none;
+border:1px solid #ffd000;
+box-shadow:0 0 6px #ffd000;
+}
+
+button{
+background:#ffd000;
+color:black;
+padding:14px;
+border:none;
+width:100%;
+border-radius:6px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+transition:0.2s;
+}
+
+button:hover{
+background:#ffea00;
+transform:scale(1.03);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="logo">
+<img src="logo-autoluxe.png">
+</div>
+
+<h2>Nouveau client</h2>
+
+<form id="form">
+
+<label>Marque</label> <select id="marque">
+
+<option>Volkswagen</option>
+<option>Renault</option>
+<option>Peugeot</option>
+<option>Skoda</option>
+<option>Audi</option>
+<option>BMW</option>
+<option>Mercedes</option>
+<option>Seat</option>
+<option>Hyundai</option>
+<option>Kia</option>
+<option>Toyota</option>
+
+</select>
+
+<label>Modèle</label> <input id="modele">
+
+<label>Année</label> <input type="number" id="annee">
+
+<label>Matricule</label> <input id="matricule">
+
+<label>Toit ouvrant</label> <select id="toit">
+
+<option>avec toit ouvrant</option>
+<option>sans toit ouvrant</option>
+
+</select>
+
+<label>Service</label>
+
+<select id="service" multiple>
+
+<option>Rénovation du ciel de toit</option>
+<option>Remplacement rideau toit ouvrant</option>
+<option>Changement couleur ciel de toit</option>
+<option>Alcantara</option>
+<option>Rénovation tissu portes</option>
+<option>Ciel étoilé</option>
+
+</select>
+
+<label>Prénom</label> <input id="prenom">
+
+<label>Nom</label> <input id="nom">
+
+<label>Téléphone</label> <input id="tel">
+
+<label>Date rendez-vous</label> <input type="date" id="date">
+
+<label>Heure</label> <input id="heure">
+
+<label>Prix</label> <input type="number" id="prix">
+
+<button type="submit">Ajouter client</button>
+
+</form>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
+<script>
+
+new TomSelect("#marque")
+new TomSelect("#service")
+
+document.getElementById("form").addEventListener("submit",async function(e){
+
+e.preventDefault()
+
+const data = {
+
+marque:document.getElementById("marque").value,
+modele:document.getElementById("modele").value,
+annee:document.getElementById("annee").value,
+matricule:document.getElementById("matricule").value,
+toit:document.getElementById("toit").value,
+service:document.getElementById("service").value,
+prenom:document.getElementById("prenom").value,
+nom:document.getElementById("nom").value,
+telephone:document.getElementById("tel").value,
+date:document.getElementById("date").value,
+heure:document.getElementById("heure").value,
+prix:document.getElementById("prix").value
+
+}
+
+await fetch("https://n8n-hetzner.duckdns.org/webhook/nouveau-client",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify(data)
+
+})
+
+alert("Client ajouté avec succès")
+
+})
+
+</script>
+
+</body>
+
+</html>
