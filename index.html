@@ -447,7 +447,26 @@ if(s==="alcantara") total+=voiture.prix_alcantara
 document.getElementById("prix").value=total
 
 }
+const dateRDV = document.getElementById("daterdv")
 
+const today = new Date().toISOString().split("T")[0]
+
+dateRDV.min = today
+
+dateRDV.addEventListener("change",function(){
+
+const d = new Date(this.value)
+const day = d.getDay()
+
+if(day === 4 || day === 5){
+
+alert("L'atelier est fermé ce jour")
+
+dateRDV.value=""
+
+}
+
+})
 loadData()
 
 </script>
@@ -455,6 +474,7 @@ loadData()
 </body>
 
 </html>
+
 
 
 
