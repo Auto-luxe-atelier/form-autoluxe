@@ -500,7 +500,7 @@ modele:document.getElementById("modele").value,
 annee:document.getElementById("annee").value,
 matricule:document.getElementById("matricule").value,
 
-toit:document.querySelector('input[name="toit"]:checked')?.value || "",
+toit:document.querySelector('input[name="toit ouvrant"]:checked')?.value || "",
 
 services:
 "- " + servicesSelectionnes.map(s => serviceNames[s]).join("\n- "),
@@ -540,6 +540,7 @@ alert("Client ajouté avec succès")
 </body>
 
 </html>
+
 
 
 
