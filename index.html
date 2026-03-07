@@ -263,6 +263,9 @@ database.push({
 marque:clean(c[0]),
 modele:clean(c[1]),
 
+annee_debut:parseInt(clean(c[2]))||0,
+annee_fin:parseInt(clean(c[3]))||0,
+
 prix_ciel:parseInt(clean(c[5]))||0,
 prix_rideau:parseInt(clean(c[7]))||0,
 prix_couleur:parseInt(clean(c[8]))||0,
@@ -273,7 +276,6 @@ prix_alcantara:parseInt(clean(c[9]))||0
 })
 
 initBrands()
-initYears()
 
 new TomSelect("#marque",{create:true})
 modeleSelect=new TomSelect("#modele",{create:true})
@@ -296,20 +298,6 @@ marque.appendChild(opt)
 
 }
 
-function initYears(){
-
-for(let y=1970;y<=2030;y++){
-
-const opt=document.createElement("option")
-
-opt.value=y
-opt.textContent=y
-
-annee.appendChild(opt)
-
-}
-
-}
 
 marque.addEventListener("change",function(){
 
@@ -327,6 +315,32 @@ text:m.modele
 })
 
 modeleSelect.refreshOptions(false)
+
+})
+
+  modele.addEventListener("change",function(){
+
+const marque=document.getElementById("marque").value
+const modele=this.value
+
+const voiture=database.find(v=>v.marque===marque && v.modele===modele)
+
+if(!voiture)return
+
+const selectAnnee=document.getElementById("annee")
+
+selectAnnee.innerHTML=""
+
+for(let y=voiture.annee_debut;y<=voiture.annee_fin;y++){
+
+const opt=document.createElement("option")
+
+opt.value=y
+opt.textContent=y
+
+selectAnnee.appendChild(opt)
+
+}
 
 })
 
@@ -403,6 +417,7 @@ loadData()
 </body>
 
 </html>
+
 
 
 
