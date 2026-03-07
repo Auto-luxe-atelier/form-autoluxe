@@ -13,7 +13,7 @@
 
 <style>
 
-  .logo{
+.logo{
 text-align:center;
 margin-bottom:20px;
 }
@@ -232,9 +232,9 @@ Ciel étoilé Pack 1000 🌟
 
 </div>
 
-  <label>Remarques</label>
+<label>Remarques</label>
 <textarea id="remarques"></textarea>
-  
+
 <label>Prix</label>
 <input id="prix">
 
@@ -251,6 +251,7 @@ Ciel étoilé Pack 1000 🌟
 <input type="date" id="daterdv">
 
 <label>Heure d'arrivée</label>
+<input type="time" id="heure">
 <input type="time" id="heure" min="09:00" max="17:00" step="1800">
 
 <label>Date du montage (si nécessaire)</label>
@@ -351,7 +352,7 @@ modeleSelect.refreshOptions(false)
 
 })
 
-  modele.addEventListener("change",function(){
+modele.addEventListener("change",function(){
 
 const marque=document.getElementById("marque").value
 const modele=this.value
@@ -433,50 +434,18 @@ const voiture=database.find(v=>v.marque===marque && v.modele===modele)
 
 if(!voiture)return
 
-let total = 0
+let total=0
 
-let autresServices = servicesSelectionnes.filter(s =>
-s !== "etoile500" && s !== "etoile1000"
-).length
-
-servicesSelectionnes.forEach(s => {
+servicesSelectionnes.forEach(s=>{
 
 if(s==="ciel") total+=voiture.prix_ciel
 if(s==="rideau") total+=voiture.prix_rideau
 if(s==="couleur") total+=voiture.prix_couleur
 if(s==="alcantara") total+=voiture.prix_alcantara
-
-// PACK 500
-if(s==="etoile500"){
-
-let prix = 80000
-
-if(autresServices>0){
-prix -= 20000
-}
-
-total += prix
-
-}
-
-// PACK 1000
-if(s==="etoile1000"){
-
-let prix = 120000
-
-if(autresServices>0){
-prix -= 20000
-}
-
-total += prix
-
-}
+if(s==="etoile500") total+=80000
+if(s==="etoile1000") total+=120000
 
 })
-
-document.getElementById("prix").value = total
-
-}
 
 document.getElementById("prix").value=total
 
@@ -508,19 +477,5 @@ loadData()
 </body>
 
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
