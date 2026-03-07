@@ -470,12 +470,57 @@ dateRDV.value=""
 
 })
 loadData()
+  document.getElementById("form").addEventListener("submit",async function(e){
+
+e.preventDefault()
+
+const data = {
+
+marque:document.getElementById("marque").value,
+modele:document.getElementById("modele").value,
+annee:document.getElementById("annee").value,
+matricule:document.getElementById("matricule").value,
+
+toit:document.querySelector('input[name="toit"]:checked')?.value || "",
+
+services:servicesSelectionnes.join(", "),
+
+remarques:document.getElementById("remarques").value,
+
+prix:document.getElementById("prix").value,
+
+prenom:document.getElementById("prenom").value,
+nom:document.getElementById("nom").value,
+telephone:document.getElementById("tel").value,
+
+date_rdv:document.getElementById("daterdv").value,
+heure_arrivee:document.getElementById("heure").value,
+date_montage:document.getElementById("datemontage").value
+
+}
+
+await fetch("https://n8n-hetzner.duckdns.org/webhook/nouveau-client",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify(data)
+
+})
+
+alert("Client ajouté avec succès")
+
+})
 
 </script>
 
 </body>
 
 </html>
+
 
 
 
