@@ -229,6 +229,11 @@ Changement de couleur avec tissu comme l'original
 Changement de couleur en Alcantara
 </div>
 
+<div class="service-row" data-service="portes">
+<div class="service-box"></div>
+Rénovation tissu des portes
+</div>
+
 <div class="service-row" data-service="etoile500">
 <div class="service-box"></div>
 Ciel étoilé Pack 500 🌟
@@ -291,6 +296,8 @@ couleur: "Changement de couleur du ciel de toit avec tissu comme l'original + pe
 
 alcantara: "Changement de couleur du ciel de toit en Alcantara + peintures du plastiques",
 
+portes: "Rénovation tissu des portes",
+
 etoile500: "Ciel étoilé Pack 500 🌟",
 
 etoile1000: "Ciel étoilé Pack 1000 🌟"
@@ -327,7 +334,8 @@ annee_fin:parseInt(clean(c[3]))||0,
 prix_ciel:parseInt(clean(c[5]))||0,
 prix_rideau:parseInt(clean(c[7]))||0,
 prix_couleur:parseInt(clean(c[8]))||0,
-prix_alcantara:parseInt(clean(c[9]))||0
+prix_alcantara:parseInt(clean(c[9]))||0,
+prix_portes:parseInt(clean(c[10]))||0
 
 })
 
@@ -478,6 +486,7 @@ if(s==="ciel") total+=voiture.prix_ciel
 if(s==="rideau") total+=voiture.prix_rideau
 if(s==="couleur") total+=voiture.prix_couleur
 if(s==="alcantara") total+=voiture.prix_alcantara
+if(s==="portes") total+=voiture.prix_portes
 if(s==="etoile500") total+=80000
 if(s==="etoile1000") total+=120000
 
@@ -558,6 +567,7 @@ alert("Client ajouté avec succès")
 </body>
 
 </html>
+
 
 
 
