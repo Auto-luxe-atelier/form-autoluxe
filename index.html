@@ -555,7 +555,7 @@ button[type="submit"]:disabled{
     <div class="field-error" id="err-annee">Veuillez choisir une année.</div>
 
     <label for="matricule">Matricule</label>
-    <input type="text" id="matricule" autocomplete="off" placeholder="Ex : AB-123-CD">
+    <input type="text" id="matricule" autocomplete="off" placeholder="Ex : 045768 117 16">
     <div class="field-error" id="err-matricule">Veuillez entrer le matricule.</div>
 
     <label>Toit ouvrant</label>
@@ -630,7 +630,7 @@ button[type="submit"]:disabled{
     <div class="field-error" id="err-nom">Veuillez entrer le nom.</div>
 
     <label for="tel">Téléphone</label>
-    <input type="tel" id="tel" autocomplete="tel" placeholder="Ex : +33 6 00 00 00 00">
+    <input type="tel" id="tel" autocomplete="tel" placeholder="Ex : 06 00 00 00 00">
     <div class="field-error" id="err-tel">Veuillez entrer un numéro de téléphone.</div>
 
     <!-- RDV -->
@@ -920,7 +920,7 @@ function calculPrix() {
   })
 
   prixInput.value = total
-  prixValue.textContent = total > 0 ? total.toLocaleString("fr-FR") + " €" : "—"
+  prixValue.textContent = total > 0 ? total.toLocaleString("fr-FR") + " DA" : "—"
 }
 
 /* ─── DATE RDV ────────────────────────────────────────────── */
