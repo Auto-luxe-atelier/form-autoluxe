@@ -41,16 +41,8 @@ body {
   border: 2px solid var(--gold);
 }
 
-.logo {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.logo img {
-  max-width: 220px;
-  width: 100%;
-  height: auto;
-}
+.logo { text-align: center; margin-bottom: 20px; }
+.logo img { max-width: 220px; width: 100%; height: auto; }
 
 h2 {
   text-align: center;
@@ -66,23 +58,21 @@ h2 {
   text-align: center;
   color: var(--text-muted);
   font-size: 0.85rem;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 }
 
 .badge {
-  display: inline-block;
   background: rgba(255, 208, 0, 0.12);
   border: 1px solid var(--gold);
   color: var(--gold);
   font-family: 'Barlow Condensed', Arial, sans-serif;
-  font-size: 1rem;
+  font-size: 1.1rem;
   letter-spacing: 1px;
-  padding: 6px 16px;
+  padding: 8px 16px;
   border-radius: 20px;
-  margin-bottom: 28px;
   text-align: center;
-  width: 100%;
   display: block;
+  margin-bottom: 24px;
 }
 
 .section-title {
@@ -144,7 +134,6 @@ input[readonly] {
   margin-top: 4px;
   display: none;
 }
-
 .field-error.visible { display: block; }
 
 .prix-grid {
@@ -152,9 +141,137 @@ input[readonly] {
   grid-template-columns: 1fr 1fr;
   gap: 14px;
 }
-
 .prix-item label { margin-top: 14px; }
 
+/* ── WIKI BOX ── */
+.wiki-box {
+  margin-top: 16px;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: none;
+  background: #0d0d0d;
+}
+.wiki-box.show { display: block; }
+
+.wiki-header {
+  background: rgba(255,208,0,0.08);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.wiki-icon { font-size: 1rem; }
+.wiki-title {
+  font-size: 0.8rem;
+  color: var(--gold);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  flex: 1;
+}
+.wiki-source {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.wiki-loading {
+  padding: 18px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.wiki-body { padding: 14px; }
+
+.wiki-years {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.wiki-year-item { text-align: center; }
+.wiki-year-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 2px;
+}
+.wiki-year-value {
+  font-family: 'Barlow Condensed', Arial, sans-serif;
+  font-size: 1.8rem;
+  color: var(--gold);
+  font-weight: 700;
+  line-height: 1;
+}
+.wiki-arrow { color: var(--border); font-size: 1.2rem; margin-top: 10px; }
+
+.wiki-excerpt {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 10px 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.wiki-apply-btn {
+  background: var(--gold);
+  color: #000;
+  border: none;
+  padding: 9px 18px;
+  border-radius: var(--radius);
+  font-family: 'Barlow Condensed', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 6px;
+  transition: background var(--transition);
+}
+.wiki-apply-btn:hover { background: var(--gold-dark); }
+
+.wiki-not-found {
+  padding: 16px;
+  text-align: center;
+  color: #ff6b6b;
+  font-size: 0.85rem;
+}
+
+.wiki-results-list { padding: 10px 14px; }
+.wiki-result-item {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+.wiki-result-item:hover {
+  border-color: var(--gold);
+  background: rgba(255,208,0,0.05);
+}
+.wiki-result-title {
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin-bottom: 3px;
+}
+.wiki-result-snippet {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+/* ── BOUTON SUBMIT ── */
 button[type="submit"] {
   background: var(--gold);
   color: #000;
@@ -171,18 +288,14 @@ button[type="submit"] {
   cursor: pointer;
   transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
 }
-
 button[type="submit"]:hover:not(:disabled) {
   background: var(--gold-dark);
-  box-shadow: 0 4px 20px rgba(255, 208, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(255,208,0,0.3);
   transform: translateY(-1px);
 }
+button[type="submit"]:disabled { opacity: 0.6; cursor: not-allowed; }
 
-button[type="submit"]:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
+/* ── TOAST ── */
 .toast {
   position: fixed;
   bottom: 24px;
@@ -202,50 +315,35 @@ button[type="submit"]:disabled {
   opacity: 0;
   white-space: nowrap;
 }
-
 .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 .toast.success { border-left: 4px solid #4caf50; }
-.toast.error { border-left: 4px solid #e55; }
+.toast.error   { border-left: 4px solid #e55; }
 .toast-icon { font-size: 1.2rem; }
 
+/* ── SPINNERS ── */
 .spinner {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(0,0,0,0.3);
-  border-top-color: #000;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  margin-right: 8px;
-  vertical-align: middle;
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid rgba(0,0,0,0.3); border-top-color: #000;
+  border-radius: 50%; animation: spin 0.7s linear infinite;
+  margin-right: 8px; vertical-align: middle;
 }
-
+.spinner-gold {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid rgba(255,208,0,0.2); border-top-color: var(--gold);
+  border-radius: 50%; animation: spin 0.7s linear infinite;
+}
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.success-screen {
-  display: none;
-  text-align: center;
-  padding: 40px 20px;
-}
-
+/* ── SUCCÈS ── */
+.success-screen { display: none; text-align: center; padding: 40px 20px; }
 .success-screen.show { display: block; }
-
-.success-icon {
-  font-size: 4rem;
-  margin-bottom: 16px;
-}
-
+.success-icon { font-size: 4rem; margin-bottom: 16px; }
 .success-screen h3 {
   color: var(--gold);
   font-family: 'Barlow Condensed', Arial, sans-serif;
-  font-size: 1.6rem;
-  margin-bottom: 10px;
+  font-size: 1.6rem; margin-bottom: 10px;
 }
-
-.success-screen p {
-  color: var(--text-muted);
-  font-size: 0.95rem;
-}
+.success-screen p { color: var(--text-muted); font-size: 0.95rem; }
 </style>
 </head>
 
@@ -266,7 +364,6 @@ button[type="submit"]:disabled {
 
     <form id="form" novalidate>
 
-      <!-- IDENTITÉ -->
       <p class="section-title">Identité du véhicule</p>
 
       <label for="marque">Marque</label>
@@ -275,7 +372,22 @@ button[type="submit"]:disabled {
       <label for="modele">Modèle</label>
       <input type="text" id="modele" readonly>
 
-      <div class="row2">
+      <!-- WIKI BOX : s'affiche automatiquement -->
+      <div class="wiki-box" id="wiki-box">
+        <div class="wiki-header">
+          <span class="wiki-icon">📖</span>
+          <span class="wiki-title">Wikipedia — Années de production</span>
+          <span class="wiki-source" id="wiki-source"></span>
+        </div>
+        <div id="wiki-content">
+          <div class="wiki-loading">
+            <span class="spinner-gold"></span>
+            Recherche en cours…
+          </div>
+        </div>
+      </div>
+
+      <div class="row2" style="margin-top:18px;">
         <div>
           <label for="annee_debut">Année début</label>
           <input type="number" id="annee_debut" placeholder="Ex : 2015" min="1980" max="2030" required>
@@ -283,12 +395,11 @@ button[type="submit"]:disabled {
         </div>
         <div>
           <label for="annee_fin">Année fin</label>
-          <input type="number" id="annee_fin" placeholder="Ex : 2020" min="1980" max="2030" required>
+          <input type="number" id="annee_fin" placeholder="Ex : 2020 (ou année actuelle)" min="1980" max="2030" required>
           <div class="field-error" id="err-annee_fin">Champ obligatoire.</div>
         </div>
       </div>
 
-      <!-- PRIX -->
       <p class="section-title">Tarifs des services (DA)</p>
 
       <div class="prix-grid">
@@ -314,7 +425,6 @@ button[type="submit"]:disabled {
         </div>
       </div>
 
-      <!-- REMARQUES -->
       <p class="section-title">Remarques</p>
 
       <label for="remarques">Remarques / Notes</label>
@@ -323,10 +433,8 @@ button[type="submit"]:disabled {
       <button type="submit" id="btn-submit">✅ Ajouter au catalogue</button>
 
     </form>
-
   </div>
 
-  <!-- ÉCRAN SUCCÈS -->
   <div class="success-screen" id="success-screen">
     <div class="success-icon">✅</div>
     <h3>Véhicule ajouté !</h3>
@@ -335,7 +443,6 @@ button[type="submit"]:disabled {
 
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast">
   <span class="toast-icon" id="toast-icon"></span>
   <span id="toast-msg"></span>
@@ -343,32 +450,24 @@ button[type="submit"]:disabled {
 
 <script>
 
-/* ─── CONFIG ─────────────────────────────────── */
-
 const WEBHOOK_URL = "https://n8n-hetzner.duckdns.org/webhook/nouveau-vehicule"
 
-/* ─── LIRE LES PARAMS URL ────────────────────── */
-
-const params  = new URLSearchParams(window.location.search)
-const marque  = params.get("marque")  || ""
-const modele  = params.get("modele")  || ""
-const annee   = params.get("annee")   || ""
+/* ── PARAMS URL ── */
+const params = new URLSearchParams(window.location.search)
+const marque = params.get("marque") || ""
+const modele = params.get("modele") || ""
+const annee  = params.get("annee")  || ""
 
 document.getElementById("marque").value = marque
 document.getElementById("modele").value = modele
+document.getElementById("badge-vehicule").textContent = `🚗 ${marque} ${modele}${annee ? " · " + annee : ""}`
 
-// Badge véhicule
-const badge = document.getElementById("badge-vehicule")
-badge.textContent = `🚗 ${marque} ${modele}${annee ? " · " + annee : ""}`
-
-// Pré-remplir année début/fin si on a l'année
 if (annee) {
   document.getElementById("annee_debut").value = annee
   document.getElementById("annee_fin").value   = annee
 }
 
-/* ─── TOAST ──────────────────────────────────── */
-
+/* ── TOAST ── */
 function showToast(msg, type = "success") {
   const toast = document.getElementById("toast")
   document.getElementById("toast-msg").textContent  = msg
@@ -377,8 +476,165 @@ function showToast(msg, type = "success") {
   setTimeout(() => toast.classList.remove("show"), 4000)
 }
 
-/* ─── VALIDATION ─────────────────────────────── */
+/* ── EXTRAIRE LES ANNÉES DU TEXTE ── */
+function extractYears(text) {
+  if (!text) return { debut: null, fin: null }
 
+  // Pattern plage : 2015–2020 ou 2015-2020
+  const rangeMatch = text.match(/\b(19\d{2}|20\d{2})\s*[–\-—]\s*(19\d{2}|20\d{2})\b/)
+  if (rangeMatch) {
+    return { debut: parseInt(rangeMatch[1]), fin: parseInt(rangeMatch[2]) }
+  }
+
+  // Pattern présent : 2015–present / 2015–aujourd'hui
+  const presentMatch = text.match(/\b(19\d{2}|20\d{2})\s*[–\-—]\s*(present|aujourd'hui|now|ce jour)/i)
+  if (presentMatch) {
+    return { debut: parseInt(presentMatch[1]), fin: new Date().getFullYear() }
+  }
+
+  // Toutes les années dans le texte
+  const allYears = [...text.matchAll(/\b(19[5-9]\d|20[0-3]\d)\b/g)]
+    .map(m => parseInt(m[1]))
+    .filter(y => y >= 1950 && y <= new Date().getFullYear() + 1)
+
+  if (allYears.length === 0) return { debut: null, fin: null }
+
+  const sorted = [...new Set(allYears)].sort((a, b) => a - b)
+  const debut  = sorted[0]
+  const fin    = sorted.length > 1 ? sorted[sorted.length - 1] : null
+
+  return { debut, fin }
+}
+
+/* ── AFFICHER LE RÉSULTAT WIKI ── */
+function renderWikiResult(data, sourceName) {
+  document.getElementById("wiki-source").textContent = sourceName
+
+  if (!data || !data.extract) {
+    document.getElementById("wiki-content").innerHTML =
+      `<div class="wiki-not-found">❌ Aucune information trouvée.<br><small>Remplis les années manuellement.</small></div>`
+    return
+  }
+
+  const years   = extractYears(data.extract)
+  const excerpt = data.extract.substring(0, 260).trim()
+
+  let yearsHTML = ""
+  if (years.debut) {
+    yearsHTML = `
+      <div class="wiki-years">
+        <div class="wiki-year-item">
+          <span class="wiki-year-label">Début</span>
+          <span class="wiki-year-value">${years.debut}</span>
+        </div>
+        <div class="wiki-arrow">→</div>
+        <div class="wiki-year-item">
+          <span class="wiki-year-label">Fin</span>
+          <span class="wiki-year-value">${years.fin ?? "?"}</span>
+        </div>
+      </div>
+      <button class="wiki-apply-btn" type="button"
+        onclick="applyYears(${years.debut}, ${years.fin ?? "''"})">
+        ✅ Utiliser ces années
+      </button>`
+  } else {
+    yearsHTML = `<p style="color:var(--text-muted);font-size:0.82rem;margin:0 0 8px;">
+      Années non détectées — remplis manuellement.</p>`
+  }
+
+  document.getElementById("wiki-content").innerHTML = `
+    <div class="wiki-body">
+      ${yearsHTML}
+      <div class="wiki-excerpt">${excerpt}…</div>
+    </div>`
+}
+
+function applyYears(debut, fin) {
+  if (debut) document.getElementById("annee_debut").value = debut
+  if (fin)   document.getElementById("annee_fin").value   = fin
+  showToast("Années appliquées ✅", "success")
+}
+
+/* ── RECHERCHE WIKIPEDIA ── */
+async function searchWikipedia(marque, modele) {
+  const wikiBox = document.getElementById("wiki-box")
+  wikiBox.classList.add("show")
+
+  // Tentatives dans l'ordre
+  const attempts = [
+    { lang: "fr", title: `${marque} ${modele}` },
+    { lang: "en", title: `${marque} ${modele}` },
+    { lang: "fr", title: `${marque}_${modele}` },
+  ]
+
+  for (const attempt of attempts) {
+    try {
+      const url = `https://${attempt.lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(attempt.title)}`
+      const res = await fetch(url)
+      if (!res.ok) continue
+      const data = await res.json()
+      if (data.extract && data.extract.length > 50 && data.type !== "disambiguation") {
+        renderWikiResult(data, `Wikipedia ${attempt.lang.toUpperCase()}`)
+        return
+      }
+    } catch(e) { continue }
+  }
+
+  // Fallback : recherche textuelle
+  try {
+    const searchUrl = `https://fr.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(marque + " " + modele + " voiture")}&format=json&origin=*&srlimit=4`
+    const searchRes  = await fetch(searchUrl)
+    const searchData = await searchRes.json()
+    const results    = searchData?.query?.search || []
+
+    if (results.length === 0) {
+      renderWikiResult(null, "Wikipedia")
+      return
+    }
+
+    // 1 seul résultat → charger directement
+    if (results.length === 1) {
+      await loadWikiPage(results[0].title, "fr")
+      return
+    }
+
+    // Plusieurs résultats → liste de choix
+    document.getElementById("wiki-source").textContent = "Wikipedia FR"
+    document.getElementById("wiki-content").innerHTML = `
+      <div class="wiki-results-list">
+        <p style="color:var(--text-muted);font-size:0.8rem;margin:0 0 10px;">
+          Plusieurs résultats — choisis le bon :
+        </p>
+        ${results.map(r => `
+          <div class="wiki-result-item" onclick="loadWikiPage('${r.title.replace(/'/g,"\\'")}', 'fr')">
+            <div class="wiki-result-title">${r.title}</div>
+            <div class="wiki-result-snippet">${r.snippet.replace(/<[^>]+>/g, "")}</div>
+          </div>`).join("")}
+      </div>`
+
+  } catch(err) {
+    document.getElementById("wiki-content").innerHTML =
+      `<div class="wiki-not-found">⚠️ Erreur de connexion Wikipedia.</div>`
+  }
+}
+
+async function loadWikiPage(title, lang) {
+  document.getElementById("wiki-content").innerHTML =
+    `<div class="wiki-loading"><span class="spinner-gold"></span>Chargement…</div>`
+  try {
+    const url = `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
+    const res = await fetch(url)
+    if (res.ok) {
+      renderWikiResult(await res.json(), `Wikipedia ${lang.toUpperCase()}`)
+    } else {
+      renderWikiResult(null, "Wikipedia")
+    }
+  } catch(e) {
+    renderWikiResult(null, "Wikipedia")
+  }
+}
+
+/* ── VALIDATION ── */
 function showError(id, show) {
   const el = document.getElementById("err-" + id)
   if (el) el.classList.toggle("visible", show)
@@ -386,40 +642,34 @@ function showError(id, show) {
 
 function validateForm() {
   let valid = true
-  const required = ["annee_debut", "annee_fin"]
-  required.forEach(id => {
-    const val = document.getElementById(id).value.trim()
-    const empty = !val
+  ;["annee_debut", "annee_fin"].forEach(id => {
+    const empty = !document.getElementById(id).value.trim()
     showError(id, empty)
     if (empty) valid = false
   })
   return valid
 }
 
-/* ─── SOUMISSION ─────────────────────────────── */
-
+/* ── SOUMISSION ── */
 document.getElementById("form").addEventListener("submit", async function(e) {
   e.preventDefault()
-  if (!validateForm()) {
-    showToast("Veuillez remplir les champs obligatoires.", "error")
-    return
-  }
+  if (!validateForm()) { showToast("Remplis les années.", "error"); return }
 
   const btn = document.getElementById("btn-submit")
   btn.disabled = true
   btn.innerHTML = '<span class="spinner"></span>Envoi en cours…'
 
   const data = {
-    marque:        marque,
-    modele:        modele,
-    annee_debut:   document.getElementById("annee_debut").value,
-    annee_fin:     document.getElementById("annee_fin").value,
-    prix_ciel:     document.getElementById("prix_ciel").value     || 0,
-    prix_rideau:   document.getElementById("prix_rideau").value   || 0,
-    prix_couleur:  document.getElementById("prix_couleur").value  || 0,
-    prix_alcantara:document.getElementById("prix_alcantara").value|| 0,
-    prix_portes:   document.getElementById("prix_portes").value   || 0,
-    remarques:     document.getElementById("remarques").value
+    marque,
+    modele,
+    annee_debut:    document.getElementById("annee_debut").value,
+    annee_fin:      document.getElementById("annee_fin").value,
+    prix_ciel:      document.getElementById("prix_ciel").value      || 0,
+    prix_rideau:    document.getElementById("prix_rideau").value    || 0,
+    prix_couleur:   document.getElementById("prix_couleur").value   || 0,
+    prix_alcantara: document.getElementById("prix_alcantara").value || 0,
+    prix_portes:    document.getElementById("prix_portes").value    || 0,
+    remarques:      document.getElementById("remarques").value
   }
 
   try {
@@ -428,22 +678,19 @@ document.getElementById("form").addEventListener("submit", async function(e) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     })
-
-    if (!res.ok) throw new Error("Erreur serveur : " + res.status)
-
-    // Afficher écran succès
+    if (!res.ok) throw new Error(res.status)
     document.getElementById("form-wrapper").style.display = "none"
     document.getElementById("success-screen").classList.add("show")
-
   } catch(err) {
-    showToast("Erreur lors de l'envoi. Vérifiez la connexion.", "error")
-    console.error(err)
+    showToast("Erreur lors de l'envoi.", "error")
     btn.disabled = false
     btn.textContent = "✅ Ajouter au catalogue"
   }
 })
 
-</script>
+/* ── INIT ── */
+if (marque && modele) searchWikipedia(marque, modele)
 
+</script>
 </body>
 </html>
