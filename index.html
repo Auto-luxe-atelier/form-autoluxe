@@ -607,12 +607,8 @@ button[type="submit"]:disabled{
     </div>
     <div class="field-error" id="err-services">Veuillez sélectionner au moins un service.</div>
 
-    <label>Prix estimé</label>
-    <div class="prix-display">
-      <span class="prix-label">Total calculé automatiquement</span>
-      <span class="prix-value" id="prix-value">—</span>
-    </div>
-    <input type="hidden" id="prix">
+    <label for="prix">Prix </label>
+<input type="number" id="prix" placeholder="Calculé automatiquement" min="0">
 
     <!-- REMARQUES -->
     <label for="remarques">Remarques</label>
@@ -919,8 +915,7 @@ function calculPrix() {
     if (CONFIG.fixedPrices[s]) total += CONFIG.fixedPrices[s]
   })
 
-  prixInput.value = total
-  prixValue.textContent = total > 0 ? total.toLocaleString("fr-FR") + " DA" : "—"
+prixInput.value = total > 0 ? total : ""
 }
 
 /* ─── DATE RDV ────────────────────────────────────────────── */
@@ -1003,7 +998,7 @@ function buildRecap() {
     ["Matricule",   document.getElementById("matricule").value],
     ["Toit",        toit],
     ["Services",    servicesSelectionnes.map(s => SERVICE_NAMES[s]).join(", ")],
-    ["Prix",        prixValue.textContent],
+    ["Prix", (prixInput.value || "—") + (prixInput.value ? " €" : "")],
     ["Remarques",   document.getElementById("remarques").value || "—"],
     ["Prénom",      document.getElementById("prenom").value],
     ["Nom",         document.getElementById("nom").value],
