@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auto Luxe Atelier — Nouveau véhicule</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+*,*::before,*::after { box-sizing: border-box; }
+
+:root {
+  --gold: #ffd000;
+  --gold-dark: #e6c000;
+  --bg: #0f0f0f;
+  --surface: #1a1a1a;
+  --surface2: #222;
+  --border: #3a3a3a;
+  --text: #fff;
+  --text-muted: #aaa;
+  --radius: 8px;
+  --transition: 0.2s ease;
+}
+
+body {
+  font-family: 'Barlow', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 20px;
+  margin: 0;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 620px;
+  margin: auto;
+  background: var(--surface);
+  padding: 36px 32px;
+  border-radius: 14px;
+  border: 2px solid var(--gold);
+}
+
+.logo {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.logo img {
+  max-width: 220px;
+  width: 100%;
+  height: auto;
+}
+
+h2 {
+  text-align: center;
+  color: var(--gold);
+  font-family: 'Barlow Condensed', Arial, sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: 1px;
+  margin-top: 0;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 28px;
+}
+
+.badge {
+  display: inline-block;
+  background: rgba(255, 208, 0, 0.12);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-family: 'Barlow Condensed', Arial, sans-serif;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin-bottom: 28px;
+  text-align: center;
+  width: 100%;
+  display: block;
+}
+
+.section-title {
+  font-family: 'Barlow Condensed', Arial, sans-serif;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 30px;
+  margin-bottom: 2px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+label {
+  font-weight: 600;
+  color: var(--gold);
+  display: block;
+  margin-top: 18px;
+  margin-bottom: 6px;
+  font-size: 0.88rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: #111;
+  color: var(--text);
+  font-family: 'Barlow', Arial, sans-serif;
+  font-size: 0.97rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(255, 208, 0, 0.12);
+}
+
+input[readonly] {
+  opacity: 0.6;
+  background: #0d0d0d;
+  cursor: default;
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.field-error {
+  color: #ff6b6b;
+  font-size: 0.78rem;
+  margin-top: 4px;
+  display: none;
+}
+
+.field-error.visible { display: block; }
+
+.prix-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.prix-item label { margin-top: 14px; }
+
+button[type="submit"] {
+  background: var(--gold);
+  color: #000;
+  padding: 15px;
+  border: none;
+  width: 100%;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Barlow Condensed', Arial, sans-serif;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 28px;
+  cursor: pointer;
+  transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  background: var(--gold-dark);
+  box-shadow: 0 4px 20px rgba(255, 208, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #1e1e1e;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 22px;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  z-index: 9999;
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
+  opacity: 0;
+  white-space: nowrap;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.success { border-left: 4px solid #4caf50; }
+.toast.error { border-left: 4px solid #e55; }
+.toast-icon { font-size: 1.2rem; }
+
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(0,0,0,0.3);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.success-screen {
+  display: none;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.success-screen.show { display: block; }
+
+.success-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+}
+
+.success-screen h3 {
+  color: var(--gold);
+  font-family: 'Barlow Condensed', Arial, sans-serif;
+  font-size: 1.6rem;
+  margin-bottom: 10px;
+}
+
+.success-screen p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="logo">
+    <img src="logo-autoluxe.png" alt="Logo Auto Luxe Atelier">
+  </div>
+
+  <h2>Nouveau véhicule</h2>
+  <p class="subtitle">Ce véhicule n'existe pas encore dans le catalogue.<br>Remplis les informations pour l'ajouter.</p>
+
+  <div id="form-wrapper">
+
+    <span class="badge" id="badge-vehicule">🚗 Chargement…</span>
+
+    <form id="form" novalidate>
+
+      <!-- IDENTITÉ -->
+      <p class="section-title">Identité du véhicule</p>
+
+      <label for="marque">Marque</label>
+      <input type="text" id="marque" readonly>
+
+      <label for="modele">Modèle</label>
+      <input type="text" id="modele" readonly>
+
+      <div class="row2">
+        <div>
+          <label for="annee_debut">Année début</label>
+          <input type="number" id="annee_debut" placeholder="Ex : 2015" min="1980" max="2030" required>
+          <div class="field-error" id="err-annee_debut">Champ obligatoire.</div>
+        </div>
+        <div>
+          <label for="annee_fin">Année fin</label>
+          <input type="number" id="annee_fin" placeholder="Ex : 2020" min="1980" max="2030" required>
+          <div class="field-error" id="err-annee_fin">Champ obligatoire.</div>
+        </div>
+      </div>
+
+      <!-- PRIX -->
+      <p class="section-title">Tarifs des services (DA)</p>
+
+      <div class="prix-grid">
+        <div class="prix-item">
+          <label for="prix_ciel">Ciel de toit</label>
+          <input type="number" id="prix_ciel" placeholder="0" min="0">
+        </div>
+        <div class="prix-item">
+          <label for="prix_rideau">Rideau toit ouvrant</label>
+          <input type="number" id="prix_rideau" placeholder="0" min="0">
+        </div>
+        <div class="prix-item">
+          <label for="prix_couleur">Changement couleur</label>
+          <input type="number" id="prix_couleur" placeholder="0" min="0">
+        </div>
+        <div class="prix-item">
+          <label for="prix_alcantara">Alcantara</label>
+          <input type="number" id="prix_alcantara" placeholder="0" min="0">
+        </div>
+        <div class="prix-item" style="grid-column: 1 / -1;">
+          <label for="prix_portes">Rénovation portes</label>
+          <input type="number" id="prix_portes" placeholder="0" min="0">
+        </div>
+      </div>
+
+      <!-- REMARQUES -->
+      <p class="section-title">Remarques</p>
+
+      <label for="remarques">Remarques / Notes</label>
+      <textarea id="remarques" rows="3" placeholder="Particularités du véhicule, versions, notes…"></textarea>
+
+      <button type="submit" id="btn-submit">✅ Ajouter au catalogue</button>
+
+    </form>
+
+  </div>
+
+  <!-- ÉCRAN SUCCÈS -->
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon">✅</div>
+    <h3>Véhicule ajouté !</h3>
+    <p>Le catalogue a été mis à jour.<br>Tu peux fermer cette page.</p>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toast-icon"></span>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+
+/* ─── CONFIG ─────────────────────────────────── */
+
+const WEBHOOK_URL = "https://n8n-hetzner.duckdns.org/webhook/nouveau-vehicule"
+
+/* ─── LIRE LES PARAMS URL ────────────────────── */
+
+const params  = new URLSearchParams(window.location.search)
+const marque  = params.get("marque")  || ""
+const modele  = params.get("modele")  || ""
+const annee   = params.get("annee")   || ""
+
+document.getElementById("marque").value = marque
+document.getElementById("modele").value = modele
+
+// Badge véhicule
+const badge = document.getElementById("badge-vehicule")
+badge.textContent = `🚗 ${marque} ${modele}${annee ? " · " + annee : ""}`
+
+// Pré-remplir année début/fin si on a l'année
+if (annee) {
+  document.getElementById("annee_debut").value = annee
+  document.getElementById("annee_fin").value   = annee
+}
+
+/* ─── TOAST ──────────────────────────────────── */
+
+function showToast(msg, type = "success") {
+  const toast = document.getElementById("toast")
+  document.getElementById("toast-msg").textContent  = msg
+  document.getElementById("toast-icon").textContent = type === "success" ? "✅" : "❌"
+  toast.className = `toast ${type} show`
+  setTimeout(() => toast.classList.remove("show"), 4000)
+}
+
+/* ─── VALIDATION ─────────────────────────────── */
+
+function showError(id, show) {
+  const el = document.getElementById("err-" + id)
+  if (el) el.classList.toggle("visible", show)
+}
+
+function validateForm() {
+  let valid = true
+  const required = ["annee_debut", "annee_fin"]
+  required.forEach(id => {
+    const val = document.getElementById(id).value.trim()
+    const empty = !val
+    showError(id, empty)
+    if (empty) valid = false
+  })
+  return valid
+}
+
+/* ─── SOUMISSION ─────────────────────────────── */
+
+document.getElementById("form").addEventListener("submit", async function(e) {
+  e.preventDefault()
+  if (!validateForm()) {
+    showToast("Veuillez remplir les champs obligatoires.", "error")
+    return
+  }
+
+  const btn = document.getElementById("btn-submit")
+  btn.disabled = true
+  btn.innerHTML = '<span class="spinner"></span>Envoi en cours…'
+
+  const data = {
+    marque:        marque,
+    modele:        modele,
+    annee_debut:   document.getElementById("annee_debut").value,
+    annee_fin:     document.getElementById("annee_fin").value,
+    prix_ciel:     document.getElementById("prix_ciel").value     || 0,
+    prix_rideau:   document.getElementById("prix_rideau").value   || 0,
+    prix_couleur:  document.getElementById("prix_couleur").value  || 0,
+    prix_alcantara:document.getElementById("prix_alcantara").value|| 0,
+    prix_portes:   document.getElementById("prix_portes").value   || 0,
+    remarques:     document.getElementById("remarques").value
+  }
+
+  try {
+    const res = await fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    })
+
+    if (!res.ok) throw new Error("Erreur serveur : " + res.status)
+
+    // Afficher écran succès
+    document.getElementById("form-wrapper").style.display = "none"
+    document.getElementById("success-screen").classList.add("show")
+
+  } catch(err) {
+    showToast("Erreur lors de l'envoi. Vérifiez la connexion.", "error")
+    console.error(err)
+    btn.disabled = false
+    btn.textContent = "✅ Ajouter au catalogue"
+  }
+})
+
+</script>
+
+</body>
+</html>
