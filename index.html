@@ -122,6 +122,12 @@ input.error,select.error{
   display:block;
 }
 
+.field-hint{
+  color:var(--text-muted);
+  font-size:0.76rem;
+  margin-top:4px;
+}
+
 /* TOMSELECT */
 
 .ts-control{
@@ -554,10 +560,9 @@ button[type="submit"]:disabled{
     <div class="field-error" id="err-modele">Veuillez choisir un modèle.</div>
 
     <label for="annee">Année</label>
-    <select id="annee" autocomplete="off" aria-required="true">
-      <option value="">Choisir l'année</option>
-    </select>
-    <div class="field-error" id="err-annee">Veuillez choisir une année.</div>
+    <input type="number" id="annee" autocomplete="off" placeholder="Ex : 2019" min="1990" max="2030" aria-required="true">
+    <div class="field-hint">Pré-remplie selon le modèle — modifiable si besoin.</div>
+    <div class="field-error" id="err-annee">Veuillez entrer une année valide (1990–2030).</div>
 
     <label for="matricule">Matricule <small style="font-weight:400;text-transform:none;color:var(--text-muted)">(facultatif)</small></label>
     <input type="text" id="matricule" autocomplete="off" placeholder="Ex : 045768 117 16">
@@ -682,7 +687,6 @@ const CONFIG = {
   webhookURL: "https://n8n-hetzner.duckdns.org/webhook/nouveau-client",
   openHourMin: "09:00",
   openHourMax: "17:00",
-  // Jours fermés : 4=jeudi, 5=vendredi (getDay, 0=dim)
   closedDays: [4, 5],
   fixedPrices: {
     etoile500: 80000,
@@ -703,22 +707,22 @@ const SERVICE_NAMES = {
 /* ─── STATE ───────────────────────────────────────────────── */
 
 let database = []
-let marqueSelect, modeleSelect, anneeSelect
+let marqueSelect, modeleSelect
 let servicesSelectionnes = []
 
 /* ─── DOM REFS ────────────────────────────────────────────── */
 
-const marqueEl    = document.getElementById("marque")
-const modeleEl    = document.getElementById("modele")
-const anneeEl     = document.getElementById("annee")
-const dateRDVEl   = document.getElementById("daterdv")
-const heureEl     = document.getElementById("heure")
-const prixInput   = document.getElementById("prix")
-const btnSubmit   = document.getElementById("btn-submit")
+const marqueEl     = document.getElementById("marque")
+const modeleEl     = document.getElementById("modele")
+const anneeEl      = document.getElementById("annee")
+const dateRDVEl    = document.getElementById("daterdv")
+const heureEl      = document.getElementById("heure")
+const prixInput    = document.getElementById("prix")
+const btnSubmit    = document.getElementById("btn-submit")
 const modalOverlay = document.getElementById("modal-overlay")
-const modalBody   = document.getElementById("modal-body")
-const btnCancel   = document.getElementById("btn-cancel")
-const btnConfirm  = document.getElementById("btn-confirm")
+const modalBody    = document.getElementById("modal-body")
+const btnCancel    = document.getElementById("btn-cancel")
+const btnConfirm   = document.getElementById("btn-confirm")
 
 /* ─── TOAST ───────────────────────────────────────────────── */
 
@@ -733,7 +737,7 @@ function showToast(msg, type = "success") {
   setTimeout(() => toast.classList.remove("show"), 4000)
 }
 
-/* ─── CSV PARSER (robuste aux virgules dans les champs) ──── */
+/* ─── CSV PARSER ──────────────────────────────────────────── */
 
 function parseCSVLine(line) {
   const result = []
@@ -779,13 +783,9 @@ async function loadData() {
 
     marqueSelect = new TomSelect("#marque", { create: true, placeholder: "Choisir la marque" })
     modeleSelect = new TomSelect("#modele", { create: true, placeholder: "Choisir le modèle" })
-    anneeSelect  = new TomSelect("#annee",  { create: true, placeholder: "Choisir l'année"  })
 
-    // Désactiver modèle et année jusqu'à sélection marque
     modeleSelect.disable()
-    anneeSelect.disable()
 
-    // ✅ CORRIGÉ : utiliser l'API TomSelect (.on) au lieu de addEventListener
     marqueSelect.on("change", onMarqueChange)
     modeleSelect.on("change", onModeleChange)
 
@@ -809,8 +809,9 @@ function initBrands() {
 
 function onMarqueChange(val) {
   modeleSelect.clearOptions()
-  anneeSelect.clearOptions()
-  anneeSelect.disable()
+  anneeEl.value = ""
+  anneeEl.min = 1990
+  anneeEl.max = 2030
 
   if (!val) { modeleSelect.disable(); return }
 
@@ -827,14 +828,19 @@ function onModeleChange(val) {
   const marque  = marqueSelect.getValue()
   const voiture = database.find(v => v.marque === marque && v.modele === val)
 
-  anneeSelect.clearOptions()
-  if (!voiture) { anneeSelect.disable(); return }
-
-  for (let y = voiture.annee_debut; y <= voiture.annee_fin; y++) {
-    anneeSelect.addOption({ value: y, text: y })
+  if (!voiture) {
+    anneeEl.value = ""
+    anneeEl.min = 1990
+    anneeEl.max = 2030
+    return
   }
-  anneeSelect.enable()
-  anneeSelect.refreshOptions(false)
+
+  // Pré-remplir avec l'année médiane de la plage
+  const mid = Math.round((voiture.annee_debut + voiture.annee_fin) / 2)
+  anneeEl.value = mid
+  anneeEl.min = voiture.annee_debut
+  anneeEl.max = voiture.annee_fin
+
   calculPrix()
 }
 
@@ -924,7 +930,6 @@ const today = new Date().toISOString().split("T")[0]
 dateRDVEl.min = today
 
 dateRDVEl.addEventListener("change", function() {
-  // Utilise midi pour éviter les décalages de fuseau horaire
   const d   = new Date(this.value + "T12:00:00")
   const day = d.getDay()
   if (CONFIG.closedDays.includes(day)) {
@@ -957,11 +962,10 @@ function showError(id, show) {
 function validateForm() {
   let valid = true
 
-  // ✅ CORRIGÉ : matricule retiré des champs obligatoires
   const required = [
     { id: "marque",  val: () => marqueSelect ? marqueSelect.getValue() : "" },
     { id: "modele",  val: () => modeleSelect ? modeleSelect.getValue() : "" },
-    { id: "annee",   val: () => anneeSelect  ? anneeSelect.getValue()  : "" },
+    { id: "annee",   val: () => anneeEl.value },
     { id: "prenom",  val: () => document.getElementById("prenom").value },
     { id: "nom",     val: () => document.getElementById("nom").value },
     { id: "tel",     val: () => document.getElementById("tel").value },
@@ -974,6 +978,13 @@ function validateForm() {
     showError(f.id, empty)
     if (empty) valid = false
   })
+
+  // Validation plage année
+  const anneeVal = parseInt(anneeEl.value)
+  if (anneeEl.value && (anneeVal < 1990 || anneeVal > 2030)) {
+    showError("annee", true)
+    valid = false
+  }
 
   // Toit
   const toitChecked = document.querySelector('input[name="toit_ouvrant"]:checked')
@@ -995,11 +1006,10 @@ function buildRecap() {
   const rows = [
     ["Marque",       marqueSelect ? marqueSelect.getValue() : ""],
     ["Modèle",       modeleSelect ? modeleSelect.getValue() : ""],
-    ["Année",        anneeSelect  ? anneeSelect.getValue()  : ""],
+    ["Année",        anneeEl.value],
     ["Matricule",    matricule],
     ["Toit",         toit],
     ["Services",     servicesSelectionnes.map(s => SERVICE_NAMES[s]).join(", ")],
-    // ✅ CORRIGÉ : devise DA au lieu de €
     ["Prix",         (prixInput.value || "—") + (prixInput.value ? " DA" : "")],
     ["Remarques",    document.getElementById("remarques").value || "—"],
     ["Prénom",       document.getElementById("prenom").value],
@@ -1022,7 +1032,6 @@ function openModal() {
 
 function closeModal() {
   modalOverlay.classList.remove("show")
-  // ✅ CORRIGÉ : réactiver le bouton confirm à la fermeture
   btnConfirm.disabled = false
   btnConfirm.textContent = "Confirmer l'envoi"
 }
@@ -1032,7 +1041,6 @@ modalOverlay.addEventListener("click", e => {
   if (e.target === modalOverlay) closeModal()
 })
 
-// ✅ AJOUT : fermeture de la modal avec la touche Échap
 document.addEventListener("keydown", e => {
   if (e.key === "Escape" && modalOverlay.classList.contains("show")) {
     closeModal()
@@ -1051,7 +1059,6 @@ document.getElementById("form").addEventListener("submit", function(e) {
 })
 
 btnConfirm.addEventListener("click", async function() {
-  // ✅ CORRIGÉ : désactiver le bouton pour éviter le double-clic
   btnConfirm.disabled = true
   btnConfirm.innerHTML = '<span class="spinner"></span>Envoi…'
 
@@ -1063,7 +1070,7 @@ btnConfirm.addEventListener("click", async function() {
   const data = {
     marque:        marqueSelect ? marqueSelect.getValue() : "",
     modele:        modeleSelect ? modeleSelect.getValue() : "",
-    annee:         anneeSelect  ? anneeSelect.getValue()  : "",
+    annee:         anneeEl.value,
     matricule:     document.getElementById("matricule").value || "",
     toit:          document.querySelector('input[name="toit_ouvrant"]:checked')?.value || "",
     services:      "- " + servicesSelectionnes.map(s => SERVICE_NAMES[s]).join("\n- "),
@@ -1088,7 +1095,6 @@ btnConfirm.addEventListener("click", async function() {
 
     showToast("Client ajouté avec succès ✅", "success")
 
-    // ✅ CORRIGÉ : réinitialisation complète incluant TomSelect marque
     document.getElementById("form").reset()
     servicesSelectionnes = []
     document.querySelectorAll(".service-row.active").forEach(r => {
@@ -1100,10 +1106,12 @@ btnConfirm.addEventListener("click", async function() {
       c.setAttribute("aria-checked", "false")
     })
     prixInput.value = ""
+    anneeEl.value = ""
+    anneeEl.min = 1990
+    anneeEl.max = 2030
 
     if (marqueSelect) { marqueSelect.clear() }
     if (modeleSelect) { modeleSelect.clearOptions(); modeleSelect.disable() }
-    if (anneeSelect)  { anneeSelect.clearOptions();  anneeSelect.disable()  }
 
   } catch(err) {
     showToast("Erreur lors de l'envoi. Vérifiez la connexion.", "error")
