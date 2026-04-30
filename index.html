@@ -1,159 +1,520 @@
 <!DOCTYPE html>
-
-<html>
+<html lang="fr">
 
 <head>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Formulaire d'ajout de client — Auto Luxe Atelier">
 
 <title>Auto Luxe Atelier</title>
 
 <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
 
-.logo{
-text-align:center;
-margin-bottom:20px;
+*,*::before,*::after{
+  box-sizing:border-box;
 }
 
-.logo img{
-max-width:260px;
-width:100%;
-height:auto;
+:root{
+  --gold:#ffd000;
+  --gold-dark:#e6c000;
+  --bg:#0f0f0f;
+  --surface:#1a1a1a;
+  --surface2:#222;
+  --border:#3a3a3a;
+  --text:#fff;
+  --text-muted:#aaa;
+  --radius:8px;
+  --transition:0.2s ease;
 }
 
 body{
-font-family:Arial;
-background:#0f0f0f;
-color:white;
-padding:20px;
-margin:0;
+  font-family:'Barlow',Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  padding:20px;
+  margin:0;
+  min-height:100vh;
 }
 
 .container{
-max-width:650px;
-margin:auto;
-background:#1a1a1a;
-padding:30px;
-border-radius:12px;
-border:2px solid #ffd000;
+  max-width:660px;
+  margin:auto;
+  background:var(--surface);
+  padding:36px 32px;
+  border-radius:14px;
+  border:2px solid var(--gold);
+}
+
+.logo{
+  text-align:center;
+  margin-bottom:24px;
+}
+
+.logo img{
+  max-width:260px;
+  width:100%;
+  height:auto;
 }
 
 h2{
-text-align:center;
-color:#ffd000;
+  text-align:center;
+  color:var(--gold);
+  font-family:'Barlow Condensed',Arial,sans-serif;
+  font-size:1.7rem;
+  letter-spacing:1px;
+  margin-top:0;
+  margin-bottom:28px;
 }
 
+/* LABELS & INPUTS */
+
 label{
-font-weight:bold;
-color:#ffd000;
-display:block;
-margin-top:15px;
+  font-weight:600;
+  color:var(--gold);
+  display:block;
+  margin-top:18px;
+  margin-bottom:6px;
+  font-size:0.88rem;
+  letter-spacing:0.5px;
+  text-transform:uppercase;
 }
 
 input,select,textarea{
-width:100%;
-padding:12px;
-margin-top:6px;
-border-radius:6px;
-border:1px solid #444;
-background:#111;
-color:white;
+  width:100%;
+  padding:12px 14px;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  background:#111;
+  color:var(--text);
+  font-family:'Barlow',Arial,sans-serif;
+  font-size:0.97rem;
+  transition:border-color var(--transition),box-shadow var(--transition);
+}
+
+input:focus,select:focus,textarea:focus{
+  outline:none;
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(255,208,0,0.12);
+}
+
+input[readonly]{
+  opacity:0.75;
+  cursor:default;
+  background:#0d0d0d;
+}
+
+input.error,select.error{
+  border-color:#e55;
+}
+
+.field-error{
+  color:#ff6b6b;
+  font-size:0.78rem;
+  margin-top:4px;
+  display:none;
+}
+
+.field-error.visible{
+  display:block;
 }
 
 /* TOMSELECT */
 
 .ts-control{
-background:#111 !important;
-color:white !important;
-border:1px solid #444 !important;
+  background:#111 !important;
+  color:var(--text) !important;
+  border:1px solid var(--border) !important;
+  border-radius:var(--radius) !important;
+  padding:10px 14px !important;
+  transition:border-color var(--transition),box-shadow var(--transition) !important;
+}
+
+.ts-control:focus-within{
+  border-color:var(--gold) !important;
+  box-shadow:0 0 0 3px rgba(255,208,0,0.12) !important;
 }
 
 .ts-dropdown{
-background:#111 !important;
-color:white !important;
+  background:#1a1a1a !important;
+  color:var(--text) !important;
+  border:1px solid var(--border) !important;
+  border-radius:var(--radius) !important;
+  margin-top:4px !important;
+}
+
+.ts-dropdown .option:hover,
+.ts-dropdown .option.active{
+  background:var(--gold) !important;
+  color:#000 !important;
+}
+
+.ts-wrapper.disabled .ts-control{
+  opacity:0.45;
+  cursor:not-allowed;
 }
 
 /* TOIT */
 
 .toit-group{
-display:flex;
-gap:10px;
-margin-top:10px;
+  display:flex;
+  gap:10px;
+  margin-top:4px;
 }
 
 .toit-option{
-flex:1;
-border:1px solid #444;
-padding:12px;
-border-radius:6px;
-text-align:center;
-cursor:pointer;
+  flex:1;
+  border:1px solid var(--border);
+  padding:12px;
+  border-radius:var(--radius);
+  text-align:center;
+  cursor:pointer;
+  font-size:0.9rem;
+  transition:background var(--transition),border-color var(--transition),color var(--transition),box-shadow var(--transition);
+  user-select:none;
+  tabindex:0;
+}
+
+.toit-option:hover{
+  border-color:var(--gold);
+}
+
+.toit-option:focus-visible{
+  outline:2px solid var(--gold);
+  outline-offset:2px;
 }
 
 .toit-option input{
-display:none;
+  display:none;
 }
 
 .toit-option.active{
-background:#ffd000;
-color:black;
-font-weight:bold;
+  background:var(--gold);
+  color:#000;
+  font-weight:700;
+  border-color:var(--gold);
+  box-shadow:0 0 10px rgba(255,208,0,0.25);
 }
 
 /* SERVICES */
 
 .services{
-margin-top:10px;
+  margin-top:4px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
 }
 
 .service-row{
-
-display:flex;
-align-items:center;
-gap:10px;
-
-border:1px solid #444;
-padding:12px;
-border-radius:6px;
-margin-bottom:8px;
-
-cursor:pointer;
-
+  display:flex;
+  align-items:center;
+  gap:12px;
+  border:1px solid var(--border);
+  padding:13px 14px;
+  border-radius:var(--radius);
+  cursor:pointer;
+  transition:border-color var(--transition),background var(--transition),box-shadow var(--transition);
+  user-select:none;
+  font-size:0.94rem;
 }
 
 .service-row:hover{
-border-color:#ffd000;
+  border-color:var(--gold);
+  background:rgba(255,208,0,0.04);
+}
+
+.service-row:focus-visible{
+  outline:2px solid var(--gold);
+  outline-offset:2px;
 }
 
 .service-row input{
-display:none;
+  display:none;
 }
 
 .service-box{
-width:18px;
-height:18px;
-border:2px solid #ffd000;
-border-radius:3px;
+  width:18px;
+  height:18px;
+  min-width:18px;
+  border:2px solid var(--gold);
+  border-radius:4px;
+  transition:background var(--transition);
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.service-box::after{
+  content:'✓';
+  font-size:12px;
+  color:#000;
+  opacity:0;
+  transition:opacity var(--transition);
+  font-weight:900;
 }
 
 .service-row.active .service-box{
-background:#ffd000;
+  background:var(--gold);
 }
 
-button{
-background:#ffd000;
-color:black;
-padding:14px;
-border:none;
-width:100%;
-border-radius:6px;
-font-size:16px;
-font-weight:bold;
-margin-top:20px;
-cursor:pointer;
+.service-row.active .service-box::after{
+  opacity:1;
+}
+
+.service-row.active{
+  border-color:var(--gold);
+  box-shadow:0 0 8px rgba(255,208,0,0.15);
+}
+
+.service-row.disabled{
+  opacity:0.35;
+  pointer-events:none;
+  cursor:default;
+}
+
+/* PRIX DISPLAY */
+
+.prix-display{
+  background:#0d0d0d;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:6px;
+}
+
+.prix-display span.prix-label{
+  color:var(--text-muted);
+  font-size:0.85rem;
+}
+
+.prix-display span.prix-value{
+  color:var(--gold);
+  font-size:1.4rem;
+  font-family:'Barlow Condensed',Arial,sans-serif;
+  font-weight:700;
+  letter-spacing:1px;
+}
+
+/* SECTION DIVIDER */
+
+.section-title{
+  font-family:'Barlow Condensed',Arial,sans-serif;
+  color:var(--text-muted);
+  font-size:0.75rem;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  margin-top:30px;
+  margin-bottom:2px;
+  padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+
+/* BUTTON */
+
+button[type="submit"]{
+  background:var(--gold);
+  color:#000;
+  padding:15px;
+  border:none;
+  width:100%;
+  border-radius:var(--radius);
+  font-size:1rem;
+  font-weight:700;
+  font-family:'Barlow Condensed',Arial,sans-serif;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  margin-top:28px;
+  cursor:pointer;
+  transition:background var(--transition),box-shadow var(--transition),transform var(--transition);
+}
+
+button[type="submit"]:hover:not(:disabled){
+  background:var(--gold-dark);
+  box-shadow:0 4px 20px rgba(255,208,0,0.3);
+  transform:translateY(-1px);
+}
+
+button[type="submit"]:active:not(:disabled){
+  transform:translateY(0);
+}
+
+button[type="submit"]:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
+}
+
+/* TOAST */
+
+.toast{
+  position:fixed;
+  bottom:24px;
+  left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:#1e1e1e;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:14px 22px;
+  font-size:0.95rem;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.5);
+  z-index:9999;
+  transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s ease;
+  opacity:0;
+  white-space:nowrap;
+}
+
+.toast.show{
+  transform:translateX(-50%) translateY(0);
+  opacity:1;
+}
+
+.toast.success{
+  border-left:4px solid #4caf50;
+}
+
+.toast.error{
+  border-left:4px solid #e55;
+}
+
+.toast-icon{
+  font-size:1.2rem;
+}
+
+/* MODAL */
+
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.75);
+  z-index:1000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.25s ease;
+}
+
+.modal-overlay.show{
+  opacity:1;
+  pointer-events:all;
+}
+
+.modal{
+  background:var(--surface);
+  border:2px solid var(--gold);
+  border-radius:14px;
+  padding:28px;
+  max-width:500px;
+  width:100%;
+  transform:scale(0.93);
+  transition:transform 0.25s ease;
+  max-height:80vh;
+  overflow-y:auto;
+}
+
+.modal-overlay.show .modal{
+  transform:scale(1);
+}
+
+.modal h3{
+  color:var(--gold);
+  margin-top:0;
+  font-family:'Barlow Condensed',Arial,sans-serif;
+  font-size:1.3rem;
+  letter-spacing:1px;
+}
+
+.modal-row{
+  display:flex;
+  justify-content:space-between;
+  padding:7px 0;
+  border-bottom:1px solid var(--border);
+  font-size:0.9rem;
+  gap:10px;
+}
+
+.modal-row:last-of-type{
+  border-bottom:none;
+}
+
+.modal-key{
+  color:var(--text-muted);
+  flex-shrink:0;
+}
+
+.modal-val{
+  text-align:right;
+  color:var(--text);
+  font-weight:500;
+}
+
+.modal-actions{
+  display:flex;
+  gap:10px;
+  margin-top:20px;
+}
+
+.modal-actions button{
+  flex:1;
+  padding:12px;
+  border-radius:var(--radius);
+  font-weight:700;
+  font-family:'Barlow Condensed',Arial,sans-serif;
+  font-size:0.95rem;
+  letter-spacing:1px;
+  cursor:pointer;
+  border:none;
+  transition:background var(--transition),box-shadow var(--transition);
+  margin-top:0;
+}
+
+.btn-cancel{
+  background:var(--surface2);
+  color:var(--text);
+  border:1px solid var(--border) !important;
+}
+
+.btn-cancel:hover{
+  border-color:var(--gold) !important;
+}
+
+.btn-confirm{
+  background:var(--gold);
+  color:#000;
+}
+
+.btn-confirm:hover{
+  background:var(--gold-dark);
+  box-shadow:0 4px 16px rgba(255,208,0,0.25);
+}
+
+/* LOADING SPINNER */
+
+.spinner{
+  display:inline-block;
+  width:14px;
+  height:14px;
+  border:2px solid rgba(0,0,0,0.3);
+  border-top-color:#000;
+  border-radius:50%;
+  animation:spin 0.7s linear infinite;
+  margin-right:8px;
+  vertical-align:middle;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg);}
 }
 
 </style>
@@ -164,427 +525,580 @@ cursor:pointer;
 
 <div class="container">
 
-<div class="logo">
-<img src="logo-autoluxe.png">
+  <div class="logo">
+    <img src="logo-autoluxe.png" alt="Logo Auto Luxe Atelier">
+  </div>
+
+  <h2>Nouveau client</h2>
+
+  <form id="form" novalidate>
+
+    <!-- VÉHICULE -->
+    <p class="section-title">Véhicule</p>
+
+    <label for="marque">Marque</label>
+    <select id="marque" autocomplete="off">
+      <option value="">Choisir la marque</option>
+    </select>
+    <div class="field-error" id="err-marque">Veuillez choisir une marque.</div>
+
+    <label for="modele">Modèle</label>
+    <select id="modele" autocomplete="off">
+      <option value="">Choisir le modèle</option>
+    </select>
+    <div class="field-error" id="err-modele">Veuillez choisir un modèle.</div>
+
+    <label for="annee">Année</label>
+    <select id="annee" autocomplete="off">
+      <option value="">Choisir l'année</option>
+    </select>
+    <div class="field-error" id="err-annee">Veuillez choisir une année.</div>
+
+    <label for="matricule">Matricule</label>
+    <input type="text" id="matricule" autocomplete="off" placeholder="Ex : AB-123-CD">
+    <div class="field-error" id="err-matricule">Veuillez entrer le matricule.</div>
+
+    <label>Toit ouvrant</label>
+    <div class="toit-group">
+      <label class="toit-option" tabindex="0" role="radio" aria-checked="false" id="toit-avec">
+        <input type="radio" name="toit_ouvrant" value="avec toit ouvrant">
+        Avec toit ouvrant
+      </label>
+      <label class="toit-option" tabindex="0" role="radio" aria-checked="false" id="toit-sans">
+        <input type="radio" name="toit_ouvrant" value="sans toit ouvrant">
+        Sans toit ouvrant
+      </label>
+    </div>
+    <div class="field-error" id="err-toit">Veuillez sélectionner une option.</div>
+
+    <!-- SERVICES -->
+    <p class="section-title">Services</p>
+
+    <label>Services demandés</label>
+    <div class="services">
+      <div class="service-row" data-service="ciel" tabindex="0" role="checkbox" aria-checked="false">
+        <div class="service-box"></div>
+        Rénovation ciel de toit
+      </div>
+      <div class="service-row" data-service="rideau" tabindex="0" role="checkbox" aria-checked="false" id="service-rideau">
+        <div class="service-box"></div>
+        Remplacement rideau du toit ouvrant
+      </div>
+      <div class="service-row" data-service="couleur" tabindex="0" role="checkbox" aria-checked="false">
+        <div class="service-box"></div>
+        Changement de couleur avec tissu comme l'original
+      </div>
+      <div class="service-row" data-service="alcantara" tabindex="0" role="checkbox" aria-checked="false">
+        <div class="service-box"></div>
+        Changement de couleur en Alcantara
+      </div>
+      <div class="service-row" data-service="portes" tabindex="0" role="checkbox" aria-checked="false">
+        <div class="service-box"></div>
+        Rénovation tissu des portes
+      </div>
+      <div class="service-row" data-service="etoile500" tabindex="0" role="checkbox" aria-checked="false">
+        <div class="service-box"></div>
+        Ciel étoilé Pack 500 🌟
+      </div>
+      <div class="service-row" data-service="etoile1000" tabindex="0" role="checkbox" aria-checked="false">
+        <div class="service-box"></div>
+        Ciel étoilé Pack 1000 🌟
+      </div>
+    </div>
+    <div class="field-error" id="err-services">Veuillez sélectionner au moins un service.</div>
+
+    <label>Prix estimé</label>
+    <div class="prix-display">
+      <span class="prix-label">Total calculé automatiquement</span>
+      <span class="prix-value" id="prix-value">—</span>
+    </div>
+    <input type="hidden" id="prix">
+
+    <!-- REMARQUES -->
+    <label for="remarques">Remarques</label>
+    <textarea id="remarques" rows="3" placeholder="Informations complémentaires…"></textarea>
+
+    <!-- CLIENT -->
+    <p class="section-title">Client</p>
+
+    <label for="prenom">Prénom</label>
+    <input type="text" id="prenom" autocomplete="given-name" placeholder="Prénom">
+    <div class="field-error" id="err-prenom">Veuillez entrer le prénom.</div>
+
+    <label for="nom">Nom de famille</label>
+    <input type="text" id="nom" autocomplete="family-name" placeholder="Nom">
+    <div class="field-error" id="err-nom">Veuillez entrer le nom.</div>
+
+    <label for="tel">Téléphone</label>
+    <input type="tel" id="tel" autocomplete="tel" placeholder="Ex : +33 6 00 00 00 00">
+    <div class="field-error" id="err-tel">Veuillez entrer un numéro de téléphone.</div>
+
+    <!-- RDV -->
+    <p class="section-title">Rendez-vous</p>
+
+    <label for="daterdv">Date du RDV</label>
+    <input type="date" id="daterdv">
+    <div class="field-error" id="err-daterdv">Veuillez choisir une date de RDV valide.</div>
+
+    <label for="heure">Heure d'arrivée</label>
+    <input type="time" id="heure" min="09:00" max="17:00" step="1800">
+    <div class="field-error" id="err-heure">L'heure doit être entre 09h00 et 17h00.</div>
+
+    <label for="datemontage">Date du montage <small style="font-weight:400;text-transform:none;color:var(--text-muted)">(si nécessaire)</small></label>
+    <input type="date" id="datemontage">
+
+    <button type="submit" id="btn-submit">Ajouter le client</button>
+
+  </form>
+
 </div>
 
-<h2>Nouveau client</h2>
-
-<form id="form">
-
-<label>Marque</label>
-<select id="marque">
-<option value="">Choisir la marque</option>
-</select>
-
-<label>Modèle</label>
-<select id="modele">
-<option value="">Choisir le modèle</option>
-</select>
-
-<label>Année</label>
-<select id="annee">
-<option value="">Choisir l'année</option>
-</select>
-
-<label>Matricule</label> <input id="matricule">
-
-<label>Toit ouvrant</label>
-
-<div class="toit-group">
-
-<label class="toit-option">
-<input type="radio" name="toit ouvrant" value="avec toit ouvrant">
-avec toit ouvrant
-</label>
-
-<label class="toit-option">
-<input type="radio" name="toit ouvrant" value="sans toit ouvrant">
-sans toit ouvrant
-</label>
-
+<!-- MODAL CONFIRMATION -->
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">📋 Récapitulatif</h3>
+    <div id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="btn-cancel">Modifier</button>
+      <button class="btn-confirm" id="btn-confirm">Confirmer l'envoi</button>
+    </div>
+  </div>
 </div>
 
-<label>Services</label>
-
-<div class="services">
-
-<div class="service-row" data-service="ciel">
-<div class="service-box"></div>
-Rénovation ciel de toit
-</div>
-
-<div class="service-row" data-service="rideau">
-<div class="service-box"></div>
-Remplacement rideau du toit ouvrant
-</div>
-
-<div class="service-row" data-service="couleur">
-<div class="service-box"></div>
-Changement de couleur avec tissu comme l'original
-</div>
-
-<div class="service-row" data-service="alcantara">
-<div class="service-box"></div>
-Changement de couleur en Alcantara
-</div>
-
-<div class="service-row" data-service="portes">
-<div class="service-box"></div>
-Rénovation tissu des portes
-</div>
-
-<div class="service-row" data-service="etoile500">
-<div class="service-box"></div>
-Ciel étoilé Pack 500 🌟
-</div>
-
-<div class="service-row" data-service="etoile1000">
-<div class="service-box"></div>
-Ciel étoilé Pack 1000 🌟
-</div>
-
-</div>
-
-<label>Remarques</label>
-<textarea id="remarques"></textarea>
-
-<label>Prix</label>
-<input id="prix">
-
-<label>Prénom</label>
-<input id="prenom">
-
-<label>Nom de famille</label>
-<input id="nom">
-
-<label>Téléphone</label>
-<input id="tel">
-
-<label>Date du RDV</label>
-<input type="date" id="daterdv">
-
-<label>Heure d'arrivée</label>
-<input type="time" id="heure" min="09:00" max="17:00" step="1800">
-
-<label>Date du montage (si nécessaire)</label>
-<input type="date" id="datemontage">
-
-<button type="submit">Ajouter client</button>
-
-</form>
-
+<!-- TOAST -->
+<div class="toast" id="toast" role="alert" aria-live="polite">
+  <span class="toast-icon" id="toast-icon"></span>
+  <span id="toast-msg"></span>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 
 <script>
 
-const sheetURL="https://docs.google.com/spreadsheets/d/1T7AJBCvfomGbjdrm3ydughenuqPdKpYHmmW4DD_sz2M/gviz/tq?tqx=out:csv&gid=0"
+/* ─── CONFIG ──────────────────────────────────────────────── */
 
-let database=[]
-let modeleSelect
-let anneeSelect
-let servicesSelectionnes=[]
-const serviceNames = {
-
-ciel: "Rénovation ciel de toit",
-
-rideau: "Remplacement rideau du toit ouvrant",
-
-couleur: "Changement de couleur du ciel de toit avec tissu comme l'original + peintures du plastiques",
-
-alcantara: "Changement de couleur du ciel de toit en Alcantara + peintures du plastiques",
-
-portes: "Rénovation tissu des portes",
-
-etoile500: "Ciel étoilé Pack 500 🌟",
-
-etoile1000: "Ciel étoilé Pack 1000 🌟"
-
+const CONFIG = {
+  sheetURL: "https://docs.google.com/spreadsheets/d/1T7AJBCvfomGbjdrm3ydughenuqPdKpYHmmW4DD_sz2M/gviz/tq?tqx=out:csv&gid=0",
+  webhookURL: "https://n8n-hetzner.duckdns.org/webhook/nouveau-client",
+  openHourMin: "09:00",
+  openHourMax: "17:00",
+  // Jours fermés : 4=jeudi, 5=vendredi (getDay, 0=dim)
+  closedDays: [4, 5],
+  fixedPrices: {
+    etoile500: 80000,
+    etoile1000: 120000
+  }
 }
 
-const marque = document.getElementById("marque")
-const modele = document.getElementById("modele")
-const annee = document.getElementById("annee")
-
-function clean(v){
-return v.replace(/"/g,"").trim()
+const SERVICE_NAMES = {
+  ciel:       "Rénovation ciel de toit",
+  rideau:     "Remplacement rideau du toit ouvrant",
+  couleur:    "Changement de couleur du ciel de toit avec tissu comme l'original + peintures des plastiques",
+  alcantara:  "Changement de couleur du ciel de toit en Alcantara + peintures des plastiques",
+  portes:     "Rénovation tissu des portes",
+  etoile500:  "Ciel étoilé Pack 500 🌟",
+  etoile1000: "Ciel étoilé Pack 1000 🌟"
 }
 
-async function loadData(){
+/* ─── STATE ───────────────────────────────────────────────── */
 
-const res=await fetch(sheetURL)
-const text=await res.text()
+let database = []
+let marqueSelect, modeleSelect, anneeSelect
+let servicesSelectionnes = []
 
-const rows=text.split("\n").slice(1)
+/* ─── DOM REFS ────────────────────────────────────────────── */
 
-rows.forEach(r=>{
+const marqueEl  = document.getElementById("marque")
+const modeleEl  = document.getElementById("modele")
+const anneeEl   = document.getElementById("annee")
+const dateRDVEl = document.getElementById("daterdv")
+const heureEl   = document.getElementById("heure")
+const prixInput = document.getElementById("prix")
+const prixValue = document.getElementById("prix-value")
+const btnSubmit = document.getElementById("btn-submit")
+const modalOverlay = document.getElementById("modal-overlay")
+const modalBody = document.getElementById("modal-body")
+const btnCancel  = document.getElementById("btn-cancel")
+const btnConfirm = document.getElementById("btn-confirm")
 
-const c=r.split(",")
+/* ─── TOAST ───────────────────────────────────────────────── */
 
-database.push({
-
-marque:clean(c[0]),
-modele:clean(c[1]),
-
-annee_debut:parseInt(clean(c[2]))||0,
-annee_fin:parseInt(clean(c[3]))||0,
-
-prix_ciel:parseInt(clean(c[5]))||0,
-prix_rideau:parseInt(clean(c[7]))||0,
-prix_couleur:parseInt(clean(c[8]))||0,
-prix_alcantara:parseInt(clean(c[9]))||0,
-prix_portes:parseInt(clean(c[10]))||0
-
-})
-
-})
-
-initBrands()
-
-new TomSelect("#marque",{
-create:true,
-placeholder:"Choisir la marque"
-})
-
-modeleSelect = new TomSelect("#modele",{
-create:true,
-placeholder:"Choisir le modèle"
-})
-
-anneeSelect = new TomSelect("#annee",{
-create:true,
-placeholder:"Choisir l'année"
-})
-
+function showToast(msg, type = "success") {
+  const toast = document.getElementById("toast")
+  const toastMsg = document.getElementById("toast-msg")
+  const toastIcon = document.getElementById("toast-icon")
+  toast.className = `toast ${type}`
+  toastIcon.textContent = type === "success" ? "✅" : "❌"
+  toastMsg.textContent = msg
+  toast.classList.add("show")
+  setTimeout(() => toast.classList.remove("show"), 4000)
 }
 
-function initBrands(){
+/* ─── CSV PARSER (robuste aux virgules dans les champs) ──── */
 
-const marques=[...new Set(database.map(d=>d.marque))]
-
-marques.forEach(m=>{
-
-const opt=document.createElement("option")
-opt.value=m
-opt.textContent=m
-
-marque.appendChild(opt)
-
-})
-
+function parseCSVLine(line) {
+  const result = []
+  let inQuotes = false, cur = ""
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i]
+    if (ch === '"') { inQuotes = !inQuotes }
+    else if (ch === ',' && !inQuotes) { result.push(cur.trim()); cur = "" }
+    else { cur += ch }
+  }
+  result.push(cur.trim())
+  return result
 }
 
-
-marque.addEventListener("change",function(){
-
-const models=database.filter(d=>d.marque===this.value)
-
-modeleSelect.clearOptions()
-
-models.forEach(m=>{
-
-modeleSelect.addOption({
-value:m.modele,
-text:m.modele
-})
-
-})
-
-modeleSelect.refreshOptions(false)
-
-})
-
-modele.addEventListener("change",function(){
-
-const marque=document.getElementById("marque").value
-const modele=this.value
-
-const voitures = database.filter(v=>v.marque===marque && v.modele===modele)
-
-anneeSelect.clearOptions()
-
-let years = []
-
-voitures.forEach(v=>{
-
-for(let y=v.annee_debut;y<=v.annee_fin;y++){
-years.push(y)
+function clean(v) {
+  return v ? v.replace(/^"|"$/g, "").trim() : ""
 }
 
-})
+/* ─── LOAD DATA ───────────────────────────────────────────── */
 
-years = [...new Set(years)].sort((a,b)=>a-b)
+async function loadData() {
+  try {
+    const res = await fetch(CONFIG.sheetURL)
+    const text = await res.text()
+    const rows = text.split("\n").slice(1).filter(r => r.trim())
 
-years.forEach(y=>{
-anneeSelect.addOption({
-value:y,
-text:y
-})
-})
+    rows.forEach(r => {
+      const c = parseCSVLine(r)
+      database.push({
+        marque:       clean(c[0]),
+        modele:       clean(c[1]),
+        annee_debut:  parseInt(clean(c[2])) || 0,
+        annee_fin:    parseInt(clean(c[3])) || 0,
+        prix_ciel:    parseInt(clean(c[5])) || 0,
+        prix_rideau:  parseInt(clean(c[7])) || 0,
+        prix_couleur: parseInt(clean(c[8])) || 0,
+        prix_alcantara: parseInt(clean(c[9])) || 0,
+        prix_portes:  parseInt(clean(c[10])) || 0
+      })
+    })
 
-anneeSelect.refreshOptions(false)
+    initBrands()
 
-})
+    marqueSelect = new TomSelect("#marque", { create: true, placeholder: "Choisir la marque" })
+    modeleSelect = new TomSelect("#modele", { create: true, placeholder: "Choisir le modèle" })
+    anneeSelect  = new TomSelect("#annee",  { create: true, placeholder: "Choisir l'année"  })
 
-/* TOIT STYLE */
+    // Désactiver modèle et année jusqu'à sélection marque
+    modeleSelect.disable()
+    anneeSelect.disable()
 
-document.querySelectorAll(".toit-option").forEach(card=>{
+    marqueEl.addEventListener("change", onMarqueChange)
+    modeleEl.addEventListener("change", onModeleChange)
 
-card.onclick=()=>{
-
-document.querySelectorAll(".toit-option").forEach(c=>c.classList.remove("active"))
-
-card.classList.add("active")
-
-card.querySelector("input").checked=true
-
+  } catch(err) {
+    showToast("Impossible de charger les données du catalogue.", "error")
+    console.error("Erreur loadData:", err)
+  }
 }
 
-})
-
-/* SERVICES */
-
-document.querySelectorAll(".service-row").forEach(row=>{
-
-row.onclick=()=>{
-
-row.classList.toggle("active")
-
-const service=row.dataset.service
-
-if(servicesSelectionnes.includes(service)){
-
-servicesSelectionnes=servicesSelectionnes.filter(s=>s!==service)
-
-}else{
-
-servicesSelectionnes.push(service)
-
+function initBrands() {
+  const marques = [...new Set(database.map(d => d.marque))].filter(Boolean).sort()
+  marques.forEach(m => {
+    const opt = document.createElement("option")
+    opt.value = m
+    opt.textContent = m
+    marqueEl.appendChild(opt)
+  })
 }
 
-calculPrix()
+/* ─── CASCADES ────────────────────────────────────────────── */
 
+function onMarqueChange() {
+  const val = marqueEl.value
+  modeleSelect.clearOptions()
+  anneeSelect.clearOptions()
+  anneeSelect.disable()
+
+  if (!val) { modeleSelect.disable(); return }
+
+  const models = [...new Map(
+    database.filter(d => d.marque === val).map(m => [m.modele, m])
+  ).values()]
+
+  models.forEach(m => modeleSelect.addOption({ value: m.modele, text: m.modele }))
+  modeleSelect.enable()
+  modeleSelect.refreshOptions(false)
 }
 
-})
+function onModeleChange() {
+  const marque = marqueEl.value
+  const modele = modeleEl.value
+  const voiture = database.find(v => v.marque === marque && v.modele === modele)
 
-function calculPrix(){
+  anneeSelect.clearOptions()
+  if (!voiture) { anneeSelect.disable(); return }
 
-const marque=document.getElementById("marque").value
-const modele=document.getElementById("modele").value
-
-const annee = parseInt(document.getElementById("annee").value)
-
-const voiture = database.find(v =>
-v.marque===marque &&
-v.modele===modele &&
-annee>=v.annee_debut &&
-annee<=v.annee_fin
-)
-
-if(!voiture)return
-
-let total=0
-
-servicesSelectionnes.forEach(s=>{
-
-if(s==="ciel") total+=voiture.prix_ciel
-if(s==="rideau") total+=voiture.prix_rideau
-if(s==="couleur") total+=voiture.prix_couleur
-if(s==="alcantara") total+=voiture.prix_alcantara
-if(s==="portes") total+=voiture.prix_portes
-if(s==="etoile500") total+=80000
-if(s==="etoile1000") total+=120000
-
-})
-
-document.getElementById("prix").value=total
-
+  for (let y = voiture.annee_debut; y <= voiture.annee_fin; y++) {
+    anneeSelect.addOption({ value: y, text: y })
+  }
+  anneeSelect.enable()
+  anneeSelect.refreshOptions(false)
+  calculPrix()
 }
-const dateRDV = document.getElementById("daterdv")
+
+/* ─── TOIT OUVRANT ────────────────────────────────────────── */
+
+document.querySelectorAll(".toit-option").forEach(card => {
+  const activate = () => {
+    document.querySelectorAll(".toit-option").forEach(c => {
+      c.classList.remove("active")
+      c.setAttribute("aria-checked", "false")
+    })
+    card.classList.add("active")
+    card.setAttribute("aria-checked", "true")
+    card.querySelector("input").checked = true
+
+    // Gérer service rideau selon toit
+    const val = card.querySelector("input").value
+    const rideauRow = document.getElementById("service-rideau")
+    if (val === "sans toit ouvrant") {
+      rideauRow.classList.add("disabled")
+      rideauRow.setAttribute("aria-disabled", "true")
+      // Décocher si sélectionné
+      if (servicesSelectionnes.includes("rideau")) {
+        rideauRow.classList.remove("active")
+        rideauRow.setAttribute("aria-checked", "false")
+        servicesSelectionnes = servicesSelectionnes.filter(s => s !== "rideau")
+        calculPrix()
+      }
+    } else {
+      rideauRow.classList.remove("disabled")
+      rideauRow.setAttribute("aria-disabled", "false")
+    }
+  }
+
+  card.addEventListener("click", activate)
+  card.addEventListener("keydown", e => {
+    if (e.key === " " || e.key === "Enter") { e.preventDefault(); activate() }
+  })
+})
+
+/* ─── SERVICES ────────────────────────────────────────────── */
+
+document.querySelectorAll(".service-row").forEach(row => {
+  const toggle = () => {
+    if (row.classList.contains("disabled")) return
+    const isActive = row.classList.toggle("active")
+    row.setAttribute("aria-checked", isActive ? "true" : "false")
+    const service = row.dataset.service
+    if (isActive) {
+      servicesSelectionnes.push(service)
+    } else {
+      servicesSelectionnes = servicesSelectionnes.filter(s => s !== service)
+    }
+    calculPrix()
+  }
+
+  row.addEventListener("click", toggle)
+  row.addEventListener("keydown", e => {
+    if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggle() }
+  })
+})
+
+/* ─── CALCUL PRIX ─────────────────────────────────────────── */
+
+function calculPrix() {
+  const marque = marqueEl.value
+  const modele = modeleEl.value
+  const voiture = database.find(v => v.marque === marque && v.modele === modele)
+
+  let total = 0
+
+  servicesSelectionnes.forEach(s => {
+    if (voiture) {
+      if (s === "ciel")      total += voiture.prix_ciel
+      if (s === "rideau")    total += voiture.prix_rideau
+      if (s === "couleur")   total += voiture.prix_couleur
+      if (s === "alcantara") total += voiture.prix_alcantara
+      if (s === "portes")    total += voiture.prix_portes
+    }
+    if (CONFIG.fixedPrices[s]) total += CONFIG.fixedPrices[s]
+  })
+
+  prixInput.value = total
+  prixValue.textContent = total > 0 ? total.toLocaleString("fr-FR") + " €" : "—"
+}
+
+/* ─── DATE RDV ────────────────────────────────────────────── */
 
 const today = new Date().toISOString().split("T")[0]
+dateRDVEl.min = today
 
-dateRDV.min = today
+dateRDVEl.addEventListener("change", function() {
+  // Utilise midi pour éviter les décalages de fuseau horaire
+  const d = new Date(this.value + "T12:00:00")
+  const day = d.getDay()
+  if (CONFIG.closedDays.includes(day)) {
+    showToast("L'atelier est fermé ce jour-là. Veuillez choisir une autre date.", "error")
+    dateRDVEl.value = ""
+  }
+})
 
-dateRDV.addEventListener("change",function(){
+/* ─── VALIDATION HEURE ────────────────────────────────────── */
 
-const d = new Date(this.value)
-const day = d.getDay()
+heureEl.addEventListener("change", function() {
+  const val = this.value
+  if (val && (val < CONFIG.openHourMin || val > CONFIG.openHourMax)) {
+    showError("heure", true)
+    this.value = ""
+  } else {
+    showError("heure", false)
+  }
+})
 
-if(day === 4 || day === 5){
+/* ─── VALIDATION ──────────────────────────────────────────── */
 
-alert("L'atelier est fermé ce jour")
-
-dateRDV.value=""
-
+function showError(id, show) {
+  const err = document.getElementById("err-" + id)
+  if (!err) return
+  if (show) err.classList.add("visible")
+  else err.classList.remove("visible")
 }
 
+function validateForm() {
+  let valid = true
+
+  const required = [
+    { id: "marque",   val: () => marqueEl.value },
+    { id: "modele",   val: () => modeleEl.value },
+    { id: "annee",    val: () => anneeEl.value },
+    { id: "matricule",val: () => document.getElementById("matricule").value },
+    { id: "prenom",   val: () => document.getElementById("prenom").value },
+    { id: "nom",      val: () => document.getElementById("nom").value },
+    { id: "tel",      val: () => document.getElementById("tel").value },
+    { id: "daterdv",  val: () => document.getElementById("daterdv").value },
+    { id: "heure",    val: () => document.getElementById("heure").value },
+  ]
+
+  required.forEach(f => {
+    const empty = !f.val() || f.val().trim() === ""
+    showError(f.id, empty)
+    if (empty) valid = false
+  })
+
+  // Toit
+  const toitChecked = document.querySelector('input[name="toit_ouvrant"]:checked')
+  showError("toit", !toitChecked)
+  if (!toitChecked) valid = false
+
+  // Services
+  showError("services", servicesSelectionnes.length === 0)
+  if (servicesSelectionnes.length === 0) valid = false
+
+  return valid
+}
+
+/* ─── MODAL RECAP ─────────────────────────────────────────── */
+
+function buildRecap() {
+  const toit = document.querySelector('input[name="toit_ouvrant"]:checked')?.value || "—"
+  const rows = [
+    ["Marque",      marqueEl.value],
+    ["Modèle",      modeleEl.value],
+    ["Année",       anneeEl.value],
+    ["Matricule",   document.getElementById("matricule").value],
+    ["Toit",        toit],
+    ["Services",    servicesSelectionnes.map(s => SERVICE_NAMES[s]).join(", ")],
+    ["Prix",        prixValue.textContent],
+    ["Remarques",   document.getElementById("remarques").value || "—"],
+    ["Prénom",      document.getElementById("prenom").value],
+    ["Nom",         document.getElementById("nom").value],
+    ["Téléphone",   document.getElementById("tel").value],
+    ["Date RDV",    document.getElementById("daterdv").value],
+    ["Heure",       document.getElementById("heure").value],
+    ["Date montage",document.getElementById("datemontage").value || "—"],
+  ]
+
+  modalBody.innerHTML = rows.map(([k, v]) =>
+    `<div class="modal-row"><span class="modal-key">${k}</span><span class="modal-val">${v}</span></div>`
+  ).join("")
+}
+
+function openModal() {
+  buildRecap()
+  modalOverlay.classList.add("show")
+}
+
+function closeModal() {
+  modalOverlay.classList.remove("show")
+}
+
+btnCancel.addEventListener("click", closeModal)
+modalOverlay.addEventListener("click", e => {
+  if (e.target === modalOverlay) closeModal()
 })
+
+/* ─── SOUMISSION ──────────────────────────────────────────── */
+
+document.getElementById("form").addEventListener("submit", function(e) {
+  e.preventDefault()
+  if (!validateForm()) {
+    showToast("Veuillez corriger les champs manquants.", "error")
+    return
+  }
+  openModal()
+})
+
+btnConfirm.addEventListener("click", async function() {
+  closeModal()
+
+  btnSubmit.disabled = true
+  btnSubmit.innerHTML = '<span class="spinner"></span>Envoi en cours…'
+
+  const data = {
+    marque:        marqueEl.value,
+    modele:        modeleEl.value,
+    annee:         anneeEl.value,
+    matricule:     document.getElementById("matricule").value,
+    toit:          document.querySelector('input[name="toit_ouvrant"]:checked')?.value || "",
+    services:      "- " + servicesSelectionnes.map(s => SERVICE_NAMES[s]).join("\n- "),
+    remarques:     document.getElementById("remarques").value,
+    prix:          prixInput.value,
+    prenom:        document.getElementById("prenom").value,
+    nom:           document.getElementById("nom").value,
+    telephone:     document.getElementById("tel").value,
+    date_rdv:      document.getElementById("daterdv").value,
+    heure_arrivee: document.getElementById("heure").value,
+    date_montage:  document.getElementById("datemontage").value
+  }
+
+  try {
+    const res = await fetch(CONFIG.webhookURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    })
+
+    if (!res.ok) throw new Error("Réponse serveur : " + res.status)
+
+    showToast("Client ajouté avec succès ✅", "success")
+    document.getElementById("form").reset()
+    servicesSelectionnes = []
+    document.querySelectorAll(".service-row.active").forEach(r => r.classList.remove("active"))
+    document.querySelectorAll(".toit-option.active").forEach(c => c.classList.remove("active"))
+    prixValue.textContent = "—"
+    prixInput.value = ""
+    if (modeleSelect) { modeleSelect.clearOptions(); modeleSelect.disable() }
+    if (anneeSelect)  { anneeSelect.clearOptions();  anneeSelect.disable()  }
+
+  } catch(err) {
+    showToast("Erreur lors de l'envoi. Vérifiez la connexion.", "error")
+    console.error("Erreur envoi:", err)
+  } finally {
+    btnSubmit.disabled = false
+    btnSubmit.textContent = "Ajouter le client"
+  }
+})
+
+/* ─── INIT ────────────────────────────────────────────────── */
+
 loadData()
-  document.getElementById("form").addEventListener("submit",async function(e){
-
-e.preventDefault()
-
-const data = {
-
-marque:document.getElementById("marque").value,
-modele:document.getElementById("modele").value,
-annee:document.getElementById("annee").value,
-matricule:document.getElementById("matricule").value,
-
-toit:document.querySelector('input[name="toit ouvrant"]:checked')?.value || "",
-
-services:
-"- " + servicesSelectionnes.map(s => serviceNames[s]).join("\n- "),
-
-remarques:document.getElementById("remarques").value,
-
-prix:document.getElementById("prix").value,
-
-prenom:document.getElementById("prenom").value,
-nom:document.getElementById("nom").value,
-telephone:document.getElementById("tel").value,
-
-date_rdv:document.getElementById("daterdv").value,
-heure_arrivee:document.getElementById("heure").value,
-date_montage:document.getElementById("datemontage").value
-
-}
-
-await fetch("https://n8n-hetzner.duckdns.org/webhook/nouveau-client",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify(data)
-
-})
-
-alert("Client ajouté avec succès")
-
-})
 
 </script>
 
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
