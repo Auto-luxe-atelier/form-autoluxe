@@ -5,22 +5,20 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Formulaire d'ajout de client — Auto Luxe Atelier">
+<meta name="description" content="Formulaire de rendez-vous">
 
-<title>Auto Luxe Atelier</title>
+<title id="page-title">Rendez-vous</title>
 
 <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
 
-*,*::before,*::after{
-  box-sizing:border-box;
-}
+*,*::before,*::after{box-sizing:border-box;}
 
 :root{
-  --gold:#ffd000;
-  --gold-dark:#e6c000;
+  --primary:#ffd000;
+  --primary-dark:#e6c000;
   --bg:#0f0f0f;
   --surface:#1a1a1a;
   --surface2:#222;
@@ -31,502 +29,138 @@
   --transition:0.2s ease;
 }
 
-body{
-  font-family:'Barlow',Arial,Helvetica,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  padding:20px;
-  margin:0;
-  min-height:100vh;
-}
+body{font-family:'Barlow',Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);padding:20px;margin:0;min-height:100vh;}
 
-.container{
-  max-width:660px;
-  margin:auto;
-  background:var(--surface);
-  padding:36px 32px;
-  border-radius:14px;
-  border:2px solid var(--gold);
-}
+.container{max-width:660px;margin:auto;background:var(--surface);padding:36px 32px;border-radius:14px;border:2px solid var(--primary);}
 
-.logo{
-  text-align:center;
-  margin-bottom:24px;
-}
+.logo{text-align:center;margin-bottom:24px;}
+.logo img{max-width:260px;width:100%;height:auto;}
 
-.logo img{
-  max-width:260px;
-  width:100%;
-  height:auto;
-}
+h2{text-align:center;color:var(--primary);font-family:'Barlow Condensed',Arial,sans-serif;font-size:1.7rem;letter-spacing:1px;margin-top:0;margin-bottom:28px;}
 
-h2{
-  text-align:center;
-  color:var(--gold);
-  font-family:'Barlow Condensed',Arial,sans-serif;
-  font-size:1.7rem;
-  letter-spacing:1px;
-  margin-top:0;
-  margin-bottom:28px;
-}
+label{font-weight:600;color:var(--primary);display:block;margin-top:18px;margin-bottom:6px;font-size:0.88rem;letter-spacing:0.5px;text-transform:uppercase;}
 
-/* LABELS & INPUTS */
+input,select,textarea{width:100%;padding:12px 14px;border-radius:var(--radius);border:1px solid var(--border);background:#111;color:var(--text);font-family:'Barlow',Arial,sans-serif;font-size:0.97rem;transition:border-color var(--transition),box-shadow var(--transition);}
 
-label{
-  font-weight:600;
-  color:var(--gold);
-  display:block;
-  margin-top:18px;
-  margin-bottom:6px;
-  font-size:0.88rem;
-  letter-spacing:0.5px;
-  text-transform:uppercase;
-}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(255,208,0,0.12);}
 
-input,select,textarea{
-  width:100%;
-  padding:12px 14px;
-  border-radius:var(--radius);
-  border:1px solid var(--border);
-  background:#111;
-  color:var(--text);
-  font-family:'Barlow',Arial,sans-serif;
-  font-size:0.97rem;
-  transition:border-color var(--transition),box-shadow var(--transition);
-}
+input.error,select.error{border-color:#e55;}
 
-input:focus,select:focus,textarea:focus{
-  outline:none;
-  border-color:var(--gold);
-  box-shadow:0 0 0 3px rgba(255,208,0,0.12);
-}
+.field-error{color:#ff6b6b;font-size:0.78rem;margin-top:4px;display:none;}
+.field-error.visible{display:block;}
+.field-hint{color:var(--text-muted);font-size:0.76rem;margin-top:4px;}
 
-input[readonly]{
-  opacity:0.75;
-  cursor:default;
-  background:#0d0d0d;
-}
+.ts-control{background:#111 !important;color:var(--text) !important;border:1px solid var(--border) !important;border-radius:var(--radius) !important;padding:10px 14px !important;transition:border-color var(--transition),box-shadow var(--transition) !important;}
+.ts-control:focus-within{border-color:var(--primary) !important;box-shadow:0 0 0 3px rgba(255,208,0,0.12) !important;}
+.ts-dropdown{background:#1a1a1a !important;color:var(--text) !important;border:1px solid var(--border) !important;border-radius:var(--radius) !important;margin-top:4px !important;}
+.ts-dropdown .option:hover,.ts-dropdown .option.active{background:var(--primary) !important;color:#000 !important;}
+.ts-wrapper.disabled .ts-control{opacity:0.45;cursor:not-allowed;}
 
-input.error,select.error{
-  border-color:#e55;
-}
+.toit-group{display:flex;gap:10px;margin-top:4px;}
+.toit-option{flex:1;border:1px solid var(--border);padding:12px;border-radius:var(--radius);text-align:center;cursor:pointer;font-size:0.9rem;transition:background var(--transition),border-color var(--transition),color var(--transition),box-shadow var(--transition);user-select:none;}
+.toit-option:hover{border-color:var(--primary);}
+.toit-option input{display:none;}
+.toit-option.active{background:var(--primary);color:#000;font-weight:700;border-color:var(--primary);box-shadow:0 0 10px rgba(255,208,0,0.25);}
 
-.field-error{
-  color:#ff6b6b;
-  font-size:0.78rem;
-  margin-top:4px;
-  display:none;
-}
+.services{margin-top:4px;display:flex;flex-direction:column;gap:8px;}
+.service-row{display:flex;align-items:center;gap:12px;border:1px solid var(--border);padding:13px 14px;border-radius:var(--radius);cursor:pointer;transition:border-color var(--transition),background var(--transition),box-shadow var(--transition);user-select:none;font-size:0.94rem;}
+.service-row:hover{border-color:var(--primary);background:rgba(255,208,0,0.04);}
+.service-row input{display:none;}
+.service-box{width:18px;height:18px;min-width:18px;border:2px solid var(--primary);border-radius:4px;transition:background var(--transition);position:relative;display:flex;align-items:center;justify-content:center;}
+.service-box::after{content:'✓';font-size:12px;color:#000;opacity:0;transition:opacity var(--transition);font-weight:900;}
+.service-row.active .service-box{background:var(--primary);}
+.service-row.active .service-box::after{opacity:1;}
+.service-row.active{border-color:var(--primary);box-shadow:0 0 8px rgba(255,208,0,0.15);}
+.service-row.disabled{opacity:0.35;pointer-events:none;cursor:default;}
 
-.field-error.visible{
-  display:block;
-}
-
-.field-hint{
-  color:var(--text-muted);
-  font-size:0.76rem;
-  margin-top:4px;
-}
-
-/* TOMSELECT */
-
-.ts-control{
-  background:#111 !important;
-  color:var(--text) !important;
-  border:1px solid var(--border) !important;
-  border-radius:var(--radius) !important;
-  padding:10px 14px !important;
-  transition:border-color var(--transition),box-shadow var(--transition) !important;
-}
-
-.ts-control:focus-within{
-  border-color:var(--gold) !important;
-  box-shadow:0 0 0 3px rgba(255,208,0,0.12) !important;
-}
-
-.ts-dropdown{
-  background:#1a1a1a !important;
-  color:var(--text) !important;
-  border:1px solid var(--border) !important;
-  border-radius:var(--radius) !important;
-  margin-top:4px !important;
-}
-
-.ts-dropdown .option:hover,
-.ts-dropdown .option.active{
-  background:var(--gold) !important;
-  color:#000 !important;
-}
-
-.ts-wrapper.disabled .ts-control{
-  opacity:0.45;
-  cursor:not-allowed;
-}
-
-/* TOIT */
-
-.toit-group{
-  display:flex;
-  gap:10px;
-  margin-top:4px;
-}
-
-.toit-option{
-  flex:1;
-  border:1px solid var(--border);
-  padding:12px;
-  border-radius:var(--radius);
-  text-align:center;
-  cursor:pointer;
-  font-size:0.9rem;
-  transition:background var(--transition),border-color var(--transition),color var(--transition),box-shadow var(--transition);
-  user-select:none;
-  tabindex:0;
-}
-
-.toit-option:hover{
-  border-color:var(--gold);
-}
-
-.toit-option:focus-visible{
-  outline:2px solid var(--gold);
-  outline-offset:2px;
-}
-
-.toit-option input{
-  display:none;
-}
-
-.toit-option.active{
-  background:var(--gold);
-  color:#000;
-  font-weight:700;
-  border-color:var(--gold);
-  box-shadow:0 0 10px rgba(255,208,0,0.25);
-}
-
-/* SERVICES */
-
-.services{
-  margin-top:4px;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.service-row{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  border:1px solid var(--border);
-  padding:13px 14px;
-  border-radius:var(--radius);
-  cursor:pointer;
-  transition:border-color var(--transition),background var(--transition),box-shadow var(--transition);
-  user-select:none;
-  font-size:0.94rem;
-}
-
-.service-row:hover{
-  border-color:var(--gold);
-  background:rgba(255,208,0,0.04);
-}
-
-.service-row:focus-visible{
-  outline:2px solid var(--gold);
-  outline-offset:2px;
-}
-
-.service-row input{
-  display:none;
-}
-
-.service-box{
-  width:18px;
-  height:18px;
-  min-width:18px;
-  border:2px solid var(--gold);
-  border-radius:4px;
-  transition:background var(--transition);
+/* ── PRIX MODIFIABLE ── */
+.prix-wrapper{
   position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.service-box::after{
-  content:'✓';
-  font-size:12px;
-  color:#000;
-  opacity:0;
-  transition:opacity var(--transition);
-  font-weight:900;
-}
-
-.service-row.active .service-box{
-  background:var(--gold);
-}
-
-.service-row.active .service-box::after{
-  opacity:1;
-}
-
-.service-row.active{
-  border-color:var(--gold);
-  box-shadow:0 0 8px rgba(255,208,0,0.15);
-}
-
-.service-row.disabled{
-  opacity:0.35;
-  pointer-events:none;
-  cursor:default;
-}
-
-/* PRIX DISPLAY */
-
-.prix-display{
-  background:#0d0d0d;
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:14px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
   margin-top:6px;
 }
 
-.prix-display span.prix-label{
+.prix-wrapper input[type="number"]{
+  width:100%;
+  padding:14px 60px 14px 14px;
+  border-radius:var(--radius);
+  border:2px solid var(--primary);
+  background:#0d0d0d;
+  color:var(--primary);
+  font-size:1.3rem;
+  font-family:'Barlow Condensed',Arial,sans-serif;
+  font-weight:700;
+  letter-spacing:1px;
+  transition:border-color var(--transition),box-shadow var(--transition);
+}
+
+.prix-wrapper input[type="number"]:focus{
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(255,208,0,0.15);
+}
+
+.prix-wrapper input[type="number"]::placeholder{
+  color:var(--text-muted);
+  font-size:1rem;
+  font-weight:400;
+}
+
+/* Supprimer les flèches du champ number */
+.prix-wrapper input[type="number"]::-webkit-inner-spin-button,
+.prix-wrapper input[type="number"]::-webkit-outer-spin-button{
+  -webkit-appearance:none;
+  margin:0;
+}
+.prix-wrapper input[type="number"]{-moz-appearance:textfield;}
+
+.prix-suffix{
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
   color:var(--text-muted);
   font-size:0.85rem;
-}
-
-.prix-display span.prix-value{
-  color:var(--gold);
-  font-size:1.4rem;
-  font-family:'Barlow Condensed',Arial,sans-serif;
-  font-weight:700;
-  letter-spacing:1px;
-}
-
-/* SECTION DIVIDER */
-
-.section-title{
-  font-family:'Barlow Condensed',Arial,sans-serif;
-  color:var(--text-muted);
-  font-size:0.75rem;
-  text-transform:uppercase;
-  letter-spacing:2px;
-  margin-top:30px;
-  margin-bottom:2px;
-  padding-bottom:8px;
-  border-bottom:1px solid var(--border);
-}
-
-/* BUTTON */
-
-button[type="submit"]{
-  background:var(--gold);
-  color:#000;
-  padding:15px;
-  border:none;
-  width:100%;
-  border-radius:var(--radius);
-  font-size:1rem;
-  font-weight:700;
-  font-family:'Barlow Condensed',Arial,sans-serif;
-  letter-spacing:1.5px;
-  text-transform:uppercase;
-  margin-top:28px;
-  cursor:pointer;
-  transition:background var(--transition),box-shadow var(--transition),transform var(--transition);
-}
-
-button[type="submit"]:hover:not(:disabled){
-  background:var(--gold-dark);
-  box-shadow:0 4px 20px rgba(255,208,0,0.3);
-  transform:translateY(-1px);
-}
-
-button[type="submit"]:active:not(:disabled){
-  transform:translateY(0);
-}
-
-button[type="submit"]:disabled{
-  opacity:0.6;
-  cursor:not-allowed;
-}
-
-/* TOAST */
-
-.toast{
-  position:fixed;
-  bottom:24px;
-  left:50%;
-  transform:translateX(-50%) translateY(80px);
-  background:#1e1e1e;
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:14px 22px;
-  font-size:0.95rem;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  box-shadow:0 8px 30px rgba(0,0,0,0.5);
-  z-index:9999;
-  transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s ease;
-  opacity:0;
-  white-space:nowrap;
-}
-
-.toast.show{
-  transform:translateX(-50%) translateY(0);
-  opacity:1;
-}
-
-.toast.success{
-  border-left:4px solid #4caf50;
-}
-
-.toast.error{
-  border-left:4px solid #e55;
-}
-
-.toast-icon{
-  font-size:1.2rem;
-}
-
-/* MODAL */
-
-.modal-overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.75);
-  z-index:1000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  opacity:0;
   pointer-events:none;
-  transition:opacity 0.25s ease;
 }
 
-.modal-overlay.show{
-  opacity:1;
-  pointer-events:all;
-}
-
-.modal{
-  background:var(--surface);
-  border:2px solid var(--gold);
-  border-radius:14px;
-  padding:28px;
-  max-width:500px;
-  width:100%;
-  transform:scale(0.93);
-  transition:transform 0.25s ease;
-  max-height:80vh;
-  overflow-y:auto;
-}
-
-.modal-overlay.show .modal{
-  transform:scale(1);
-}
-
-.modal h3{
-  color:var(--gold);
-  margin-top:0;
-  font-family:'Barlow Condensed',Arial,sans-serif;
-  font-size:1.3rem;
-  letter-spacing:1px;
-}
-
-.modal-row{
-  display:flex;
-  justify-content:space-between;
-  padding:7px 0;
-  border-bottom:1px solid var(--border);
-  font-size:0.9rem;
-  gap:10px;
-}
-
-.modal-row:last-of-type{
-  border-bottom:none;
-}
-
-.modal-key{
+.prix-hint{
   color:var(--text-muted);
-  flex-shrink:0;
+  font-size:0.76rem;
+  margin-top:5px;
 }
 
-.modal-val{
-  text-align:right;
-  color:var(--text);
-  font-weight:500;
-}
+.section-title{font-family:'Barlow Condensed',Arial,sans-serif;color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;margin-top:30px;margin-bottom:2px;padding-bottom:8px;border-bottom:1px solid var(--border);}
 
-.modal-actions{
-  display:flex;
-  gap:10px;
-  margin-top:20px;
-}
+button[type="submit"]{background:var(--primary);color:#000;padding:15px;border:none;width:100%;border-radius:var(--radius);font-size:1rem;font-weight:700;font-family:'Barlow Condensed',Arial,sans-serif;letter-spacing:1.5px;text-transform:uppercase;margin-top:28px;cursor:pointer;transition:background var(--transition),box-shadow var(--transition),transform var(--transition);}
+button[type="submit"]:hover:not(:disabled){background:var(--primary-dark);box-shadow:0 4px 20px rgba(255,208,0,0.3);transform:translateY(-1px);}
+button[type="submit"]:active:not(:disabled){transform:translateY(0);}
+button[type="submit"]:disabled{opacity:0.6;cursor:not-allowed;}
 
-.modal-actions button{
-  flex:1;
-  padding:12px;
-  border-radius:var(--radius);
-  font-weight:700;
-  font-family:'Barlow Condensed',Arial,sans-serif;
-  font-size:0.95rem;
-  letter-spacing:1px;
-  cursor:pointer;
-  border:none;
-  transition:background var(--transition),box-shadow var(--transition);
-  margin-top:0;
-}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1e1e1e;border:1px solid var(--border);border-radius:var(--radius);padding:14px 22px;font-size:0.95rem;display:flex;align-items:center;gap:10px;box-shadow:0 8px 30px rgba(0,0,0,0.5);z-index:9999;transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s ease;opacity:0;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.success{border-left:4px solid #4caf50;}
+.toast.error{border-left:4px solid #e55;}
+.toast-icon{font-size:1.2rem;}
 
-.btn-cancel{
-  background:var(--surface2);
-  color:var(--text);
-  border:1px solid var(--border) !important;
-}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.25s ease;}
+.modal-overlay.show{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:2px solid var(--primary);border-radius:14px;padding:28px;max-width:500px;width:100%;transform:scale(0.93);transition:transform 0.25s ease;max-height:80vh;overflow-y:auto;}
+.modal-overlay.show .modal{transform:scale(1);}
+.modal h3{color:var(--primary);margin-top:0;font-family:'Barlow Condensed',Arial,sans-serif;font-size:1.3rem;letter-spacing:1px;}
+.modal-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:0.9rem;gap:10px;}
+.modal-row:last-of-type{border-bottom:none;}
+.modal-key{color:var(--text-muted);flex-shrink:0;}
+.modal-val{text-align:right;color:var(--text);font-weight:500;}
+.modal-actions{display:flex;gap:10px;margin-top:20px;}
+.modal-actions button{flex:1;padding:12px;border-radius:var(--radius);font-weight:700;font-family:'Barlow Condensed',Arial,sans-serif;font-size:0.95rem;letter-spacing:1px;cursor:pointer;border:none;transition:background var(--transition),box-shadow var(--transition);margin-top:0;}
+.btn-cancel{background:var(--surface2);color:var(--text);border:1px solid var(--border) !important;}
+.btn-cancel:hover{border-color:var(--primary) !important;}
+.btn-confirm{background:var(--primary);color:#000;}
+.btn-confirm:hover:not(:disabled){background:var(--primary-dark);box-shadow:0 4px 16px rgba(255,208,0,0.25);}
+.btn-confirm:disabled{opacity:0.6;cursor:not-allowed;}
 
-.btn-cancel:hover{
-  border-color:var(--gold) !important;
-}
-
-.btn-confirm{
-  background:var(--gold);
-  color:#000;
-}
-
-.btn-confirm:hover:not(:disabled){
-  background:var(--gold-dark);
-  box-shadow:0 4px 16px rgba(255,208,0,0.25);
-}
-
-.btn-confirm:disabled{
-  opacity:0.6;
-  cursor:not-allowed;
-}
-
-/* LOADING SPINNER */
-
-.spinner{
-  display:inline-block;
-  width:14px;
-  height:14px;
-  border:2px solid rgba(0,0,0,0.3);
-  border-top-color:#000;
-  border-radius:50%;
-  animation:spin 0.7s linear infinite;
-  margin-right:8px;
-  vertical-align:middle;
-}
-
-@keyframes spin{
-  to{transform:rotate(360deg);}
-}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
 </style>
 
@@ -537,14 +171,13 @@ button[type="submit"]:disabled{
 <div class="container">
 
   <div class="logo">
-    <img src="logo-autoluxe.png" alt="Logo Auto Luxe Atelier">
+    <img id="logo-img" src="" alt="Logo atelier">
   </div>
 
-  <h2>Rendez-vous</h2>
+  <h2 id="form-title">Rendez-vous</h2>
 
   <form id="form" novalidate>
 
-    <!-- VÉHICULE -->
     <p class="section-title">Véhicule</p>
 
     <label for="marque">Marque</label>
@@ -569,61 +202,35 @@ button[type="submit"]:disabled{
 
     <label>Toit ouvrant</label>
     <div class="toit-group">
-      <label class="toit-option" tabindex="0" role="radio" aria-checked="false" id="toit-avec">
+      <label class="toit-option" tabindex="0" role="radio" aria-checked="false">
         <input type="radio" name="toit_ouvrant" value="avec toit ouvrant">
         Avec toit ouvrant
       </label>
-      <label class="toit-option" tabindex="0" role="radio" aria-checked="false" id="toit-sans">
+      <label class="toit-option" tabindex="0" role="radio" aria-checked="false">
         <input type="radio" name="toit_ouvrant" value="sans toit ouvrant">
         Sans toit ouvrant
       </label>
     </div>
     <div class="field-error" id="err-toit">Veuillez sélectionner une option.</div>
 
-    <!-- SERVICES -->
     <p class="section-title">Services</p>
 
     <label>Services demandés</label>
-    <div class="services">
-      <div class="service-row" data-service="ciel" tabindex="0" role="checkbox" aria-checked="false">
-        <div class="service-box"></div>
-        Rénovation ciel de toit
-      </div>
-      <div class="service-row" data-service="rideau" tabindex="0" role="checkbox" aria-checked="false" id="service-rideau">
-        <div class="service-box"></div>
-        Remplacement rideau du toit ouvrant
-      </div>
-      <div class="service-row" data-service="couleur" tabindex="0" role="checkbox" aria-checked="false">
-        <div class="service-box"></div>
-        Changement de couleur avec tissu comme l'original
-      </div>
-      <div class="service-row" data-service="alcantara" tabindex="0" role="checkbox" aria-checked="false">
-        <div class="service-box"></div>
-        Changement de couleur en Alcantara
-      </div>
-      <div class="service-row" data-service="portes" tabindex="0" role="checkbox" aria-checked="false">
-        <div class="service-box"></div>
-        Rénovation tissu des portes
-      </div>
-      <div class="service-row" data-service="etoile500" tabindex="0" role="checkbox" aria-checked="false">
-        <div class="service-box"></div>
-        Ciel étoilé Pack 500 🌟
-      </div>
-      <div class="service-row" data-service="etoile1000" tabindex="0" role="checkbox" aria-checked="false">
-        <div class="service-box"></div>
-        Ciel étoilé Pack 1000 🌟
-      </div>
-    </div>
+    <div class="services" id="services-container"></div>
     <div class="field-error" id="err-services">Veuillez sélectionner au moins un service.</div>
 
-    <label for="prix">Prix</label>
-    <input type="number" id="prix" placeholder="Calculé automatiquement" min="0">
+    <!-- ── PRIX MODIFIABLE ── -->
+    <label for="prix">Prix (DA)</label>
+    <div class="prix-wrapper">
+      <input type="number" id="prix" min="0" placeholder="Calculé automatiquement — modifiable" aria-required="true">
+      <span class="prix-suffix">DA</span>
+    </div>
+    <div class="prix-hint">💡 Le prix est calculé automatiquement mais vous pouvez le modifier.</div>
+    <div class="field-error" id="err-prix">Veuillez entrer un prix.</div>
 
-    <!-- REMARQUES -->
     <label for="remarques">Remarques</label>
     <textarea id="remarques" rows="3" placeholder="Informations complémentaires…"></textarea>
 
-    <!-- CLIENT -->
     <p class="section-title">Client</p>
 
     <label for="prenom">Prénom</label>
@@ -638,7 +245,6 @@ button[type="submit"]:disabled{
     <input type="tel" id="tel" autocomplete="tel" placeholder="Ex : 06 00 00 00 00" aria-required="true">
     <div class="field-error" id="err-tel">Veuillez entrer un numéro de téléphone.</div>
 
-    <!-- RDV -->
     <p class="section-title">Rendez-vous</p>
 
     <label for="daterdv">Date du RDV</label>
@@ -646,8 +252,8 @@ button[type="submit"]:disabled{
     <div class="field-error" id="err-daterdv">Veuillez choisir une date de RDV valide.</div>
 
     <label for="heure">Heure d'arrivée</label>
-    <input type="time" id="heure" min="09:00" max="17:00" step="1800" aria-required="true">
-    <div class="field-error" id="err-heure">L'heure doit être entre 09h00 et 17h00.</div>
+    <input type="time" id="heure" step="1800" aria-required="true">
+    <div class="field-error" id="err-heure">Heure invalide.</div>
 
     <label for="datemontage">Date du montage <small style="font-weight:400;text-transform:none;color:var(--text-muted)">(si nécessaire)</small></label>
     <input type="date" id="datemontage">
@@ -658,10 +264,9 @@ button[type="submit"]:disabled{
 
 </div>
 
-<!-- MODAL CONFIRMATION -->
-<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true">
   <div class="modal">
-    <h3 id="modal-title">📋 Récapitulatif</h3>
+    <h3>📋 Récapitulatif</h3>
     <div id="modal-body"></div>
     <div class="modal-actions">
       <button class="btn-cancel" id="btn-cancel">Modifier</button>
@@ -670,7 +275,6 @@ button[type="submit"]:disabled{
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast" role="alert" aria-live="polite">
   <span class="toast-icon" id="toast-icon"></span>
   <span id="toast-msg"></span>
@@ -680,37 +284,67 @@ button[type="submit"]:disabled{
 
 <script>
 
-/* ─── CONFIG ──────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+  ✏️  MODIFIER UNIQUEMENT CETTE SECTION POUR CHAQUE CLIENT
+═══════════════════════════════════════════════════════════════ */
 
-const CONFIG = {
-  sheetURL: "https://docs.google.com/spreadsheets/d/1T7AJBCvfomGbjdrm3ydughenuqPdKpYHmmW4DD_sz2M/gviz/tq?tqx=out:csv&gid=0",
+const CLIENT = {
+  nom: "Rendez-vous",
+  logo: "logo-autoluxe.png",
+  couleur: "#ffd000",
   webhookURL: "https://n8n-hetzner.duckdns.org/webhook/nouveau-client",
-  openHourMin: "09:00",
-  openHourMax: "17:00",
-  closedDays: [4, 5],
-  fixedPrices: {
-    etoile500: 80000,
+  sheetURL: "https://docs.google.com/spreadsheets/d/1T7AJBCvfomGbjdrm3ydughenuqPdKpYHmmW4DD_sz2M/gviz/tq?tqx=out:csv&gid=0",
+  heureMin: "09:00",
+  heureMax: "17:00",
+  joursFermes: [4, 5],
+  prixFixes: {
+    etoile500:  80000,
     etoile1000: 120000
   }
 }
 
-const SERVICE_NAMES = {
-  ciel:       "Rénovation ciel de toit",
-  rideau:     "Remplacement rideau du toit ouvrant",
-  couleur:    "Changement de couleur du ciel de toit avec tissu comme l'original + peintures des plastiques",
-  alcantara:  "Changement de couleur du ciel de toit en Alcantara + peintures des plastiques",
-  portes:     "Rénovation tissu des portes",
-  etoile500:  "Ciel étoilé Pack 500 🌟",
-  etoile1000: "Ciel étoilé Pack 1000 🌟"
-}
+/* ═══════════════════════════════════════════════════════════════
+   NE PAS MODIFIER EN DESSOUS DE CETTE LIGNE
+═══════════════════════════════════════════════════════════════ */
 
-/* ─── STATE ───────────────────────────────────────────────── */
+document.documentElement.style.setProperty('--primary', CLIENT.couleur)
+document.documentElement.style.setProperty('--primary-dark', CLIENT.couleur + 'cc')
+document.getElementById('logo-img').src = CLIENT.logo
+document.getElementById('logo-img').alt = 'Logo ' + CLIENT.nom
+document.getElementById('form-title').textContent = CLIENT.nom
+document.getElementById('page-title').textContent = CLIENT.nom
+document.getElementById('heure').min = CLIENT.heureMin
+document.getElementById('heure').max = CLIENT.heureMax
+
+const SERVICES = [
+  { id: "ciel",       label: "Rénovation ciel de toit" },
+  { id: "rideau",     label: "Remplacement rideau du toit ouvrant", rideau: true },
+  { id: "couleur",    label: "Changement de couleur avec tissu comme l'original" },
+  { id: "alcantara",  label: "Changement de couleur en Alcantara" },
+  { id: "portes",     label: "Rénovation tissu des portes" },
+  { id: "etoile500",  label: "Ciel étoilé Pack 500 🌟" },
+  { id: "etoile1000", label: "Ciel étoilé Pack 1000 🌟" }
+]
+
+const SERVICE_NAMES = {}
+SERVICES.forEach(s => { SERVICE_NAMES[s.id] = s.label })
+
+const servicesContainer = document.getElementById('services-container')
+SERVICES.forEach(s => {
+  const div = document.createElement('div')
+  div.className = 'service-row'
+  div.dataset.service = s.id
+  div.tabIndex = 0
+  div.role = 'checkbox'
+  div.setAttribute('aria-checked', 'false')
+  if (s.rideau) div.id = 'service-rideau'
+  div.innerHTML = `<div class="service-box"></div>${s.label}`
+  servicesContainer.appendChild(div)
+})
 
 let database = []
 let marqueSelect, modeleSelect
 let servicesSelectionnes = []
-
-/* ─── DOM REFS ────────────────────────────────────────────── */
 
 const marqueEl     = document.getElementById("marque")
 const modeleEl     = document.getElementById("modele")
@@ -724,8 +358,6 @@ const modalBody    = document.getElementById("modal-body")
 const btnCancel    = document.getElementById("btn-cancel")
 const btnConfirm   = document.getElementById("btn-confirm")
 
-/* ─── TOAST ───────────────────────────────────────────────── */
-
 function showToast(msg, type = "success") {
   const toast     = document.getElementById("toast")
   const toastMsg  = document.getElementById("toast-msg")
@@ -736,8 +368,6 @@ function showToast(msg, type = "success") {
   toast.classList.add("show")
   setTimeout(() => toast.classList.remove("show"), 4000)
 }
-
-/* ─── CSV PARSER ──────────────────────────────────────────── */
 
 function parseCSVLine(line) {
   const result = []
@@ -756,14 +386,11 @@ function clean(v) {
   return v ? v.replace(/^"|"$/g, "").trim() : ""
 }
 
-/* ─── LOAD DATA ───────────────────────────────────────────── */
-
 async function loadData() {
   try {
-    const res  = await fetch(CONFIG.sheetURL)
+    const res  = await fetch(CLIENT.sheetURL)
     const text = await res.text()
     const rows = text.split("\n").slice(1).filter(r => r.trim())
-
     rows.forEach(r => {
       const c = parseCSVLine(r)
       database.push({
@@ -778,20 +405,14 @@ async function loadData() {
         prix_portes:    parseInt(clean(c[10])) || 0
       })
     })
-
     initBrands()
-
     marqueSelect = new TomSelect("#marque", { create: true, placeholder: "Choisir la marque" })
     modeleSelect = new TomSelect("#modele", { create: true, placeholder: "Choisir le modèle" })
-
     modeleSelect.disable()
-
     marqueSelect.on("change", onMarqueChange)
     modeleSelect.on("change", onModeleChange)
-
   } catch(err) {
     showToast("Impossible de charger les données du catalogue.", "error")
-    console.error("Erreur loadData:", err)
   }
 }
 
@@ -805,20 +426,13 @@ function initBrands() {
   })
 }
 
-/* ─── CASCADES ────────────────────────────────────────────── */
-
 function onMarqueChange(val) {
   modeleSelect.clearOptions()
   anneeEl.value = ""
-  anneeEl.min = 1990
-  anneeEl.max = 2030
-
   if (!val) { modeleSelect.disable(); return }
-
   const models = [...new Map(
     database.filter(d => d.marque === val).map(m => [m.modele, m])
   ).values()]
-
   models.forEach(m => modeleSelect.addOption({ value: m.modele, text: m.modele }))
   modeleSelect.enable()
   modeleSelect.refreshOptions(false)
@@ -827,24 +441,13 @@ function onMarqueChange(val) {
 function onModeleChange(val) {
   const marque  = marqueSelect.getValue()
   const voiture = database.find(v => v.marque === marque && v.modele === val)
-
-  if (!voiture) {
-    anneeEl.value = ""
-    anneeEl.min = 1990
-    anneeEl.max = 2030
-    return
-  }
-
-  // Pré-remplir avec l'année médiane de la plage
+  if (!voiture) { anneeEl.value = ""; return }
   const mid = Math.round((voiture.annee_debut + voiture.annee_fin) / 2)
   anneeEl.value = mid
   anneeEl.min = voiture.annee_debut
   anneeEl.max = voiture.annee_fin
-
   calculPrix()
 }
-
-/* ─── TOIT OUVRANT ────────────────────────────────────────── */
 
 document.querySelectorAll(".toit-option").forEach(card => {
   const activate = () => {
@@ -855,61 +458,39 @@ document.querySelectorAll(".toit-option").forEach(card => {
     card.classList.add("active")
     card.setAttribute("aria-checked", "true")
     card.querySelector("input").checked = true
-
     const val = card.querySelector("input").value
     const rideauRow = document.getElementById("service-rideau")
     if (val === "sans toit ouvrant") {
       rideauRow.classList.add("disabled")
-      rideauRow.setAttribute("aria-disabled", "true")
       if (servicesSelectionnes.includes("rideau")) {
         rideauRow.classList.remove("active")
-        rideauRow.setAttribute("aria-checked", "false")
         servicesSelectionnes = servicesSelectionnes.filter(s => s !== "rideau")
         calculPrix()
       }
     } else {
       rideauRow.classList.remove("disabled")
-      rideauRow.setAttribute("aria-disabled", "false")
     }
   }
-
   card.addEventListener("click", activate)
-  card.addEventListener("keydown", e => {
-    if (e.key === " " || e.key === "Enter") { e.preventDefault(); activate() }
-  })
+  card.addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); activate() } })
 })
 
-/* ─── SERVICES ────────────────────────────────────────────── */
-
-document.querySelectorAll(".service-row").forEach(row => {
-  const toggle = () => {
-    if (row.classList.contains("disabled")) return
-    const isActive = row.classList.toggle("active")
-    row.setAttribute("aria-checked", isActive ? "true" : "false")
-    const service = row.dataset.service
-    if (isActive) {
-      servicesSelectionnes.push(service)
-    } else {
-      servicesSelectionnes = servicesSelectionnes.filter(s => s !== service)
-    }
-    calculPrix()
-  }
-
-  row.addEventListener("click", toggle)
-  row.addEventListener("keydown", e => {
-    if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggle() }
-  })
+document.addEventListener("click", e => {
+  const row = e.target.closest(".service-row")
+  if (!row || row.classList.contains("disabled")) return
+  const isActive = row.classList.toggle("active")
+  row.setAttribute("aria-checked", isActive ? "true" : "false")
+  const service = row.dataset.service
+  if (isActive) servicesSelectionnes.push(service)
+  else servicesSelectionnes = servicesSelectionnes.filter(s => s !== service)
+  calculPrix()
 })
-
-/* ─── CALCUL PRIX ─────────────────────────────────────────── */
 
 function calculPrix() {
   const marque  = marqueSelect ? marqueSelect.getValue() : ""
   const modele  = modeleSelect ? modeleSelect.getValue() : ""
   const voiture = database.find(v => v.marque === marque && v.modele === modele)
-
   let total = 0
-
   servicesSelectionnes.forEach(s => {
     if (voiture) {
       if (s === "ciel")      total += voiture.prix_ciel
@@ -918,39 +499,45 @@ function calculPrix() {
       if (s === "alcantara") total += voiture.prix_alcantara
       if (s === "portes")    total += voiture.prix_portes
     }
-    if (CONFIG.fixedPrices[s]) total += CONFIG.fixedPrices[s]
+    if (CLIENT.prixFixes[s]) total += CLIENT.prixFixes[s]
   })
-
-  prixInput.value = total > 0 ? total : ""
+  // Mettre à jour le champ prix SEULEMENT s'il n'a pas été modifié manuellement
+  if (!prixInput.dataset.manualEdit) {
+    prixInput.value = total > 0 ? total : ""
+  }
 }
 
-/* ─── DATE RDV ────────────────────────────────────────────── */
+// Détecter si le prix a été modifié manuellement
+prixInput.addEventListener("input", function() {
+  this.dataset.manualEdit = "true"
+})
+
+// Si les services changent, réinitialiser le flag de modification manuelle
+document.addEventListener("click", e => {
+  if (e.target.closest(".service-row")) {
+    delete prixInput.dataset.manualEdit
+  }
+})
 
 const today = new Date().toISOString().split("T")[0]
 dateRDVEl.min = today
-
 dateRDVEl.addEventListener("change", function() {
-  const d   = new Date(this.value + "T12:00:00")
-  const day = d.getDay()
-  if (CONFIG.closedDays.includes(day)) {
+  const d = new Date(this.value + "T12:00:00")
+  if (CLIENT.joursFermes.includes(d.getDay())) {
     showToast("L'atelier est fermé ce jour-là. Veuillez choisir une autre date.", "error")
     dateRDVEl.value = ""
   }
 })
 
-/* ─── VALIDATION HEURE ────────────────────────────────────── */
-
 heureEl.addEventListener("change", function() {
   const val = this.value
-  if (val && (val < CONFIG.openHourMin || val > CONFIG.openHourMax)) {
+  if (val && (val < CLIENT.heureMin || val > CLIENT.heureMax)) {
     showError("heure", true)
     this.value = ""
   } else {
     showError("heure", false)
   }
 })
-
-/* ─── VALIDATION ──────────────────────────────────────────── */
 
 function showError(id, show) {
   const err = document.getElementById("err-" + id)
@@ -961,7 +548,6 @@ function showError(id, show) {
 
 function validateForm() {
   let valid = true
-
   const required = [
     { id: "marque",  val: () => marqueSelect ? marqueSelect.getValue() : "" },
     { id: "modele",  val: () => modeleSelect ? modeleSelect.getValue() : "" },
@@ -971,38 +557,25 @@ function validateForm() {
     { id: "tel",     val: () => document.getElementById("tel").value },
     { id: "daterdv", val: () => document.getElementById("daterdv").value },
     { id: "heure",   val: () => document.getElementById("heure").value },
+    { id: "prix",    val: () => document.getElementById("prix").value },
   ]
-
   required.forEach(f => {
     const empty = !f.val() || f.val().trim() === ""
     showError(f.id, empty)
     if (empty) valid = false
   })
-
-  // Validation plage année
-  const anneeVal = parseInt(anneeEl.value)
-  if (anneeEl.value && (anneeVal < 1990 || anneeVal > 2030)) {
-    showError("annee", true)
-    valid = false
-  }
-
-  // Toit
   const toitChecked = document.querySelector('input[name="toit_ouvrant"]:checked')
   showError("toit", !toitChecked)
   if (!toitChecked) valid = false
-
-  // Services
   showError("services", servicesSelectionnes.length === 0)
   if (servicesSelectionnes.length === 0) valid = false
-
   return valid
 }
-
-/* ─── MODAL RECAP ─────────────────────────────────────────── */
 
 function buildRecap() {
   const toit      = document.querySelector('input[name="toit_ouvrant"]:checked')?.value || "—"
   const matricule = document.getElementById("matricule").value || "—"
+  const prixVal   = prixInput.value ? Number(prixInput.value).toLocaleString('fr-DZ') + " DA" : "—"
   const rows = [
     ["Marque",       marqueSelect ? marqueSelect.getValue() : ""],
     ["Modèle",       modeleSelect ? modeleSelect.getValue() : ""],
@@ -1010,7 +583,7 @@ function buildRecap() {
     ["Matricule",    matricule],
     ["Toit",         toit],
     ["Services",     servicesSelectionnes.map(s => SERVICE_NAMES[s]).join(", ")],
-    ["Prix",         (prixInput.value || "—") + (prixInput.value ? " DA" : "")],
+    ["Prix",         prixVal],
     ["Remarques",    document.getElementById("remarques").value || "—"],
     ["Prénom",       document.getElementById("prenom").value],
     ["Nom",          document.getElementById("nom").value],
@@ -1019,17 +592,12 @@ function buildRecap() {
     ["Heure",        document.getElementById("heure").value],
     ["Date montage", document.getElementById("datemontage").value || "—"],
   ]
-
   modalBody.innerHTML = rows.map(([k, v]) =>
     `<div class="modal-row"><span class="modal-key">${k}</span><span class="modal-val">${v}</span></div>`
   ).join("")
 }
 
-function openModal() {
-  buildRecap()
-  modalOverlay.classList.add("show")
-}
-
+function openModal() { buildRecap(); modalOverlay.classList.add("show") }
 function closeModal() {
   modalOverlay.classList.remove("show")
   btnConfirm.disabled = false
@@ -1037,17 +605,8 @@ function closeModal() {
 }
 
 btnCancel.addEventListener("click", closeModal)
-modalOverlay.addEventListener("click", e => {
-  if (e.target === modalOverlay) closeModal()
-})
-
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape" && modalOverlay.classList.contains("show")) {
-    closeModal()
-  }
-})
-
-/* ─── SOUMISSION ──────────────────────────────────────────── */
+modalOverlay.addEventListener("click", e => { if (e.target === modalOverlay) closeModal() })
+document.addEventListener("keydown", e => { if (e.key === "Escape" && modalOverlay.classList.contains("show")) closeModal() })
 
 document.getElementById("form").addEventListener("submit", function(e) {
   e.preventDefault()
@@ -1061,9 +620,7 @@ document.getElementById("form").addEventListener("submit", function(e) {
 btnConfirm.addEventListener("click", async function() {
   btnConfirm.disabled = true
   btnConfirm.innerHTML = '<span class="spinner"></span>Envoi…'
-
   closeModal()
-
   btnSubmit.disabled = true
   btnSubmit.innerHTML = '<span class="spinner"></span>Envoi en cours…'
 
@@ -1085,37 +642,24 @@ btnConfirm.addEventListener("click", async function() {
   }
 
   try {
-    const res = await fetch(CONFIG.webhookURL, {
+    const res = await fetch(CLIENT.webhookURL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     })
-
     if (!res.ok) throw new Error("Réponse serveur : " + res.status)
-
     showToast("Client ajouté avec succès ✅", "success")
-
     document.getElementById("form").reset()
     servicesSelectionnes = []
-    document.querySelectorAll(".service-row.active").forEach(r => {
-      r.classList.remove("active")
-      r.setAttribute("aria-checked", "false")
-    })
-    document.querySelectorAll(".toit-option.active").forEach(c => {
-      c.classList.remove("active")
-      c.setAttribute("aria-checked", "false")
-    })
+    document.querySelectorAll(".service-row.active").forEach(r => { r.classList.remove("active"); r.setAttribute("aria-checked", "false") })
+    document.querySelectorAll(".toit-option.active").forEach(c => { c.classList.remove("active"); c.setAttribute("aria-checked", "false") })
     prixInput.value = ""
+    delete prixInput.dataset.manualEdit
     anneeEl.value = ""
-    anneeEl.min = 1990
-    anneeEl.max = 2030
-
-    if (marqueSelect) { marqueSelect.clear() }
+    if (marqueSelect) marqueSelect.clear()
     if (modeleSelect) { modeleSelect.clearOptions(); modeleSelect.disable() }
-
   } catch(err) {
     showToast("Erreur lors de l'envoi. Vérifiez la connexion.", "error")
-    console.error("Erreur envoi:", err)
   } finally {
     btnSubmit.disabled = false
     btnSubmit.textContent = "Ajouter le client"
@@ -1123,8 +667,6 @@ btnConfirm.addEventListener("click", async function() {
     btnConfirm.textContent = "Confirmer l'envoi"
   }
 })
-
-/* ─── INIT ────────────────────────────────────────────────── */
 
 loadData()
 
