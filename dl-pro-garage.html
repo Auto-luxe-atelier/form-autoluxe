@@ -14,9 +14,7 @@
 
 <style>
 
-*,*::before,*::after{
-  box-sizing:border-box;
-}
+*,*::before,*::after{box-sizing:border-box;}
 
 :root{
   --primary:#ffd000;
@@ -31,481 +29,138 @@
   --transition:0.2s ease;
 }
 
-body{
-  font-family:'Barlow',Arial,Helvetica,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  padding:20px;
-  margin:0;
-  min-height:100vh;
-}
+body{font-family:'Barlow',Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);padding:20px;margin:0;min-height:100vh;}
 
-.container{
-  max-width:660px;
-  margin:auto;
-  background:var(--surface);
-  padding:36px 32px;
-  border-radius:14px;
-  border:2px solid var(--primary);
-}
+.container{max-width:660px;margin:auto;background:var(--surface);padding:36px 32px;border-radius:14px;border:2px solid var(--primary);}
 
-.logo{
-  text-align:center;
-  margin-bottom:24px;
-}
+.logo{text-align:center;margin-bottom:24px;}
+.logo img{max-width:260px;width:100%;height:auto;}
 
-.logo img{
-  max-width:260px;
-  width:100%;
-  height:auto;
-}
+h2{text-align:center;color:var(--primary);font-family:'Barlow Condensed',Arial,sans-serif;font-size:1.7rem;letter-spacing:1px;margin-top:0;margin-bottom:28px;}
 
-h2{
-  text-align:center;
-  color:var(--primary);
-  font-family:'Barlow Condensed',Arial,sans-serif;
-  font-size:1.7rem;
-  letter-spacing:1px;
-  margin-top:0;
-  margin-bottom:28px;
-}
+label{font-weight:600;color:var(--primary);display:block;margin-top:18px;margin-bottom:6px;font-size:0.88rem;letter-spacing:0.5px;text-transform:uppercase;}
 
-label{
-  font-weight:600;
-  color:var(--primary);
-  display:block;
-  margin-top:18px;
-  margin-bottom:6px;
-  font-size:0.88rem;
-  letter-spacing:0.5px;
-  text-transform:uppercase;
-}
+input,select,textarea{width:100%;padding:12px 14px;border-radius:var(--radius);border:1px solid var(--border);background:#111;color:var(--text);font-family:'Barlow',Arial,sans-serif;font-size:0.97rem;transition:border-color var(--transition),box-shadow var(--transition);}
 
-input,select,textarea{
-  width:100%;
-  padding:12px 14px;
-  border-radius:var(--radius);
-  border:1px solid var(--border);
-  background:#111;
-  color:var(--text);
-  font-family:'Barlow',Arial,sans-serif;
-  font-size:0.97rem;
-  transition:border-color var(--transition),box-shadow var(--transition);
-}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(255,208,0,0.12);}
 
-input:focus,select:focus,textarea:focus{
-  outline:none;
-  border-color:var(--primary);
-  box-shadow:0 0 0 3px rgba(255,208,0,0.12);
-}
+input.error,select.error{border-color:#e55;}
 
-input[readonly]{
-  opacity:0.75;
-  cursor:default;
-  background:#0d0d0d;
-}
+.field-error{color:#ff6b6b;font-size:0.78rem;margin-top:4px;display:none;}
+.field-error.visible{display:block;}
+.field-hint{color:var(--text-muted);font-size:0.76rem;margin-top:4px;}
 
-input.error,select.error{
-  border-color:#e55;
-}
+.ts-control{background:#111 !important;color:var(--text) !important;border:1px solid var(--border) !important;border-radius:var(--radius) !important;padding:10px 14px !important;transition:border-color var(--transition),box-shadow var(--transition) !important;}
+.ts-control:focus-within{border-color:var(--primary) !important;box-shadow:0 0 0 3px rgba(255,208,0,0.12) !important;}
+.ts-dropdown{background:#1a1a1a !important;color:var(--text) !important;border:1px solid var(--border) !important;border-radius:var(--radius) !important;margin-top:4px !important;}
+.ts-dropdown .option:hover,.ts-dropdown .option.active{background:var(--primary) !important;color:#000 !important;}
+.ts-wrapper.disabled .ts-control{opacity:0.45;cursor:not-allowed;}
 
-.field-error{
-  color:#ff6b6b;
-  font-size:0.78rem;
-  margin-top:4px;
-  display:none;
-}
+.toit-group{display:flex;gap:10px;margin-top:4px;}
+.toit-option{flex:1;border:1px solid var(--border);padding:12px;border-radius:var(--radius);text-align:center;cursor:pointer;font-size:0.9rem;transition:background var(--transition),border-color var(--transition),color var(--transition),box-shadow var(--transition);user-select:none;}
+.toit-option:hover{border-color:var(--primary);}
+.toit-option input{display:none;}
+.toit-option.active{background:var(--primary);color:#000;font-weight:700;border-color:var(--primary);box-shadow:0 0 10px rgba(255,208,0,0.25);}
 
-.field-error.visible{
-  display:block;
-}
+.services{margin-top:4px;display:flex;flex-direction:column;gap:8px;}
+.service-row{display:flex;align-items:center;gap:12px;border:1px solid var(--border);padding:13px 14px;border-radius:var(--radius);cursor:pointer;transition:border-color var(--transition),background var(--transition),box-shadow var(--transition);user-select:none;font-size:0.94rem;}
+.service-row:hover{border-color:var(--primary);background:rgba(255,208,0,0.04);}
+.service-row input{display:none;}
+.service-box{width:18px;height:18px;min-width:18px;border:2px solid var(--primary);border-radius:4px;transition:background var(--transition);position:relative;display:flex;align-items:center;justify-content:center;}
+.service-box::after{content:'✓';font-size:12px;color:#000;opacity:0;transition:opacity var(--transition);font-weight:900;}
+.service-row.active .service-box{background:var(--primary);}
+.service-row.active .service-box::after{opacity:1;}
+.service-row.active{border-color:var(--primary);box-shadow:0 0 8px rgba(255,208,0,0.15);}
+.service-row.disabled{opacity:0.35;pointer-events:none;cursor:default;}
 
-.field-hint{
-  color:var(--text-muted);
-  font-size:0.76rem;
-  margin-top:4px;
-}
-
-.ts-control{
-  background:#111 !important;
-  color:var(--text) !important;
-  border:1px solid var(--border) !important;
-  border-radius:var(--radius) !important;
-  padding:10px 14px !important;
-  transition:border-color var(--transition),box-shadow var(--transition) !important;
-}
-
-.ts-control:focus-within{
-  border-color:var(--primary) !important;
-  box-shadow:0 0 0 3px rgba(255,208,0,0.12) !important;
-}
-
-.ts-dropdown{
-  background:#1a1a1a !important;
-  color:var(--text) !important;
-  border:1px solid var(--border) !important;
-  border-radius:var(--radius) !important;
-  margin-top:4px !important;
-}
-
-.ts-dropdown .option:hover,
-.ts-dropdown .option.active{
-  background:var(--primary) !important;
-  color:#000 !important;
-}
-
-.ts-wrapper.disabled .ts-control{
-  opacity:0.45;
-  cursor:not-allowed;
-}
-
-.toit-group{
-  display:flex;
-  gap:10px;
-  margin-top:4px;
-}
-
-.toit-option{
-  flex:1;
-  border:1px solid var(--border);
-  padding:12px;
-  border-radius:var(--radius);
-  text-align:center;
-  cursor:pointer;
-  font-size:0.9rem;
-  transition:background var(--transition),border-color var(--transition),color var(--transition),box-shadow var(--transition);
-  user-select:none;
-}
-
-.toit-option:hover{
-  border-color:var(--primary);
-}
-
-.toit-option:focus-visible{
-  outline:2px solid var(--primary);
-  outline-offset:2px;
-}
-
-.toit-option input{
-  display:none;
-}
-
-.toit-option.active{
-  background:var(--primary);
-  color:#000;
-  font-weight:700;
-  border-color:var(--primary);
-  box-shadow:0 0 10px rgba(255,208,0,0.25);
-}
-
-.services{
-  margin-top:4px;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.service-row{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  border:1px solid var(--border);
-  padding:13px 14px;
-  border-radius:var(--radius);
-  cursor:pointer;
-  transition:border-color var(--transition),background var(--transition),box-shadow var(--transition);
-  user-select:none;
-  font-size:0.94rem;
-}
-
-.service-row:hover{
-  border-color:var(--primary);
-  background:rgba(255,208,0,0.04);
-}
-
-.service-row:focus-visible{
-  outline:2px solid var(--primary);
-  outline-offset:2px;
-}
-
-.service-row input{
-  display:none;
-}
-
-.service-box{
-  width:18px;
-  height:18px;
-  min-width:18px;
-  border:2px solid var(--primary);
-  border-radius:4px;
-  transition:background var(--transition);
+/* ── PRIX MODIFIABLE ── */
+.prix-wrapper{
   position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.service-box::after{
-  content:'✓';
-  font-size:12px;
-  color:#000;
-  opacity:0;
-  transition:opacity var(--transition);
-  font-weight:900;
-}
-
-.service-row.active .service-box{
-  background:var(--primary);
-}
-
-.service-row.active .service-box::after{
-  opacity:1;
-}
-
-.service-row.active{
-  border-color:var(--primary);
-  box-shadow:0 0 8px rgba(255,208,0,0.15);
-}
-
-.service-row.disabled{
-  opacity:0.35;
-  pointer-events:none;
-  cursor:default;
-}
-
-.prix-display{
-  background:#0d0d0d;
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:14px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
   margin-top:6px;
 }
 
-.prix-display span.prix-label{
+.prix-wrapper input[type="number"]{
+  width:100%;
+  padding:14px 60px 14px 14px;
+  border-radius:var(--radius);
+  border:2px solid var(--primary);
+  background:#0d0d0d;
+  color:var(--primary);
+  font-size:1.3rem;
+  font-family:'Barlow Condensed',Arial,sans-serif;
+  font-weight:700;
+  letter-spacing:1px;
+  transition:border-color var(--transition),box-shadow var(--transition);
+}
+
+.prix-wrapper input[type="number"]:focus{
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(255,208,0,0.15);
+}
+
+.prix-wrapper input[type="number"]::placeholder{
+  color:var(--text-muted);
+  font-size:1rem;
+  font-weight:400;
+}
+
+/* Supprimer les flèches du champ number */
+.prix-wrapper input[type="number"]::-webkit-inner-spin-button,
+.prix-wrapper input[type="number"]::-webkit-outer-spin-button{
+  -webkit-appearance:none;
+  margin:0;
+}
+.prix-wrapper input[type="number"]{-moz-appearance:textfield;}
+
+.prix-suffix{
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
   color:var(--text-muted);
   font-size:0.85rem;
-}
-
-.prix-display span.prix-value{
-  color:var(--primary);
-  font-size:1.4rem;
-  font-family:'Barlow Condensed',Arial,sans-serif;
-  font-weight:700;
-  letter-spacing:1px;
-}
-
-.section-title{
-  font-family:'Barlow Condensed',Arial,sans-serif;
-  color:var(--text-muted);
-  font-size:0.75rem;
-  text-transform:uppercase;
-  letter-spacing:2px;
-  margin-top:30px;
-  margin-bottom:2px;
-  padding-bottom:8px;
-  border-bottom:1px solid var(--border);
-}
-
-button[type="submit"]{
-  background:var(--primary);
-  color:#000;
-  padding:15px;
-  border:none;
-  width:100%;
-  border-radius:var(--radius);
-  font-size:1rem;
-  font-weight:700;
-  font-family:'Barlow Condensed',Arial,sans-serif;
-  letter-spacing:1.5px;
-  text-transform:uppercase;
-  margin-top:28px;
-  cursor:pointer;
-  transition:background var(--transition),box-shadow var(--transition),transform var(--transition);
-}
-
-button[type="submit"]:hover:not(:disabled){
-  background:var(--primary-dark);
-  box-shadow:0 4px 20px rgba(255,208,0,0.3);
-  transform:translateY(-1px);
-}
-
-button[type="submit"]:active:not(:disabled){
-  transform:translateY(0);
-}
-
-button[type="submit"]:disabled{
-  opacity:0.6;
-  cursor:not-allowed;
-}
-
-.toast{
-  position:fixed;
-  bottom:24px;
-  left:50%;
-  transform:translateX(-50%) translateY(80px);
-  background:#1e1e1e;
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:14px 22px;
-  font-size:0.95rem;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  box-shadow:0 8px 30px rgba(0,0,0,0.5);
-  z-index:9999;
-  transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s ease;
-  opacity:0;
-  white-space:nowrap;
-}
-
-.toast.show{
-  transform:translateX(-50%) translateY(0);
-  opacity:1;
-}
-
-.toast.success{
-  border-left:4px solid #4caf50;
-}
-
-.toast.error{
-  border-left:4px solid #e55;
-}
-
-.toast-icon{
-  font-size:1.2rem;
-}
-
-.modal-overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.75);
-  z-index:1000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  opacity:0;
   pointer-events:none;
-  transition:opacity 0.25s ease;
 }
 
-.modal-overlay.show{
-  opacity:1;
-  pointer-events:all;
-}
-
-.modal{
-  background:var(--surface);
-  border:2px solid var(--primary);
-  border-radius:14px;
-  padding:28px;
-  max-width:500px;
-  width:100%;
-  transform:scale(0.93);
-  transition:transform 0.25s ease;
-  max-height:80vh;
-  overflow-y:auto;
-}
-
-.modal-overlay.show .modal{
-  transform:scale(1);
-}
-
-.modal h3{
-  color:var(--primary);
-  margin-top:0;
-  font-family:'Barlow Condensed',Arial,sans-serif;
-  font-size:1.3rem;
-  letter-spacing:1px;
-}
-
-.modal-row{
-  display:flex;
-  justify-content:space-between;
-  padding:7px 0;
-  border-bottom:1px solid var(--border);
-  font-size:0.9rem;
-  gap:10px;
-}
-
-.modal-row:last-of-type{
-  border-bottom:none;
-}
-
-.modal-key{
+.prix-hint{
   color:var(--text-muted);
-  flex-shrink:0;
+  font-size:0.76rem;
+  margin-top:5px;
 }
 
-.modal-val{
-  text-align:right;
-  color:var(--text);
-  font-weight:500;
-}
+.section-title{font-family:'Barlow Condensed',Arial,sans-serif;color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;margin-top:30px;margin-bottom:2px;padding-bottom:8px;border-bottom:1px solid var(--border);}
 
-.modal-actions{
-  display:flex;
-  gap:10px;
-  margin-top:20px;
-}
+button[type="submit"]{background:var(--primary);color:#000;padding:15px;border:none;width:100%;border-radius:var(--radius);font-size:1rem;font-weight:700;font-family:'Barlow Condensed',Arial,sans-serif;letter-spacing:1.5px;text-transform:uppercase;margin-top:28px;cursor:pointer;transition:background var(--transition),box-shadow var(--transition),transform var(--transition);}
+button[type="submit"]:hover:not(:disabled){background:var(--primary-dark);box-shadow:0 4px 20px rgba(255,208,0,0.3);transform:translateY(-1px);}
+button[type="submit"]:active:not(:disabled){transform:translateY(0);}
+button[type="submit"]:disabled{opacity:0.6;cursor:not-allowed;}
 
-.modal-actions button{
-  flex:1;
-  padding:12px;
-  border-radius:var(--radius);
-  font-weight:700;
-  font-family:'Barlow Condensed',Arial,sans-serif;
-  font-size:0.95rem;
-  letter-spacing:1px;
-  cursor:pointer;
-  border:none;
-  transition:background var(--transition),box-shadow var(--transition);
-  margin-top:0;
-}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1e1e1e;border:1px solid var(--border);border-radius:var(--radius);padding:14px 22px;font-size:0.95rem;display:flex;align-items:center;gap:10px;box-shadow:0 8px 30px rgba(0,0,0,0.5);z-index:9999;transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s ease;opacity:0;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.success{border-left:4px solid #4caf50;}
+.toast.error{border-left:4px solid #e55;}
+.toast-icon{font-size:1.2rem;}
 
-.btn-cancel{
-  background:var(--surface2);
-  color:var(--text);
-  border:1px solid var(--border) !important;
-}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.25s ease;}
+.modal-overlay.show{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:2px solid var(--primary);border-radius:14px;padding:28px;max-width:500px;width:100%;transform:scale(0.93);transition:transform 0.25s ease;max-height:80vh;overflow-y:auto;}
+.modal-overlay.show .modal{transform:scale(1);}
+.modal h3{color:var(--primary);margin-top:0;font-family:'Barlow Condensed',Arial,sans-serif;font-size:1.3rem;letter-spacing:1px;}
+.modal-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:0.9rem;gap:10px;}
+.modal-row:last-of-type{border-bottom:none;}
+.modal-key{color:var(--text-muted);flex-shrink:0;}
+.modal-val{text-align:right;color:var(--text);font-weight:500;}
+.modal-actions{display:flex;gap:10px;margin-top:20px;}
+.modal-actions button{flex:1;padding:12px;border-radius:var(--radius);font-weight:700;font-family:'Barlow Condensed',Arial,sans-serif;font-size:0.95rem;letter-spacing:1px;cursor:pointer;border:none;transition:background var(--transition),box-shadow var(--transition);margin-top:0;}
+.btn-cancel{background:var(--surface2);color:var(--text);border:1px solid var(--border) !important;}
+.btn-cancel:hover{border-color:var(--primary) !important;}
+.btn-confirm{background:var(--primary);color:#000;}
+.btn-confirm:hover:not(:disabled){background:var(--primary-dark);box-shadow:0 4px 16px rgba(255,208,0,0.25);}
+.btn-confirm:disabled{opacity:0.6;cursor:not-allowed;}
 
-.btn-cancel:hover{
-  border-color:var(--primary) !important;
-}
-
-.btn-confirm{
-  background:var(--primary);
-  color:#000;
-}
-
-.btn-confirm:hover:not(:disabled){
-  background:var(--primary-dark);
-  box-shadow:0 4px 16px rgba(255,208,0,0.25);
-}
-
-.btn-confirm:disabled{
-  opacity:0.6;
-  cursor:not-allowed;
-}
-
-.spinner{
-  display:inline-block;
-  width:14px;
-  height:14px;
-  border:2px solid rgba(0,0,0,0.3);
-  border-top-color:#000;
-  border-radius:50%;
-  animation:spin 0.7s linear infinite;
-  margin-right:8px;
-  vertical-align:middle;
-}
-
-@keyframes spin{
-  to{transform:rotate(360deg);}
-}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
 </style>
 
@@ -564,12 +219,14 @@ button[type="submit"]:disabled{
     <div class="services" id="services-container"></div>
     <div class="field-error" id="err-services">Veuillez sélectionner au moins un service.</div>
 
-    <label for="prix">Prix estimé</label>
-    <div class="prix-display">
-      <span class="prix-label">Total estimé</span>
-      <span class="prix-value" id="prix-value">— DA</span>
+    <!-- ── PRIX MODIFIABLE ── -->
+    <label for="prix">Prix (DA)</label>
+    <div class="prix-wrapper">
+      <input type="number" id="prix" min="0" placeholder="Calculé automatiquement — modifiable" aria-required="true">
+      <span class="prix-suffix">DA</span>
     </div>
-    <input type="hidden" id="prix">
+    <div class="prix-hint">💡 Le prix est calculé automatiquement mais vous pouvez le modifier.</div>
+    <div class="field-error" id="err-prix">Veuillez entrer un prix.</div>
 
     <label for="remarques">Remarques</label>
     <textarea id="remarques" rows="3" placeholder="Informations complémentaires…"></textarea>
@@ -628,13 +285,6 @@ button[type="submit"]:disabled{
 <script>
 
 /* ═══════════════════════════════════════════════════════════════
-   ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗
-  ██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝
-  ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██║  ███╗
-  ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██║   ██║
-  ╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
-   ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝ ╚═════╝
-
   ✏️  MODIFIER UNIQUEMENT CETTE SECTION POUR CHAQUE CLIENT
 ═══════════════════════════════════════════════════════════════ */
 
@@ -676,11 +326,8 @@ const CLIENT = {
    NE PAS MODIFIER EN DESSOUS DE CETTE LIGNE
 ═══════════════════════════════════════════════════════════════ */
 
-// Appliquer la couleur principale
 document.documentElement.style.setProperty('--primary', CLIENT.couleur)
 document.documentElement.style.setProperty('--primary-dark', CLIENT.couleur + 'cc')
-
-// Appliquer le logo et le titre
 document.getElementById('logo-img').src = CLIENT.logo
 document.getElementById('logo-img').alt = 'Logo ' + CLIENT.nom
 document.getElementById('form-title').textContent = CLIENT.nom
@@ -688,7 +335,6 @@ document.getElementById('page-title').textContent = CLIENT.nom
 document.getElementById('heure').min = CLIENT.heureMin
 document.getElementById('heure').max = CLIENT.heureMax
 
-// Services et leurs noms
 const SERVICES = [
   { id: "ciel",       label: "Rénovation ciel de toit" },
   { id: "rideau",     label: "Remplacement rideau du toit ouvrant", rideau: true },
@@ -702,7 +348,6 @@ const SERVICES = [
 const SERVICE_NAMES = {}
 SERVICES.forEach(s => { SERVICE_NAMES[s.id] = s.label })
 
-// Générer les services dynamiquement
 const servicesContainer = document.getElementById('services-container')
 SERVICES.forEach(s => {
   const div = document.createElement('div')
@@ -716,26 +361,22 @@ SERVICES.forEach(s => {
   servicesContainer.appendChild(div)
 })
 
-// State
 let database = []
 let marqueSelect, modeleSelect
 let servicesSelectionnes = []
 
-// DOM
 const marqueEl     = document.getElementById("marque")
 const modeleEl     = document.getElementById("modele")
 const anneeEl      = document.getElementById("annee")
 const dateRDVEl    = document.getElementById("daterdv")
 const heureEl      = document.getElementById("heure")
 const prixInput    = document.getElementById("prix")
-const prixValue    = document.getElementById("prix-value")
 const btnSubmit    = document.getElementById("btn-submit")
 const modalOverlay = document.getElementById("modal-overlay")
 const modalBody    = document.getElementById("modal-body")
 const btnCancel    = document.getElementById("btn-cancel")
 const btnConfirm   = document.getElementById("btn-confirm")
 
-// Toast
 function showToast(msg, type = "success") {
   const toast     = document.getElementById("toast")
   const toastMsg  = document.getElementById("toast-msg")
@@ -747,7 +388,6 @@ function showToast(msg, type = "success") {
   setTimeout(() => toast.classList.remove("show"), 4000)
 }
 
-// CSV Parser
 function parseCSVLine(line) {
   const result = []
   let inQuotes = false, cur = ""
@@ -765,13 +405,11 @@ function clean(v) {
   return v ? v.replace(/^"|"$/g, "").trim() : ""
 }
 
-// Load Data
 async function loadData() {
   try {
     const res  = await fetch(CLIENT.sheetURL)
     const text = await res.text()
     const rows = text.split("\n").slice(1).filter(r => r.trim())
-
     rows.forEach(r => {
       const c = parseCSVLine(r)
       database.push({
@@ -786,18 +424,14 @@ async function loadData() {
         prix_portes:    parseInt(clean(c[10])) || 0
       })
     })
-
     initBrands()
-
     marqueSelect = new TomSelect("#marque", { create: true, placeholder: "Choisir la marque" })
     modeleSelect = new TomSelect("#modele", { create: true, placeholder: "Choisir le modèle" })
     modeleSelect.disable()
     marqueSelect.on("change", onMarqueChange)
     modeleSelect.on("change", onModeleChange)
-
   } catch(err) {
     showToast("Impossible de charger les données du catalogue.", "error")
-    console.error("Erreur loadData:", err)
   }
 }
 
@@ -814,8 +448,6 @@ function initBrands() {
 function onMarqueChange(val) {
   modeleSelect.clearOptions()
   anneeEl.value = ""
-  anneeEl.min = 1990
-  anneeEl.max = 2030
   if (!val) { modeleSelect.disable(); return }
   const models = [...new Map(
     database.filter(d => d.marque === val).map(m => [m.modele, m])
@@ -828,12 +460,7 @@ function onMarqueChange(val) {
 function onModeleChange(val) {
   const marque  = marqueSelect.getValue()
   const voiture = database.find(v => v.marque === marque && v.modele === val)
-  if (!voiture) {
-    anneeEl.value = ""
-    anneeEl.min = 1990
-    anneeEl.max = 2030
-    return
-  }
+  if (!voiture) { anneeEl.value = ""; return }
   const mid = Math.round((voiture.annee_debut + voiture.annee_fin) / 2)
   anneeEl.value = mid
   anneeEl.min = voiture.annee_debut
@@ -841,7 +468,6 @@ function onModeleChange(val) {
   calculPrix()
 }
 
-// Toit ouvrant
 document.querySelectorAll(".toit-option").forEach(card => {
   const activate = () => {
     document.querySelectorAll(".toit-option").forEach(c => {
@@ -855,40 +481,30 @@ document.querySelectorAll(".toit-option").forEach(card => {
     const rideauRow = document.getElementById("service-rideau")
     if (val === "sans toit ouvrant") {
       rideauRow.classList.add("disabled")
-      rideauRow.setAttribute("aria-disabled", "true")
       if (servicesSelectionnes.includes("rideau")) {
         rideauRow.classList.remove("active")
-        rideauRow.setAttribute("aria-checked", "false")
         servicesSelectionnes = servicesSelectionnes.filter(s => s !== "rideau")
         calculPrix()
       }
     } else {
       rideauRow.classList.remove("disabled")
-      rideauRow.setAttribute("aria-disabled", "false")
     }
   }
   card.addEventListener("click", activate)
-  card.addEventListener("keydown", e => {
-    if (e.key === " " || e.key === "Enter") { e.preventDefault(); activate() }
-  })
+  card.addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); activate() } })
 })
 
-// Services
 document.addEventListener("click", e => {
   const row = e.target.closest(".service-row")
   if (!row || row.classList.contains("disabled")) return
   const isActive = row.classList.toggle("active")
   row.setAttribute("aria-checked", isActive ? "true" : "false")
   const service = row.dataset.service
-  if (isActive) {
-    servicesSelectionnes.push(service)
-  } else {
-    servicesSelectionnes = servicesSelectionnes.filter(s => s !== service)
-  }
+  if (isActive) servicesSelectionnes.push(service)
+  else servicesSelectionnes = servicesSelectionnes.filter(s => s !== service)
   calculPrix()
 })
 
-// Calcul prix
 function calculPrix() {
   const marque  = marqueSelect ? marqueSelect.getValue() : ""
   const modele  = modeleSelect ? modeleSelect.getValue() : ""
@@ -904,23 +520,34 @@ function calculPrix() {
     }
     if (CLIENT.prixFixes[s]) total += CLIENT.prixFixes[s]
   })
-  prixInput.value = total > 0 ? total : ""
-  prixValue.textContent = total > 0 ? total.toLocaleString('fr-DZ') + " DA" : "— DA"
+  // Mettre à jour le champ prix SEULEMENT s'il n'a pas été modifié manuellement
+  if (!prixInput.dataset.manualEdit) {
+    prixInput.value = total > 0 ? total : ""
+  }
 }
 
-// Date RDV
+// Détecter si le prix a été modifié manuellement
+prixInput.addEventListener("input", function() {
+  this.dataset.manualEdit = "true"
+})
+
+// Si les services changent, réinitialiser le flag de modification manuelle
+document.addEventListener("click", e => {
+  if (e.target.closest(".service-row")) {
+    delete prixInput.dataset.manualEdit
+  }
+})
+
 const today = new Date().toISOString().split("T")[0]
 dateRDVEl.min = today
 dateRDVEl.addEventListener("change", function() {
-  const d   = new Date(this.value + "T12:00:00")
-  const day = d.getDay()
-  if (CLIENT.joursFermes.includes(day)) {
+  const d = new Date(this.value + "T12:00:00")
+  if (CLIENT.joursFermes.includes(d.getDay())) {
     showToast("L'atelier est fermé ce jour-là. Veuillez choisir une autre date.", "error")
     dateRDVEl.value = ""
   }
 })
 
-// Validation heure
 heureEl.addEventListener("change", function() {
   const val = this.value
   if (val && (val < CLIENT.heureMin || val > CLIENT.heureMax)) {
@@ -931,7 +558,6 @@ heureEl.addEventListener("change", function() {
   }
 })
 
-// Validation
 function showError(id, show) {
   const err = document.getElementById("err-" + id)
   if (!err) return
@@ -950,17 +576,13 @@ function validateForm() {
     { id: "tel",     val: () => document.getElementById("tel").value },
     { id: "daterdv", val: () => document.getElementById("daterdv").value },
     { id: "heure",   val: () => document.getElementById("heure").value },
+    { id: "prix",    val: () => document.getElementById("prix").value },
   ]
   required.forEach(f => {
     const empty = !f.val() || f.val().trim() === ""
     showError(f.id, empty)
     if (empty) valid = false
   })
-  const anneeVal = parseInt(anneeEl.value)
-  if (anneeEl.value && (anneeVal < 1990 || anneeVal > 2030)) {
-    showError("annee", true)
-    valid = false
-  }
   const toitChecked = document.querySelector('input[name="toit_ouvrant"]:checked')
   showError("toit", !toitChecked)
   if (!toitChecked) valid = false
@@ -969,10 +591,10 @@ function validateForm() {
   return valid
 }
 
-// Modal recap
 function buildRecap() {
   const toit      = document.querySelector('input[name="toit_ouvrant"]:checked')?.value || "—"
   const matricule = document.getElementById("matricule").value || "—"
+  const prixVal   = prixInput.value ? Number(prixInput.value).toLocaleString('fr-DZ') + " DA" : "—"
   const rows = [
     ["Marque",       marqueSelect ? marqueSelect.getValue() : ""],
     ["Modèle",       modeleSelect ? modeleSelect.getValue() : ""],
@@ -980,7 +602,7 @@ function buildRecap() {
     ["Matricule",    matricule],
     ["Toit",         toit],
     ["Services",     servicesSelectionnes.map(s => SERVICE_NAMES[s]).join(", ")],
-    ["Prix",         (prixInput.value || "—") + (prixInput.value ? " DA" : "")],
+    ["Prix",         prixVal],
     ["Remarques",    document.getElementById("remarques").value || "—"],
     ["Prénom",       document.getElementById("prenom").value],
     ["Nom",          document.getElementById("nom").value],
@@ -1003,11 +625,8 @@ function closeModal() {
 
 btnCancel.addEventListener("click", closeModal)
 modalOverlay.addEventListener("click", e => { if (e.target === modalOverlay) closeModal() })
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape" && modalOverlay.classList.contains("show")) closeModal()
-})
+document.addEventListener("keydown", e => { if (e.key === "Escape" && modalOverlay.classList.contains("show")) closeModal() })
 
-// Soumission
 document.getElementById("form").addEventListener("submit", function(e) {
   e.preventDefault()
   if (!validateForm()) {
@@ -1051,24 +670,15 @@ btnConfirm.addEventListener("click", async function() {
     showToast("Client ajouté avec succès ✅", "success")
     document.getElementById("form").reset()
     servicesSelectionnes = []
-    document.querySelectorAll(".service-row.active").forEach(r => {
-      r.classList.remove("active")
-      r.setAttribute("aria-checked", "false")
-    })
-    document.querySelectorAll(".toit-option.active").forEach(c => {
-      c.classList.remove("active")
-      c.setAttribute("aria-checked", "false")
-    })
+    document.querySelectorAll(".service-row.active").forEach(r => { r.classList.remove("active"); r.setAttribute("aria-checked", "false") })
+    document.querySelectorAll(".toit-option.active").forEach(c => { c.classList.remove("active"); c.setAttribute("aria-checked", "false") })
     prixInput.value = ""
-    prixValue.textContent = "— DA"
+    delete prixInput.dataset.manualEdit
     anneeEl.value = ""
-    anneeEl.min = 1990
-    anneeEl.max = 2030
     if (marqueSelect) marqueSelect.clear()
     if (modeleSelect) { modeleSelect.clearOptions(); modeleSelect.disable() }
   } catch(err) {
     showToast("Erreur lors de l'envoi. Vérifiez la connexion.", "error")
-    console.error("Erreur envoi:", err)
   } finally {
     btnSubmit.disabled = false
     btnSubmit.textContent = "Ajouter le client"
@@ -1077,10 +687,10 @@ btnConfirm.addEventListener("click", async function() {
   }
 })
 
-// Init
 loadData()
 
 </script>
 
 </body>
 </html>
+
