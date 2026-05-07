@@ -213,6 +213,50 @@ input[readonly] {
 }
 .wiki-arrow { color: var(--border); font-size: 1.2rem; margin-top: 10px; }
 
+/* ── GÉNÉRATIONS ── */
+.wiki-generations {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.wiki-generations-title {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.wiki-gen-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+.wiki-gen-item:hover {
+  border-color: var(--gold);
+  background: rgba(255,208,0,0.05);
+}
+.wiki-gen-item.active {
+  border-color: var(--gold);
+  background: rgba(255,208,0,0.1);
+}
+.wiki-gen-name {
+  font-size: 0.85rem;
+  color: var(--text);
+  font-weight: 600;
+}
+.wiki-gen-years {
+  font-family: 'Barlow Condensed', Arial, sans-serif;
+  color: var(--gold);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
 .wiki-excerpt {
   font-size: 0.8rem;
   color: var(--text-muted);
@@ -476,51 +520,193 @@ function showToast(msg, type = "success") {
   setTimeout(() => toast.classList.remove("show"), 4000)
 }
 
-/* ── EXTRAIRE LES ANNÉES DU TEXTE ── */
-function extractYears(text) {
+/* ── EXTRAIRE LES ANNÉES D'UN TEXTE ── */
+function extractYearsFromText(text) {
   if (!text) return { debut: null, fin: null }
 
+  const currentYear = new Date().getFullYear()
+
   // Pattern plage : 2015–2020 ou 2015-2020
-  const rangeMatch = text.match(/\b(19\d{2}|20\d{2})\s*[–\-—]\s*(19\d{2}|20\d{2})\b/)
+  const rangeMatch = text.match(/\b(19\d{2}|20\d{2})\s*[–\-—‒]\s*(19\d{2}|20\d{2})\b/)
   if (rangeMatch) {
     return { debut: parseInt(rangeMatch[1]), fin: parseInt(rangeMatch[2]) }
   }
 
-  // Pattern présent : 2015–present / 2015–aujourd'hui
-  const presentMatch = text.match(/\b(19\d{2}|20\d{2})\s*[–\-—]\s*(present|aujourd'hui|now|ce jour)/i)
+  // Pattern présent : 2015–present / 2015–aujourd'hui / depuis 2015
+  const presentMatch = text.match(/\b(19\d{2}|20\d{2})\s*[–\-—‒]\s*(present|présent|aujourd'hui|now|ce jour|en cours)/i)
   if (presentMatch) {
-    return { debut: parseInt(presentMatch[1]), fin: new Date().getFullYear() }
+    return { debut: parseInt(presentMatch[1]), fin: currentYear }
+  }
+
+  const depuisMatch = text.match(/depuis\s+(19\d{2}|20\d{2})/i)
+  if (depuisMatch) {
+    return { debut: parseInt(depuisMatch[1]), fin: currentYear }
   }
 
   // Toutes les années dans le texte
   const allYears = [...text.matchAll(/\b(19[5-9]\d|20[0-3]\d)\b/g)]
     .map(m => parseInt(m[1]))
-    .filter(y => y >= 1950 && y <= new Date().getFullYear() + 1)
+    .filter(y => y >= 1950 && y <= currentYear + 1)
 
   if (allYears.length === 0) return { debut: null, fin: null }
 
   const sorted = [...new Set(allYears)].sort((a, b) => a - b)
-  const debut  = sorted[0]
-  const fin    = sorted.length > 1 ? sorted[sorted.length - 1] : null
+  return {
+    debut: sorted[0],
+    fin: sorted.length > 1 ? sorted[sorted.length - 1] : null
+  }
+}
 
-  return { debut, fin }
+/* ── RÉCUPÉRER L'INFOBOX VIA L'API PARSE ── */
+async function fetchInfobox(title, lang) {
+  try {
+    const url = `https://${lang}.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(title)}&prop=text&format=json&origin=*&section=0`
+    const res = await fetch(url)
+    if (!res.ok) return null
+    const data = await res.json()
+    const html = data?.parse?.text?.['*']
+    if (!html) return null
+
+    // Parser le HTML
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(html, 'text/html')
+
+    // Chercher l'infobox
+    const infobox = doc.querySelector('.infobox, .infobox_v2, .infobox_v3')
+    if (!infobox) return null
+
+    return infobox.textContent
+  } catch(e) {
+    return null
+  }
+}
+
+/* ── EXTRAIRE LES ANNÉES DEPUIS L'INFOBOX ── */
+function extractYearsFromInfobox(infoboxText) {
+  if (!infoboxText) return { debut: null, fin: null }
+
+  // Chercher des sections clés: "Production", "Années de production", "Commercialisation"
+  const sections = [
+    /(?:années?\s+de\s+production|production|commercialisation|fabrication)\s*[:\s]*([^\n]{0,150})/gi,
+  ]
+
+  for (const regex of sections) {
+    const matches = [...infoboxText.matchAll(regex)]
+    for (const m of matches) {
+      const result = extractYearsFromText(m[1])
+      if (result.debut) return result
+    }
+  }
+
+  // Fallback : chercher juste les premières années dans l'infobox
+  return extractYearsFromText(infoboxText.substring(0, 500))
+}
+
+/* ── DÉTECTER LES GÉNÉRATIONS DANS LA PAGE ── */
+async function fetchGenerations(title, lang) {
+  try {
+    // Récupérer le HTML complet de la page
+    const url = `https://${lang}.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(title)}&prop=text|sections&format=json&origin=*`
+    const res = await fetch(url)
+    if (!res.ok) return []
+    const data = await res.json()
+    const html = data?.parse?.text?.['*']
+    const sections = data?.parse?.sections || []
+    if (!html) return []
+
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(html, 'text/html')
+
+    const generations = []
+
+    // Chercher les titres qui contiennent des années (ex: "Première génération (2013-2019)")
+    const headings = doc.querySelectorAll('h2, h3, h4')
+    headings.forEach(h => {
+      const text = h.textContent.trim()
+      // Patterns : "Phase 1 (2015-2020)", "Mk7 (2012-2019)", "Génération X (2010-2015)"
+      const match = text.match(/(.{3,80})\s*[\(\[]\s*(19\d{2}|20\d{2})\s*[–\-—‒]\s*(19\d{2}|20\d{2}|present|présent|aujourd'hui)\s*[\)\]]/i)
+      if (match) {
+        const name = match[1].replace(/\[.*?\]/g, '').trim()
+        const debut = parseInt(match[2])
+        const finRaw = match[3]
+        const fin = /^\d+$/.test(finRaw) ? parseInt(finRaw) : new Date().getFullYear()
+        generations.push({ name, debut, fin })
+      }
+    })
+
+    // Aussi chercher dans les tables (souvent les générations sont en tableau)
+    const tables = doc.querySelectorAll('table');
+    tables.forEach(t => {
+      const tableText = t.textContent;
+      // Ne pas dupliquer
+      const rows = t.querySelectorAll('tr');
+      rows.forEach(row => {
+        const rowText = row.textContent.trim();
+        const m = rowText.match(/^([^0-9\n]{3,60})(19\d{2}|20\d{2})\s*[–\-—‒]\s*(19\d{2}|20\d{2})/);
+        if (m) {
+          const name = m[1].trim();
+          const debut = parseInt(m[2]);
+          const fin = parseInt(m[3]);
+          if (!generations.find(g => g.debut === debut && g.fin === fin)) {
+            generations.push({ name, debut, fin });
+          }
+        }
+      });
+    });
+
+    // Dédupliquer et trier
+    const unique = []
+    const seen = new Set()
+    generations.forEach(g => {
+      const key = `${g.debut}-${g.fin}`
+      if (!seen.has(key)) {
+        seen.add(key)
+        unique.push(g)
+      }
+    })
+
+    return unique.sort((a, b) => a.debut - b.debut)
+  } catch(e) {
+    return []
+  }
+}
+
+/* ── TROUVER LA GÉNÉRATION CORRESPONDANT À UNE ANNÉE ── */
+function findGenerationForYear(generations, year) {
+  if (!year || generations.length === 0) return null
+  const y = parseInt(year)
+  return generations.find(g => y >= g.debut && y <= g.fin)
 }
 
 /* ── AFFICHER LE RÉSULTAT WIKI ── */
-function renderWikiResult(data, sourceName) {
+function renderWikiResult(data, sourceName, generations = [], targetYear = null) {
   document.getElementById("wiki-source").textContent = sourceName
 
-  if (!data || !data.extract) {
+  if (!data || (!data.extract && !data.infoboxYears)) {
     document.getElementById("wiki-content").innerHTML =
       `<div class="wiki-not-found">❌ Aucune information trouvée.<br><small>Remplis les années manuellement.</small></div>`
     return
   }
 
-  const years   = extractYears(data.extract)
-  const excerpt = data.extract.substring(0, 260).trim()
+  // Déterminer les années principales (priorité : infobox > extract)
+  let years = data.infoboxYears && data.infoboxYears.debut
+    ? data.infoboxYears
+    : extractYearsFromText(data.extract || "")
+
+  // Si on a une année cible et des générations, suggérer la bonne génération
+  let suggestedGen = null
+  if (targetYear && generations.length > 0) {
+    suggestedGen = findGenerationForYear(generations, targetYear)
+    if (suggestedGen) {
+      years = { debut: suggestedGen.debut, fin: suggestedGen.fin }
+    }
+  }
+
+  const excerpt = (data.extract || "").substring(0, 220).trim()
 
   let yearsHTML = ""
   if (years.debut) {
+    const finDisplay = years.fin ?? new Date().getFullYear()
     yearsHTML = `
       <div class="wiki-years">
         <div class="wiki-year-item">
@@ -530,22 +716,39 @@ function renderWikiResult(data, sourceName) {
         <div class="wiki-arrow">→</div>
         <div class="wiki-year-item">
           <span class="wiki-year-label">Fin</span>
-          <span class="wiki-year-value">${years.fin ?? "?"}</span>
+          <span class="wiki-year-value">${finDisplay}</span>
         </div>
       </div>
       <button class="wiki-apply-btn" type="button"
-        onclick="applyYears(${years.debut}, ${years.fin ?? "''"})">
-        ✅ Utiliser ces années
+        onclick="applyYears(${years.debut}, ${finDisplay})">
+        ✅ Utiliser ces années${suggestedGen ? ' (génération détectée)' : ''}
       </button>`
   } else {
     yearsHTML = `<p style="color:var(--text-muted);font-size:0.82rem;margin:0 0 8px;">
       Années non détectées — remplis manuellement.</p>`
   }
 
+  // Liste des générations
+  let generationsHTML = ""
+  if (generations.length > 0) {
+    generationsHTML = `
+      <div class="wiki-generations">
+        <div class="wiki-generations-title">📅 Générations détectées (clique pour utiliser)</div>
+        ${generations.map(g => {
+          const isActive = suggestedGen && g.debut === suggestedGen.debut && g.fin === suggestedGen.fin
+          return `<div class="wiki-gen-item ${isActive ? 'active' : ''}" onclick="applyYears(${g.debut}, ${g.fin})">
+            <span class="wiki-gen-name">${g.name}</span>
+            <span class="wiki-gen-years">${g.debut} → ${g.fin}</span>
+          </div>`
+        }).join('')}
+      </div>`
+  }
+
   document.getElementById("wiki-content").innerHTML = `
     <div class="wiki-body">
       ${yearsHTML}
-      <div class="wiki-excerpt">${excerpt}…</div>
+      ${generationsHTML}
+      ${excerpt ? `<div class="wiki-excerpt">${excerpt}…</div>` : ''}
     </div>`
 }
 
@@ -555,8 +758,8 @@ function applyYears(debut, fin) {
   showToast("Années appliquées ✅", "success")
 }
 
-/* ── RECHERCHE WIKIPEDIA ── */
-async function searchWikipedia(marque, modele) {
+/* ── RECHERCHE WIKIPEDIA COMPLÈTE ── */
+async function searchWikipedia(marque, modele, targetYear) {
   const wikiBox = document.getElementById("wiki-box")
   wikiBox.classList.add("show")
 
@@ -569,14 +772,26 @@ async function searchWikipedia(marque, modele) {
 
   for (const attempt of attempts) {
     try {
-      const url = `https://${attempt.lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(attempt.title)}`
-      const res = await fetch(url)
+      // 1. Récupérer le résumé
+      const summaryUrl = `https://${attempt.lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(attempt.title)}`
+      const res = await fetch(summaryUrl)
       if (!res.ok) continue
       const data = await res.json()
-      if (data.extract && data.extract.length > 50 && data.type !== "disambiguation") {
-        renderWikiResult(data, `Wikipedia ${attempt.lang.toUpperCase()}`)
-        return
-      }
+      if (!data.extract || data.extract.length < 50 || data.type === "disambiguation") continue
+
+      // 2. En parallèle : récupérer infobox + générations
+      const realTitle = data.title || attempt.title
+      const [infoboxText, generations] = await Promise.all([
+        fetchInfobox(realTitle, attempt.lang),
+        fetchGenerations(realTitle, attempt.lang)
+      ])
+
+      // 3. Extraire les années depuis l'infobox
+      const infoboxYears = extractYearsFromInfobox(infoboxText)
+      data.infoboxYears = infoboxYears
+
+      renderWikiResult(data, `Wikipedia ${attempt.lang.toUpperCase()}`, generations, targetYear)
+      return
     } catch(e) { continue }
   }
 
@@ -592,13 +807,11 @@ async function searchWikipedia(marque, modele) {
       return
     }
 
-    // 1 seul résultat → charger directement
     if (results.length === 1) {
-      await loadWikiPage(results[0].title, "fr")
+      await loadWikiPage(results[0].title, "fr", targetYear)
       return
     }
 
-    // Plusieurs résultats → liste de choix
     document.getElementById("wiki-source").textContent = "Wikipedia FR"
     document.getElementById("wiki-content").innerHTML = `
       <div class="wiki-results-list">
@@ -606,7 +819,7 @@ async function searchWikipedia(marque, modele) {
           Plusieurs résultats — choisis le bon :
         </p>
         ${results.map(r => `
-          <div class="wiki-result-item" onclick="loadWikiPage('${r.title.replace(/'/g,"\\'")}', 'fr')">
+          <div class="wiki-result-item" onclick="loadWikiPage('${r.title.replace(/'/g,"\\'")}', 'fr', ${targetYear || 'null'})">
             <div class="wiki-result-title">${r.title}</div>
             <div class="wiki-result-snippet">${r.snippet.replace(/<[^>]+>/g, "")}</div>
           </div>`).join("")}
@@ -618,14 +831,20 @@ async function searchWikipedia(marque, modele) {
   }
 }
 
-async function loadWikiPage(title, lang) {
+async function loadWikiPage(title, lang, targetYear) {
   document.getElementById("wiki-content").innerHTML =
     `<div class="wiki-loading"><span class="spinner-gold"></span>Chargement…</div>`
   try {
     const url = `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
     const res = await fetch(url)
     if (res.ok) {
-      renderWikiResult(await res.json(), `Wikipedia ${lang.toUpperCase()}`)
+      const data = await res.json()
+      const [infoboxText, generations] = await Promise.all([
+        fetchInfobox(title, lang),
+        fetchGenerations(title, lang)
+      ])
+      data.infoboxYears = extractYearsFromInfobox(infoboxText)
+      renderWikiResult(data, `Wikipedia ${lang.toUpperCase()}`, generations, targetYear)
     } else {
       renderWikiResult(null, "Wikipedia")
     }
@@ -689,7 +908,7 @@ document.getElementById("form").addEventListener("submit", async function(e) {
 })
 
 /* ── INIT ── */
-if (marque && modele) searchWikipedia(marque, modele)
+if (marque && modele) searchWikipedia(marque, modele, annee)
 
 </script>
 </body>
