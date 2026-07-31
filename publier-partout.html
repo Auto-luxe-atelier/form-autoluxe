@@ -163,14 +163,14 @@
 <header>
   <div class="eyebrow">Auto Luxe Atelier</div>
   <h1>Publier Partout</h1>
-  <p>Une vidéo. Un clic. Toutes les plateformes.</p>
+  <p>Un fichier. Un clic. Toutes les plateformes.</p>
 </header>
 
 <form id="publishForm">
   <label class="drop" id="dropZone">
-    <input type="file" id="videoInput" name="video" accept="video/*" required>
+    <input type="file" id="videoInput" name="video" accept="video/*,image/*" required>
     <div class="icon">🎬</div>
-    <div class="label" id="dropLabel">Choisir une vidéo</div>
+    <div class="label" id="dropLabel">Choisir une vidéo ou une photo</div>
     <div class="sub" id="dropSub">Depuis la galerie ou la caméra</div>
   </label>
 
@@ -230,7 +230,7 @@
       statusEl.textContent = '✓ Publié avec succès.';
       form.reset();
       dropZone.classList.remove('has-file');
-      dropLabel.textContent = 'Choisir une vidéo';
+      dropLabel.textContent = 'Choisir une vidéo ou une photo';
       dropSub.textContent = 'Depuis la galerie ou la caméra';
     } catch (err) {
       statusEl.className = 'status err';
