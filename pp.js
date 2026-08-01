@@ -1,4 +1,5 @@
 const WEBHOOK_URL = 'https://n8n-hetzner.duckdns.org/webhook/publier-partout';
+const MAX_TRIES = 3;
 const form = document.getElementById('publishForm');
 const videoInput = document.getElementById('videoInput');
 const dropZone = document.getElementById('dropZone');
@@ -23,6 +24,13 @@ dropZone.classList.remove('has-file');
 dropLabel.textContent = DEFAULT_LABEL;
 dropSub.textContent = DEFAULT_SUB;
 }
+function finish(ok, detail) {
+setProgress(100, ok ? 'done' : 'failed');
+statusEl.className = ok ? 'status ok' : 'status err';
+statusEl.textContent = ok ? '✓ Publié sur Facebook.' : (detail || 'Échec de la publication.');
+if (ok) resetForm();
+submitBtn.disabled = false;
+}
 videoInput.addEventListener('change', () => {
 const file = videoInput.files[0];
 if (file) {
@@ -31,30 +39,22 @@ dropLabel.textContent = file.name;
 dropSub.textContent = (file.size / (1024 * 1024)).toFixed(1) + ' Mo';
 }
 });
-form.addEventListener('submit', (e) => {
-e.preventDefault();
-const file = videoInput.files[0];
-if (!file) return;
-submitBtn.disabled = true;
-progress.classList.add('visible');
-setProgress(0);
-statusEl.className = 'status pending';
-statusEl.textContent = 'Préparation...';
+function send(file, caption, attempt) {
 const formData = new FormData();
 formData.append('video', file, file.name);
-formData.append('caption', captionEl.value);
+formData.append('caption', caption);
 const xhr = new XMLHttpRequest();
 xhr.open('POST', WEBHOOK_URL);
 xhr.timeout = 600000;
+const suffix = attempt > 1 ? ' (essai ' + attempt + ')' : '';
 xhr.upload.addEventListener('progress', (ev) => {
 if (!ev.lengthComputable) return;
-const value = Math.round((ev.loaded / ev.total) * 100);
-setProgress(value);
-statusEl.textContent = 'Envoi vers le serveur...';
+setProgress(Math.round((ev.loaded / ev.total) * 100));
+statusEl.textContent = 'Envoi vers le serveur...' + suffix;
 });
 xhr.upload.addEventListener('load', () => {
 setProgress(100);
-statusEl.textContent = 'Publication sur Facebook...';
+statusEl.textContent = 'Publication sur Facebook...' + suffix;
 });
 xhr.addEventListener('load', () => {
 let ok = xhr.status >= 200 && xhr.status < 300;
@@ -64,33 +64,34 @@ const data = JSON.parse(xhr.responseText);
 const fb = data.facebook_feed || data;
 if (fb && fb.error) {
 ok = false;
-detail = fb.error.message || '';
+detail = 'Échec — ' + (fb.error.message || '');
 }
 } catch (err) {
 }
-if (ok) {
-setProgress(100, 'done');
-statusEl.className = 'status ok';
-statusEl.textContent = '✓ Publié sur Facebook.';
-resetForm();
+finish(ok, detail);
+});
+function retryOrFail(msg) {
+if (attempt < MAX_TRIES) {
+statusEl.className = 'status pending';
+statusEl.textContent = 'Coupure — nouvel essai...';
+setProgress(0);
+setTimeout(() => send(file, caption, attempt + 1), 1500);
 } else {
-setProgress(100, 'failed');
-statusEl.className = 'status err';
-statusEl.textContent = detail ? 'Échec — ' + detail : 'Échec de la publication.';
+finish(false, msg);
 }
-submitBtn.disabled = false;
-});
-xhr.addEventListener('error', () => {
-setProgress(100, 'failed');
-statusEl.className = 'status err';
-statusEl.textContent = 'Connexion interrompue — réessaie.';
-submitBtn.disabled = false;
-});
-xhr.addEventListener('timeout', () => {
-setProgress(100, 'failed');
-statusEl.className = 'status err';
-statusEl.textContent = 'Délai dépassé — fichier trop lourd ?';
-submitBtn.disabled = false;
-});
+}
+xhr.addEventListener('error', () => retryOrFail('Connexion impossible après ' + MAX_TRIES + ' essais.'));
+xhr.addEventListener('timeout', () => retryOrFail('Délai dépassé — fichier trop lourd ?'));
 xhr.send(formData);
+}
+form.addEventListener('submit', (e) => {
+e.preventDefault();
+const file = videoInput.files[0];
+if (!file) return;
+submitBtn.disabled = true;
+progress.classList.add('visible');
+setProgress(0);
+statusEl.className = 'status pending';
+statusEl.textContent = 'Préparation...';
+send(file, captionEl.value, 1);
 });
