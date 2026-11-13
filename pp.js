@@ -142,6 +142,48 @@ function compresseVideo(file,onprog){return new Promise(ok=>{
     v.play().then(()=>{try{rec.start(1000)}catch(e){return ok(null)};draw()}).catch(()=>ok(null));
   };
 })}
+// Met la video au format 9:16 et la coupe en parties de 60 s (la derniere plus courte).
+function toStorySegments(file,onprog,txt,pos){return new Promise(ok=>{
+  const mime=mimeVideo();
+  if(!mime)return ok(null);
+  const v=document.createElement('video');v.src=URL.createObjectURL(file);v.playsInline=true;v.preload='auto';
+  v.onerror=()=>ok(null);
+  v.onloadedmetadata=()=>{
+    const iw=v.videoWidth,ih=v.videoHeight;
+    if(!iw||!ih||!v.duration)return ok(null);
+    const W=1080,H=1920;
+    const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+    const k=Math.min(W/iw,H/ih),fw=iw*k,fh=ih*k,fy=(H-fh)/2;
+    let ac=null,dest=null;
+    try{ac=new (window.AudioContext||window.webkitAudioContext)();const s=ac.createMediaElementSource(v);dest=ac.createMediaStreamDestination();s.connect(dest)}catch(e){}
+    const st=new MediaStream();
+    c.captureStream(30).getVideoTracks().forEach(t=>st.addTrack(t));
+    if(dest)dest.stream.getAudioTracks().forEach(t=>st.addTrack(t));
+    const segs=[];let bouts=[],rec=null,raf=0,fini=false,idx=0,arret='fin';
+    const cloture=()=>{if(fini)return;fini=true;cancelAnimationFrame(raf);try{v.pause()}catch(e){};try{if(ac)ac.close()}catch(e){};ok(segs.length?segs:null)};
+    const auStop=()=>{
+      if(bouts.length)segs.push(new Blob(bouts,{type:'video/mp4'}));
+      if(arret==='coupe'){if(!lance()){cloture();return}v.play().catch(cloture)}
+      else cloture();
+    };
+    const lance=()=>{bouts=[];try{rec=new MediaRecorder(st,{mimeType:mime,videoBitsPerSecond:6000000})}catch(e){return false}
+      rec.ondataavailable=e=>{if(e.data&&e.data.size)bouts.push(e.data)};
+      rec.onstop=auStop;rec.start(500);return true};
+    const draw=()=>{
+      x.fillStyle='#000';x.fillRect(0,0,W,H);
+      try{x.drawImage(v,(W-fw)/2,fy,fw,fh)}catch(e){}
+      dessineTexte(x,W,H,txt,pos,{y:fy,h:fh});
+      if(onprog&&v.duration)onprog(Math.min(1,v.currentTime/v.duration));
+      if(!fini&&rec&&rec.state==='recording'&&v.currentTime>=(idx+1)*60-0.05&&v.currentTime<v.duration-0.4){
+        idx++;arret='coupe';try{v.pause()}catch(e){};try{rec.stop()}catch(e){}
+      }
+      raf=requestAnimationFrame(draw);
+    };
+    v.onended=()=>{arret='fin';setTimeout(()=>{try{if(rec&&rec.state!=='inactive')rec.stop();else cloture()}catch(e){cloture()}},300)};
+    if(!lance())return ok(null);
+    v.play().then(draw).catch(()=>ok(null));
+  };
+})}
 function toStory(src,txt,pos){return new Promise((ok,ko)=>{const img=new Image();img.onload=()=>{
   const W=1080,H=1920;const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
   x.fillStyle='#000';x.fillRect(0,0,W,H);
@@ -158,11 +200,12 @@ const ttDirect=()=>document.querySelector('input[name=ttMode]:checked').value===
 function refresh(){
   const aFichier=!!blob;
   const ytOff=aFichier&&!isVideo;$('rowYt').classList.toggle('off',ytOff);if(ytOff)$('dYt').checked=false;$('dYt').disabled=ytOff;
-  const tropLong=aFichier&&isVideo&&vidDur>60;
-  [['rowStory','dStory'],['rowIgStory','dIgStory']].forEach(p=>{$(p[0]).classList.toggle('off',tropLong);if(tropLong)$(p[1]).checked=false;$(p[1]).disabled=tropLong});
+  const nSeg=aFichier&&isVideo&&vidDur>60?Math.ceil(vidDur/60):0;
+  [['rowStory','dStory'],['rowIgStory','dIgStory']].forEach(p=>{$(p[0]).classList.remove('off');$(p[1]).disabled=false});
   const sf=$('rowStory').querySelector('small'),si=$('rowIgStory').querySelector('small');
-  if(sf)sf.textContent=tropLong?'Vidéo trop longue (60 s maxi)':'Photos et vidéos';
-  if(si)si.textContent=tropLong?'Vidéo trop longue (60 s maxi)':'24 h · compte pro requis';
+  const dec=nSeg?('Découpée en '+nSeg+' stories de 60 s'):null;
+  if(sf)sf.textContent=dec||'Photos et vidéos';
+  if(si)si.textContent=dec||'24 h · compte pro requis';
   const wantTT=$('dTt').checked;$('ttCard').classList.toggle('on',wantTT);
   const d=ttDirect();$('ttDirect').style.display=d?'block':'none';
   document.querySelectorAll('.ttv').forEach(r=>r.style.display=isVideo?'':'none');
@@ -219,11 +262,15 @@ async function run(){
       if(!uM){cibles.forEach(c=>setRow(c,'❌ Envoi au stockage impossible','err'));return}
       fd.append('media_url',uM);
       const veutStory=cibles.includes('story')||cibles.includes('igstory');
+      const lotStory=[];
       if(veutStory&&!isVideo){try{const sb=await toStory(blob,ovl,opos);const uS=await deposer(sb,'story.jpg');if(uS)fd.append('story_url',uS)}catch(e){}}
       if(veutStory&&isVideo){
         const maj=p=>{const t='\u23f3 Pr\u00e9paration\u2026 '+Math.round(p*100)+' %';if(cibles.includes('story'))setRow('story',t,'wait');if(cibles.includes('igstory'))setRow('igstory',t,'wait')};
-        maj(0);let sv=null;try{sv=await toStoryVideo(envoiBlob,maj,ovl,opos)}catch(e){}
-        if(sv){const uS=await deposer(sv,'story.mp4');if(uS)fd.append('story_url',uS)}
+        maj(0);let segs=null;try{segs=await toStorySegments(envoiBlob,maj,ovl,opos)}catch(e){}
+        if(segs)for(let i=0;i<segs.length;i++){const u=await deposer(segs[i],'story'+(i+1)+'.mp4');if(u)lotStory.push(u)}
+        if(lotStory.length)fd.append('story_url',lotStory[0]);
+        if(lotStory.length>1){const a1=document.querySelector('#r_story span'),a2=document.querySelector('#r_igstory span');
+          if(a1)a1.textContent='Story Facebook 1/'+lotStory.length;if(a2)a2.textContent='Story Instagram 1/'+lotStory.length}
         const t2='\u23f3 Envoi\u2026';if(cibles.includes('story'))setRow('story',t2,'wait');if(cibles.includes('igstory'))setRow('igstory',t2,'wait');
       }
       fd.append('caption',cap);fd.append('cibles',cibles.join(','));fd.append('job',job);
