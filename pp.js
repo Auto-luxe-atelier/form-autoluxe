@@ -174,6 +174,8 @@ function refresh(){
   let ok=!!blob&&any&&!busy;
   if(wantTT){const max=(C&&C.max_video_post_duration_sec)||600;ok=ok&&!!S&&!!C&&!(isVideo&&vidDur>max);if(d)ok=ok&&!!$('ttPriv').value&&!(disc&&!own&&!brand)}
   $('go').disabled=!ok;
+  let aide=$('aide');if(!aide){aide=document.createElement('div');aide.id='aide';aide.style.cssText='text-align:center;color:#8a8a8a;font-size:13px;margin-top:10px';$('go').parentNode.insertBefore(aide,$('go').nextSibling)}
+  aide.textContent=busy?'Publication en cours…':!blob?'Choisis un fichier à publier.':!any?'Coche au moins une destination.':(isVideo&&!vidDur)?'Lecture de la vidéo…':(wantTT&&(!S||!C))?'TikTok : connecte ton compte ou décoche TikTok.':!ok?'TikTok : vérifie les réglages ci-dessus.':'';
   if(pendingAuto&&ok&&!busy&&(!isVideo||vidDur>0)){pendingAuto=false;stoppe=false;setTimeout(run,250)}
 }
 ['dFb','dStory','dIg','dIgStory','dYt','dTt','ttPriv','ttDisc','ttOwn','ttBrand','cap'].forEach(id=>$(id).addEventListener('change',refresh));
