@@ -4,37 +4,86 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Publier Partout — Auto Luxe Atelier</title>
-<style>@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap');:root{--gold:#ffd000;--bg:#0a0a0a;--panel:#161616;--border:#2a2a2a;--text:#f2f2f2;--muted:#8a8a8a;--ok:#3ecf6a;--err:#ff5c5c}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;display:flex;flex-direction:column;align-items:center;padding:32px 20px 60px}header{text-align:center;margin-bottom:28px}header .eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;font-size:12px;color:var(--gold);margin-bottom:6px}header h1{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:34px;margin:0;letter-spacing:0.01em}header p{color:var(--muted);font-size:14px;margin:8px 0 0}form{width:100%;max-width:420px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px}.drop{border:1.5px dashed var(--border);border-radius:10px;padding:28px 16px;text-align:center;cursor:pointer;transition:border-color .15s ease,background .15s ease;position:relative}.drop.has-file{border-color:var(--gold);background:rgba(255,208,0,0.05)}.drop input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}.drop .icon{font-size:30px;margin-bottom:8px}.drop .label{font-size:15px;font-weight:500}.drop .sub{font-size:12px;color:var(--muted);margin-top:4px}textarea{width:100%;margin-top:16px;background:#0f0f0f;border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Barlow',sans-serif;font-size:15px;padding:12px 14px;resize:vertical;min-height:64px}textarea:focus,.drop:focus-within{outline:2px solid var(--gold);outline-offset:1px}button{width:100%;margin-top:18px;padding:15px;border:none;border-radius:10px;background:var(--gold);color:#1a1400;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:0.02em;cursor:pointer}button:disabled{opacity:0.5;cursor:not-allowed}.progress{display:none;margin-top:16px}.progress.visible{display:block}.bar{height:8px;background:#0f0f0f;border:1px solid var(--border);border-radius:999px;overflow:hidden}.fill{height:100%;width:0%;background:var(--gold);border-radius:999px;transition:width .18s ease}.fill.done{background:var(--ok)}.fill.failed{background:var(--err)}.pct{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;text-align:center;margin-top:8px;letter-spacing:0.02em}.status{margin-top:6px;font-size:14px;text-align:center;min-height:20px}.status.ok{color:var(--ok)}.status.err{color:var(--err)}.status.pending{color:var(--muted)}.targets{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;justify-content:center}.chip{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:0.03em;padding:5px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted)}.chip.live{border-color:var(--gold);color:var(--gold)}</style>
+<style>@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap');
+:root{--gold:#ffd000;--bg:#0a0a0a;--panel:#161616;--border:#2a2a2a;--text:#f2f2f2;--muted:#8a8a8a;--ok:#3ecf6a;--err:#ff5c5c}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;display:flex;flex-direction:column;align-items:center;padding:28px 16px 60px}
+header{text-align:center;margin-bottom:22px}.eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--gold);margin-bottom:6px}
+h1{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:34px;margin:0}header p{color:var(--muted);font-size:14px;margin:8px 0 0}
+.card{width:100%;max-width:440px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px}
+h2{font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;font-weight:600}
+.drop{border:1.5px dashed var(--border);border-radius:10px;padding:24px 14px;text-align:center;cursor:pointer;position:relative;display:block}
+.drop.has{border-color:var(--gold);background:rgba(255,208,0,.05)}.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop .ic{font-size:28px}.drop .lb{font-weight:500;margin-top:6px}.drop .sb{font-size:12px;color:var(--muted);margin-top:3px}
+#prev img,#prev video{max-width:100%;max-height:260px;border-radius:8px;margin-top:12px;display:block;margin-left:auto;margin-right:auto}
+textarea,select{width:100%;background:#0f0f0f;border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Barlow',sans-serif;font-size:15px;padding:12px}
+textarea{min-height:120px;resize:vertical}.tpl{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 10px;font-size:13px;margin-top:8px;cursor:pointer}
+.dest{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid #222}.dest:last-child{border:0}
+.dest b{font-weight:500}.dest small{display:block;color:var(--muted);font-size:12px}.dest.off{opacity:.4}
+.sw{position:relative;width:46px;height:26px;flex:none}.sw input{opacity:0;width:0;height:0}.sw i{position:absolute;inset:0;background:#333;border-radius:20px;transition:.2s}
+.sw i:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}.sw input:checked+i{background:var(--gold)}.sw input:checked+i:before{transform:translateX(20px)}
+.tt{display:none}.tt.on{display:block}.acc{display:flex;align-items:center;gap:10px;margin-bottom:12px}.acc img{width:40px;height:40px;border-radius:50%;background:#333;object-fit:cover}
+.acc .who b{display:block}.acc .who span{color:var(--muted);font-size:13px}.lnk{background:none;border:0;color:var(--gold);font-size:13px;cursor:pointer;margin-left:auto}
+.m{display:flex;gap:8px;margin-bottom:12px}.m label{flex:1;border:1px solid var(--border);border-radius:10px;padding:10px;cursor:pointer;font-weight:500;font-size:14px}.m small{display:block;color:var(--muted);font-weight:400;font-size:12px;margin-top:3px}
+.lab{font-size:14px;margin:12px 0 6px;font-weight:500}.sub{border-left:2px solid #333;padding-left:10px;margin-top:4px}.chk{display:flex;gap:8px;padding:6px 0;font-size:14px}.chk small{display:block;color:var(--muted)}
+.note{color:var(--gold);font-size:13px;margin-top:6px}.legal{color:var(--muted);font-size:12.5px;margin-top:12px;line-height:1.45}.legal a{color:#ddd}
+button.go{width:100%;max-width:440px;padding:15px;border:0;border-radius:10px;background:var(--gold);color:#1a1400;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:19px;cursor:pointer}
+button.go:disabled{opacity:.45;cursor:not-allowed}.btn2{width:100%;padding:12px;border:0;border-radius:10px;background:#fe2c55;color:#fff;font-weight:600;font-size:15px;cursor:pointer}
+.bar{height:8px;background:#0f0f0f;border:1px solid var(--border);border-radius:99px;overflow:hidden;margin-top:14px;display:none;width:100%;max-width:440px}.fill{height:100%;width:0;background:var(--gold);transition:width .18s}
+.pct{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;text-align:center;margin-top:6px;display:none}
+#res{width:100%;max-width:440px;margin-top:12px}.r{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;margin-top:8px;font-size:14px;background:var(--panel)}
+.r .s{text-align:right}.r .s.ok{color:var(--ok)}.r .s.err{color:var(--err)}.r .s.wait{color:var(--muted)}</style>
 </head>
 <body>
-<header>
-  <div class="eyebrow">Auto Luxe Atelier</div>
-  <h1>Publier Partout</h1>
-  <p>Un fichier. Un clic. Toutes les plateformes.</p>
-</header>
-<form id="publishForm">
-  <label class="drop" id="dropZone">
-    <input type="file" id="videoInput" name="video" accept="video/*,image/*" required>
-    <div class="icon">🎬</div>
-    <div class="label" id="dropLabel">Choisir une vidéo ou une photo</div>
-    <div class="sub" id="dropSub">Depuis la galerie ou la caméra</div>
-  </label>
-  <textarea id="caption" name="caption" placeholder="Légende (véhicule, service...)"></textarea>
-  <button type="submit" id="submitBtn">Publier partout</button>
-  <div class="progress" id="progress">
-    <div class="bar"><div class="fill" id="fill"></div></div>
-    <div class="pct" id="pct">0 %</div>
+<header><div class="eyebrow">Auto Luxe Atelier</div><h1>Publier Partout</h1><p>Un fichier. Un clic. Toutes les plateformes.</p></header>
+
+<div class="card">
+  <label class="drop" id="drop"><input type="file" id="file" accept="video/*,image/*"><div class="ic">🎬</div><div class="lb" id="dl">Choisir une vidéo ou une photo</div><div class="sb" id="ds">Depuis la galerie ou la caméra</div></label>
+  <div id="prev"></div>
+  <div class="lab">Texte de la publication</div>
+  <textarea id="cap" maxlength="2200" placeholder="Légende (véhicule, service…)"></textarea>
+  <button class="tpl" id="tplBtn" type="button">Insérer le modèle « ciel étoilé »</button>
+</div>
+
+<div class="card">
+  <h2>Où publier ?</h2>
+  <div class="dest"><div><b>Facebook</b><small>Fil de la page</small></div><label class="sw"><input type="checkbox" id="dFb" checked><i></i></label></div>
+  <div class="dest" id="rowStory"><div><b>Story Facebook</b><small>Photos uniquement</small></div><label class="sw"><input type="checkbox" id="dStory"><i></i></label></div>
+  <div class="dest"><div><b>Instagram</b><small>Publication (Reel si vidéo)</small></div><label class="sw"><input type="checkbox" id="dIg" checked><i></i></label></div>
+  <div class="dest"><div><b>TikTok</b><small>@ compte connecté</small></div><label class="sw"><input type="checkbox" id="dTt" checked><i></i></label></div>
+  <div class="dest off"><div><b>Story Instagram · YouTube</b><small>Bientôt</small></div></div>
+</div>
+
+<div class="card tt on" id="ttCard">
+  <h2>Réglages TikTok</h2>
+  <div id="ttLogin" style="display:none"><button class="btn2" id="ttLoginBtn" type="button">Se connecter avec TikTok</button></div>
+  <div id="ttBody" style="display:none">
+    <div class="acc"><img id="ttAv" alt=""><div class="who"><b id="ttNick"></b><span id="ttUser"></span></div><button class="lnk" id="ttOut" type="button">Changer</button></div>
+    <div id="ttBlocked" class="note" style="display:none"></div>
+    <div class="m">
+      <label><input type="radio" name="ttMode" value="brouillon" checked> Brouillon<small>Finaliser dans l'appli TikTok</small></label>
+      <label><input type="radio" name="ttMode" value="direct"> Publier maintenant<small>Directement sur le profil</small></label>
+    </div>
+    <div id="ttDirect" style="display:none">
+      <div class="lab">Qui peut voir cette publication ?</div>
+      <select id="ttPriv"><option value="" selected disabled>Choisir…</option></select>
+      <div class="dest"><div>Autoriser les commentaires</div><label class="sw"><input type="checkbox" id="ttCom"><i></i></label></div>
+      <div class="dest ttv"><div>Autoriser les duos</div><label class="sw"><input type="checkbox" id="ttDuet"><i></i></label></div>
+      <div class="dest ttv"><div>Autoriser les collages</div><label class="sw"><input type="checkbox" id="ttStitch"><i></i></label></div>
+      <div class="dest"><div>Divulguer un contenu commercial<small>Promotion d'une marque, d'un produit ou d'un service</small></div><label class="sw"><input type="checkbox" id="ttDisc"><i></i></label></div>
+      <div class="sub" id="ttDiscBox" style="display:none">
+        <label class="chk"><input type="checkbox" id="ttOwn"><span><b>Votre marque</b><small>Vous faites la promotion de votre entreprise</small></span></label>
+        <label class="chk"><input type="checkbox" id="ttBrand"><span><b>Contenu de marque</b><small>Vous faites la promotion d'un tiers</small></span></label>
+        <div class="note" id="ttDiscNote"></div>
+      </div>
+    </div>
+    <div class="legal" id="ttLegal"></div>
   </div>
-  <div class="status" id="status"></div>
-  <div class="targets">
-    <span class="chip live">Facebook</span>
-    <span class="chip">Stories FB</span>
-    <span class="chip">Instagram</span>
-    <span class="chip">Stories IG</span>
-    <span class="chip">TikTok</span>
-    <span class="chip">YouTube</span>
-  </div>
-</form>
-<script src="pp.js"></script>
+</div>
+
+<button class="go" id="go" disabled>Publier partout</button>
+<div class="bar" id="bar"><div class="fill" id="fill"></div></div>
+<div class="pct" id="pct">0 %</div>
+<div id="res"></div>
+<script src="pp.js?v=5"></script>
 </body>
 </html>
