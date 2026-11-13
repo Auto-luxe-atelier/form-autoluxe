@@ -82,7 +82,7 @@ function toStoryVideo(file,onprog,txt,pos){return new Promise(ok=>{
     const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
     const k=Math.min(W/iw,H/ih),fw=iw*k,fh=ih*k,fy=(H-fh)/2;
     let ac=null,dest=null;
-    try{ac=new (window.AudioCintext||window.webkitAudioCintext)();const s=ac.createMediaElementSource(v);dest=ac.createMediaStreamDestination();s.connect(dest)}catch(e){}
+    try{ac=new (window.AudioContext||window.webkitAudioContext)();const s=ac.createMediaElementSource(v);dest=ac.createMediaStreamDestination();s.connect(dest)}catch(e){}
     const st=new MediaStream();
     c.captureStream(30).getVideoTracks().forEach(t=>st.addTrack(t));
     if(dest)dest.stream.getAudioTracks().forEach(t=>st.addTrack(t));
@@ -135,12 +135,12 @@ function refresh(){
 ['dFb','dStory','dIg','dIgStory','dYt','dTt','ttPriv','ttDisc','ttOwn','ttBrand','cap'].forEach(id=>$(id).addEventListener('change',refresh));
 document.querySelectorAll('input[name=ttMode]').forEach(r=>r.addEventListener('change',refresh));
 
-function row(id,name){const r=document.createElement('div');r.className='r'#;r.id='r_'+id;r.innerHTML='<span>'+name+'</span><span class="s wait">En attente…</span>';$('res').appendChild(r)}
+function row(id,name){const r=document.createElement('div');r.className='r';r.id='r_'+id;r.innerHTML='<span>'+name+'</span><span class="s wait">En attente…</span>';$('res').appendChild(r)}
 function setRow(id,t,cls){const s=document.querySelector('#r_'+id+' .s');if(s){s.textContent=t;s.className='s '+cls}}
 
 async function pollTT(pid,n){const d=await tt({action:'status',publish_id:pid});const st=d.status&&d.status.status;
   if(st==='PUBLISH_COMPLETE')return setRow('tt','✅ Publié','ok');
-  if(st==='SEND_TO_USER_INBOX')return setRow('tt',':✅ Dans ta boîte TikTok','ok');
+  if(st==='SEND_TO_USER_INBOX')return setRow('tt','✅ Dans ta boîte TikTok','ok');
   if(st==='FAILED')return setRow('tt','❌ '+((d.status&&d.status.fail_reason)||'Refusé'),'err');
   if(n>40)return setRow('tt','⏳ Toujours en traitement','wait');
   setRow('tt','⏳ TikTok traite…','wait');setTimeout(()=>pollTT(pid,n+1),3000)}
@@ -157,7 +157,7 @@ async function run(){
   const ovl=txtOverlay(),opos=txtPos();
   let envoiBlob=blob;
   if(ovl&&!isVideo){try{envoiBlob=await ajouteTexte(blob,ovl,opos)}catch(e){}}
-  const jobs3=[];
+  const jobs=[];
   if(cibles.length){
     if(cibles.includes('fb'))row('fb','Facebook');if(cibles.includes('story'))row('story','Story Facebook');if(cibles.includes('ig'))row('ig','Instagram');if(cibles.includes('igstory'))row('igstory','Story Instagram');if(cibles.includes('yt'))row('yt','YouTube Shorts');
     prog.meta=[0,blob.size];
