@@ -283,6 +283,16 @@ async function run(){
             if(cibles.includes('yt')){if(ok200){setRow('yt','\u23f3 YouTube traite\u2026','wait');suivre(job,'yt','yt','Envoy\u00e9e',0)}else setRow('yt','\u274c \u00c9chec','err')}
       if(cibles.includes('igstory')){if(ok200){setRow('igstory','\u23f3 Instagram traite\u2026','wait');suivre(job,'igstory','igstory','Publi\u00e9e',0)}else setRow('igstory','\u274c \u00c9chec','err')}
       if(cibles.includes('ig')){if(ok200){setRow('ig','\u23f3 Instagram traite\u2026','wait');suivre(job,'ig','ig','Publi\u00e9',0)}else setRow('ig','\u274c \u00c9chec','err')}
+      for(let i=1;i<lotStory.length;i++){
+        if(stoppe)break;
+        const j2=job+'s'+(i+1),n2=(i+1)+'/'+lotStory.length;
+        const c2=[];if(cibles.includes('story')){c2.push('story');row('story'+i,'Story Facebook '+n2)}
+        if(cibles.includes('igstory')){c2.push('igstory');row('igstory'+i,'Story Instagram '+n2)}
+        const fd2=new FormData();fd2.append('media_url',lotStory[i]);fd2.append('caption',cap);fd2.append('cibles',c2.join(','));fd2.append('job',j2);
+        const r2=await xhr(FB_API,fd2,null);const o2=r2.status===200;
+        if(cibles.includes('story')){if(o2){setRow('story'+i,'Facebook traite...','wait');suivre(j2,'story','story'+i,'Envoyee',0)}else setRow('story'+i,'Echec','err')}
+        if(cibles.includes('igstory')){if(o2){setRow('igstory'+i,'Instagram traite...','wait');suivre(j2,'igstory','igstory'+i,'Publiee',0)}else setRow('igstory'+i,'Echec','err')}
+      }
     });
   }
   if(wantTT){
