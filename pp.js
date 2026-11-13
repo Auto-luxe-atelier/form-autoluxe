@@ -76,8 +76,8 @@ function toStoryVideo(file,onprog,txt,pos){return new Promise(ok=>{
   v.onloadedmetadata=()=>{
     const iw=v.videoWidth,ih=v.videoHeight;
     if(!iw||!ih)return ok(null);
-    if(ih/iw>=1.6)return ok(null);
-    if(!v.duration||v.duration>120)return ok(null);
+    if(ih/iw>=1.6&&!txt)return ok(null);
+    if(!v.duration||v.duration>180)return ok(null);
     const W=1080,H=1920;
     const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
     const k=Math.min(W/iw,H/ih),fw=iw*k,fh=ih*k,fy=(H-fh)/2;
@@ -171,7 +171,7 @@ async function run(){
       const veutStory=cibles.includes('story')||cibles.includes('igstory');
       if(veutStory&&!isVideo){try{const sb=await toStory(blob,ovl,opos);fd.append('video',sb,'story.jpg')}catch(e){}}
       if(veutStory&&isVideo){
-        const maj=p=>{const t='\u23f3 Mise au format 9:16\u2026 '+Math.round(p*100)+' %';if(cibles.includes('story'))setRow('story',t,'wait');if(cibles.includes('igstory'))setRow('igstory',t,'wait')};
+        const maj=p=>{const t='\u23f3 Pr\u00e9paration\u2026 '+Math.round(p*100)+' %';if(cibles.includes('story'))setRow('story',t,'wait');if(cibles.includes('igstory'))setRow('igstory',t,'wait')};
         maj(0);let sv=null;try{sv=await toStoryVideo(blob,maj,ovl,opos)}catch(e){}
         if(sv)fd.append('video',sv,'story.mp4');
         const t2='\u23f3 Envoi\u2026';if(cibles.includes('story'))setRow('story',t2,'wait');if(cibles.includes('igstory'))setRow('igstory',t2,'wait');
