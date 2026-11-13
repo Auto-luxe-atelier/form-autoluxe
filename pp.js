@@ -35,6 +35,7 @@ $('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('prev').in
 
 const ttDirect=()=>document.querySelector('input[name=ttMode]:checked').value==='direct';
 function refresh(){
+  $('rowYt').classList.toggle('off',!isVideo);if(!isVideo)$('dYt').checked=false;$('dYt').disabled=!isVideo;
   $('rowStory').classList.toggle('off',isVideo);if(isVideo)$('dStory').checked=false;$('dStory').disabled=isVideo;
   const wantTT=$('dTt').checked;$('ttCard').classList.toggle('on',wantTT);
   const d=ttDirect();$('ttDirect').style.display=d?'block':'none';
@@ -43,12 +44,12 @@ function refresh(){
   const so=[...$('ttPriv').options].find(o=>o.value==='SELF_ONLY');if(so){so.disabled=disc&&brand;if(disc&&brand&&$('ttPriv').value==='SELF_ONLY')$('ttPriv').value=''}
   $('ttDiscNote').textContent=disc&&!own&&!brand?'Choisissez au moins une option.':disc&&brand?'Étiquette « Partenariat rémunéré ».':disc&&own?'Étiquette « Contenu promotionnel ».':'';
   $('ttLegal').innerHTML=d?('En publiant, vous acceptez '+(disc&&brand?'la <a href="https://www.tiktok.com/legal/page/global/bc-policy/en" target="_blank">Politique relative au contenu de marque</a> et ':'')+'la <a href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en" target="_blank">Confirmation d\'utilisation de la musique</a> de TikTok.<br>Aucune musique n\'est ajoutée.'):'TikTok : la publication arrive dans votre boîte de réception TikTok pour être finalisée.';
-  const any=$('dFb').checked||$('dStory').checked||$('dIg').checked||$('dIgStory').checked||wantTT;
+  const any=$('dFb').checked||$('dStory').checked||$('dIg').checked||$('dIgStory').checked||$('dYt').checked||wantTT;
   let ok=!!blob&&any&&!busy;
   if(wantTT){const max=(C&&C.max_video_post_duration_sec)||600;ok=ok&&!!S&&!!C&&!(isVideo&&vidDur>max);if(d)ok=ok&&!!$('ttPriv').value&&!(disc&&!own&&!brand)}
   $('go').disabled=!ok;
 }
-['dFb','dStory','dIg','dIgStory','dTt','ttPriv','ttDisc','ttOwn','ttBrand','cap'].forEach(id=>$(id).addEventListener('change',refresh));
+['dFb','dStory','dIg','dIgStory','dYt','dTt','ttPriv','ttDisc','ttOwn','ttBrand','cap'].forEach(id=>$(id).addEventListener('change',refresh));
 document.querySelectorAll('input[name=ttMode]').forEach(r=>r.addEventListener('change',refresh));
 
 function row(id,name){const r=document.createElement('div');r.className='r';r.id='r_'+id;r.innerHTML='<span>'+name+'</span><span class="s wait">En attente…</span>';$('res').appendChild(r)}
@@ -63,11 +64,11 @@ async function pollTT(pid,n){const d=await tt({action:'status',publish_id:pid});
 
 $('go').onclick=async()=>{
   busy=true;refresh();$('res').innerHTML='';$('bar').style.display='block';$('pct').style.display='block';$('fill').style.width='0';$('pct').textContent='0 %';
-  const cap=$('cap').value;const cibles=[];if($('dFb').checked)cibles.push('fb');if($('dStory').checked)cibles.push('story');if($('dIg').checked)cibles.push('ig');if($('dIgStory').checked)cibles.push('igstory');
+  const cap=$('cap').value;const cibles=[];if($('dFb').checked)cibles.push('fb');if($('dStory').checked)cibles.push('story');if($('dIg').checked)cibles.push('ig');if($('dIgStory').checked)cibles.push('igstory');if($('dYt').checked)cibles.push('yt');
   const wantTT=$('dTt').checked;const prog={};const upd=()=>{let l=0,t=0;for(const k in prog){l+=prog[k][0];t+=prog[k][1]}const p=t?Math.round(l/t*100):0;$('fill').style.width=p+'%';$('pct').textContent=p+' %'};
   const jobs=[];
   if(cibles.length){
-    if(cibles.includes('fb'))row('fb','Facebook');if(cibles.includes('story'))row('story','Story Facebook');if(cibles.includes('ig'))row('ig','Instagram');if(cibles.includes('igstory'))row('igstory','Story Instagram');
+    if(cibles.includes('fb'))row('fb','Facebook');if(cibles.includes('story'))row('story','Story Facebook');if(cibles.includes('ig'))row('ig','Instagram');if(cibles.includes('igstory'))row('igstory','Story Instagram');if(cibles.includes('yt'))row('yt','YouTube Shorts');
     prog.meta=[0,blob.size];
     jobs.push(async()=>{
       const fd=new FormData();fd.append('video',blob,fname);fd.append('caption',cap);fd.append('cibles',cibles.join(','));
@@ -76,6 +77,7 @@ $('go').onclick=async()=>{
       const fb=r.data&&r.data.facebook_feed;
       if(cibles.includes('fb')){if(fb&&(fb.id||fb.post_id))setRow('fb','\u2705 Publi\u00e9','ok');else setRow('fb','\u274c '+((fb&&fb.error&&fb.error.message)||(r.status?'\u00c9chec':'Coupure r\u00e9seau')),'err')}
       if(cibles.includes('story'))setRow('story',r.status===200?'\u2705 Envoy\u00e9e':'\u274c \u00c9chec',r.status===200?'ok':'err');
+      if(cibles.includes('yt'))setRow('yt',r.status===200?'\u23f3 En cours \u00b7 confirmation WhatsApp':'\u274c \u00c9chec',r.status===200?'wait':'err');
       if(cibles.includes('igstory'))setRow('igstory',r.status===200?'\u23f3 En cours \u00b7 confirmation WhatsApp':'\u274c \u00c9chec',r.status===200?'wait':'err');
       if(cibles.includes('ig'))setRow('ig',r.status===200?'\u23f3 En cours \u00b7 confirmation WhatsApp':'\u274c \u00c9chec',r.status===200?'wait':'err');
     });
