@@ -80,9 +80,9 @@ async function run(){
       prog.meta=[blob.size,blob.size];upd();
       const fb=r.data&&r.data.facebook_feed;
       if(cibles.includes('fb')){if(fb&&(fb.id||fb.post_id))setRow('fb','\u2705 Publi\u00e9','ok');else setRow('fb','\u274c '+((fb&&fb.error&&fb.error.message)||(r.status?'\u00c9chec':'Coupure r\u00e9seau')),'err')}
-      if(cibles.includes('story'))setRow('story',r.status===200?'\u2705 Envoy\u00e9e':'\u274c \u00c9chec',r.status===200?'ok':'err');
       const ok200=r.status===200;
-      if(cibles.includes('yt')){if(ok200){setRow('yt','\u23f3 YouTube traite\u2026','wait');suivre(job,'yt','yt','Envoy\u00e9e',0)}else setRow('yt','\u274c \u00c9chec','err')}
+      if(cibles.includes('story')){if(ok200){setRow('story','\u23f3 Facebook traite\u2026','wait');suivre(job,'story','story','Envoy\u00e9e',0)}else setRow('story','\u274c \u00c9chec','err')}
+            if(cibles.includes('yt')){if(ok200){setRow('yt','\u23f3 YouTube traite\u2026','wait');suivre(job,'yt','yt','Envoy\u00e9e',0)}else setRow('yt','\u274c \u00c9chec','err')}
       if(cibles.includes('igstory')){if(ok200){setRow('igstory','\u23f3 Instagram traite\u2026','wait');suivre(job,'igstory','igstory','Publi\u00e9e',0)}else setRow('igstory','\u274c \u00c9chec','err')}
       if(cibles.includes('ig')){if(ok200){setRow('ig','\u23f3 Instagram traite\u2026','wait');suivre(job,'ig','ig','Publi\u00e9',0)}else setRow('ig','\u274c \u00c9chec','err')}
     });
