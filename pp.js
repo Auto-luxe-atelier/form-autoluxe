@@ -9,7 +9,8 @@ const LBL={PUBLIC_TO_EVERYONE:'Tout le monde',MUTUAL_FOLLOW_FRIENDS:'Amis (abonn
 let S='',C=null,blob=null,fname='',isVideo=false,vidDur=0,busy=false,pendingAuto=false;
 try{const h=new URLSearchParams(location.hash.slice(1));if(h.get('s')){localStorage.setItem('tt_s',h.get('s'));history.replaceState(null,'',location.pathname)}S=localStorage.getItem('tt_s')||''}catch(e){}
 
-function xhr(url,fd,onp){return new Promise(ok=>{const x=new XMLHttpRequest();x.open('POST',url);if(onp)x.upload.onprogress=onp;
+let reqs=[],stoppe=false,tic=null;
+function xhr(url,fd,onp){return new Promise(ok=>{const x=new XMLHttpRequest();x.open('POST',url);if(onp)x.upload.onprogress=onp;reqs.push(x);
   x.onload=()=>{let d=null;try{d=JSON.parse(x.responseText)}catch(e){};ok({status:x.status,data:d})};x.onerror=()=>ok({status:0,data:null});x.send(fd)})}
 function tt(fields,file,onp){const fd=new FormData();fd.append('s',S);for(const k in fields)fd.append(k,fields[k]);if(file)fd.append('media',file,fname);return xhr(TT_API,fd,onp).then(r=>r.data||{ok:false,error:'Coupure réseau'})}
 
@@ -103,11 +104,10 @@ function toStoryVideo(file,onprog,txt,pos){return new Promise(ok=>{
 })}
 function toStory(src,txt,pos){return new Promise((ok,ko)=>{const img=new Image();img.onload=()=>{
   const W=1080,H=1920;const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
-  x.fillStyle='#0d0d0d';x.fillRect(0,0,W,H);
+  x.fillStyle='#000';x.fillRect(0,0,W,H);
   const iw=img.naturalWidth,ih=img.naturalHeight;
-  try{const kc=Math.max(W/iw,H/ih);const bw=iw*kc,bh=ih*kc;x.filter='blur(42px)';x.drawImage(img,(W-bw)/2,(H-bh)/2,bw,bh);x.filter='none'}catch(e){}
-  const k=Math.min(W/iw,H/ih);const w=iw*k,h=ih*k;x.drawImage(img,(W-w)/2,(H-h)/2,w,h);
-  dessineTexte(x,W,H,txt,pos);
+  const k=Math.min(W/iw,H/ih);const w=iw*k,h=ih*k;const my=(H-h)/2;x.drawImage(img,(W-w)/2,my,w,h);
+  dessineTexte(x,W,H,txt,pos,{y:my,h:h});
   c.toBlob(b=>b?ok(b):ko('story'),'image/jpeg',0.92)};img.onerror=()=>ko('image');img.src=URL.createObjectURL(src)})}
 $('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('prev').innerHTML='';vidDur=0;pendingAuto=true;$('res').innerHTML='';
   if(f.type.startsWith('image/')){isVideo=false;blob=await toJpeg(f);fname='photo.jpg';const i=document.createElement('img');i.src=URL.createObjectURL(blob);$('prev').appendChild(i)}
@@ -130,7 +130,7 @@ function refresh(){
   let ok=!!blob&&any&&!busy;
   if(wantTT){const max=(C&&C.max_video_post_duration_sec)||600;ok=ok&&!!S&&!!C&&!(isVideo&&vidDur>max);if(d)ok=ok&&!!$('ttPriv').value&&!(disc&&!own&&!brand)}
   $('go').disabled=!ok;
-  if(pendingAuto&&ok&&!busy){pendingAuto=false;setTimeout(run,250)}
+  if(pendingAuto&&ok&&!busy){pendingAuto=false;lanceCompte()}
 }
 ['dFb','dStory','dIg','dIgStory','dYt','dTt','ttPriv','ttDisc','ttOwn','ttBrand','cap'].forEach(id=>$(id).addEventListener('change',refresh));
 document.querySelectorAll('input[name=ttMode]').forEach(r=>r.addEventListener('change',refresh));
@@ -145,7 +145,16 @@ async function pollTT(pid,n){const d=await tt({action:'status',publish_id:pid});
   if(n>40)return setRow('tt','⏳ Toujours en traitement','wait');
   setRow('tt','⏳ TikTok traite…','wait');setTimeout(()=>pollTT(pid,n+1),3000)}
 
+function annuler(){stoppe=true;if(tic){clearInterval(tic);tic=null}reqs.forEach(x=>{try{x.abort()}catch(e){}});reqs=[];$('stop').style.display='none';busy=false;$('bar').style.display='none';$('pct').style.display='none';refresh()}
+function lanceCompte(){
+  stoppe=false;let n=5;const b=$('stop');b.style.display='block';b.textContent='Annuler ('+n+')';
+  try{$('prev').scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}
+  if(tic)clearInterval(tic);
+  tic=setInterval(()=>{n--;if(n<=0){clearInterval(tic);tic=null;b.textContent='Annuler';run()}else b.textContent='Annuler ('+n+')'},1000);
+}
 async function run(){
+  if(stoppe)return;
+  $('stop').style.display='block';$('stop').textContent='Annuler';
   pendingAuto=false;busy=true;refresh();$('res').innerHTML='';$('bar').style.display='block';$('pct').style.display='block';$('fill').style.width='0';$('pct').textContent='0 %';
   const job='j'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
   const cap=$('cap').value;const cibles=[];if($('dFb').checked)cibles.push('fb');if($('dStory').checked)cibles.push('story');if($('dIg').checked)cibles.push('ig');if($('dIgStory').checked)cibles.push('igstory');if($('dYt').checked)cibles.push('yt');
@@ -189,8 +198,10 @@ async function run(){
       if(!r.ok)setRow('tt','\u274c '+(r.error||'\u00c9chec'),'err');else{setRow('tt','\u23f3 TikTok traite\u2026','wait');pollTT(r.publish_id,0)}
     });
   }
-  for(const j of jobs){try{await j()}catch(e){}}
-  $('fill').style.width='100%';$('pct').textContent='100 %';busy=false;refresh();
+  for(const j of jobs){if(stoppe)break;try{await j()}catch(e){}}
+  $('stop').style.display='none';
+  if(!stoppe){$('fill').style.width='100%';$('pct').textContent='100 %'}
+  busy=false;refresh();
 }
-$('go').onclick=run;
+$('go').onclick=()=>{stoppe=false;run()};$('stop').onclick=annuler;
 initTT();refresh();
