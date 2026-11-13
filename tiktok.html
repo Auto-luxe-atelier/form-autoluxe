@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Publier sur TikTok — Auto Luxe Atelier</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:#0e0e10;color:#eee}
+.w{max-width:560px;margin:0 auto;padding:22px 16px 60px}h1{font-size:22px;margin:0 0 4px;color:#c9a25a}
+p.s{margin:0 0 20px;color:#999;font-size:14px}label{display:block;font-weight:600;margin:16px 0 6px}
+input[type=text],textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #333;background:#18181b;color:#eee;font:inherit}
+textarea{min-height:230px;resize:vertical}.f{border:2px dashed #c9a25a;border-radius:12px;padding:18px;text-align:center;cursor:pointer}
+.f img,.f video{max-width:100%;max-height:260px;border-radius:8px;margin-top:10px}
+.m{display:flex;gap:8px}.m label{flex:1;margin:0;font-weight:500;border:1px solid #333;border-radius:10px;padding:12px;cursor:pointer;background:#18181b}
+.m input{margin-right:6px}small{color:#999;display:block;margin-top:4px}
+button{width:100%;margin-top:22px;padding:15px;border:0;border-radius:12px;background:#fe2c55;color:#fff;font-size:17px;font-weight:700}
+button:disabled{opacity:.5}.bar{height:10px;background:#222;border-radius:6px;margin-top:14px;overflow:hidden;display:none}
+.bar div{height:100%;width:0;background:#c9a25a;transition:width .2s}#res{margin-top:16px;padding:14px;border-radius:10px;display:none;white-space:pre-wrap;font-size:14px}
+</style></head><body><div class="w">
+<h1>Publier sur TikTok</h1><p class="s">@auto.luxe.atelier — photo ou vidéo</p>
+<div class="f" id="drop">📷 Choisir une photo ou une vidéo<input id="file" type="file" accept="image/*,video/*" hidden><div id="prev"></div></div>
+<label>Titre <small style="display:inline">(90 caractères max)</small></label>
+<input id="titre" type="text" maxlength="90" value="Ciel étoilé + ciel de toit noir ✨ Auto Luxe Atelier">
+<label>Texte de la publication</label>
+<textarea id="desc">Votre ciel de toit est encore blanc ou beige ? 🤍➡️🖤
+Passez au noir et ajoutez un ciel étoilé : votre habitacle change complètement d'ambiance.
+
+✨ Ciel étoilé fibre optique, jusqu'à 500 étoiles
+🖤 Changement de couleur du ciel de toit : blanc ➜ noir, en tissu ou en Alcantara
+✔️ Finition d'origine • Garantie 24 mois
+
+📍 Auto Luxe Atelier – Chéraga, Alger
+📩 Écrivez-nous en privé pour un devis
+
+سقف طوموبيلتك مازال أبيض؟ 🤍
+ردّوه أكحل 🖤 وزيدولو سما النجوم ✨ الطوموبيل تولي حاجة أخرى!
+📍 الشراقة – الجزائر | راسلونا في الخاص
+
+#cieletoile #cieldetoit #alcantara #starlight #autoluxeatelier #alger #algerie #dz #سقف_السيارة #تعديل_السيارات</textarea>
+<label>Mode</label>
+<div class="m">
+<label><input type="radio" name="mode" value="brouillon" checked>Brouillon<small>Arrive dans ton appli TikTok : tu ajoutes la musique et tu publies en public</small></label>
+<label><input type="radio" name="mode" value="direct">Direct<small>Publié tout de suite, en privé tant que l'app n'est pas validée</small></label>
+</div>
+<button id="go">Envoyer sur TikTok</button>
+<div class="bar" id="bar"><div></div></div><div id="res"></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);let blob=null,name='';
+$('drop').onclick=()=>$('file').click();
+function toJpeg(file){return new Promise((ok,ko)=>{const img=new Image();img.onload=()=>{let w=img.naturalWidth,h=img.naturalHeight;
+const lo=Math.max(w,h),sh=Math.min(w,h);const k=Math.min(1,1920/lo,1080/sh);w=Math.round(w*k);h=Math.round(h*k);
+const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);c.toBlob(b=>b?ok(b):ko('conversion'),'image/jpeg',0.92)};
+img.onerror=()=>ko('image illisible');img.src=URL.createObjectURL(file)})}
+$('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('prev').innerHTML='';
+if(f.type.startsWith('image/')){blob=await toJpeg(f);name='photo.jpg';const i=document.createElement('img');i.src=URL.createObjectURL(blob);$('prev').appendChild(i)}
+else{blob=f;name=f.name||'video.mp4';const v=document.createElement('video');v.src=URL.createObjectURL(f);v.controls=true;$('prev').appendChild(v)}};
+function show(t,ok){const r=$('res');r.style.display='block';r.style.background=ok?'#123b24':'#4a1520';r.textContent=t}
+$('go').onclick=()=>{if(!blob)return show('Choisis d\'abord une photo ou une vidéo.',false);
+const fd=new FormData();fd.append('media',blob,name);fd.append('titre',$('titre').value);fd.append('description',$('desc').value);
+fd.append('mode',document.querySelector('input[name=mode]:checked').value);
+const x=new XMLHttpRequest();x.open('POST','https://n8n-hetzner.duckdns.org/webhook/tiktok-publier');
+$('go').disabled=true;$('bar').style.display='block';$('res').style.display='none';
+x.upload.onprogress=e=>{if(e.lengthComputable)$('bar').firstChild.style.width=Math.round(e.loaded/e.total*100)+'%'};
+x.onload=()=>{$('go').disabled=false;let d={};try{d=JSON.parse(x.responseText)}catch(e){}
+if(d.ok)show('✅ Envoyé sur TikTok ('+(d.type==='photo'?'photo':'vidéo')+', '+(d.mode==='DIRECT_POST'?'publication directe':'brouillon')+').\n'+(d.mode==='DIRECT_POST'?'':'Ouvre TikTok : une notification t\'attend pour finaliser et publier.'),true);
+else show('❌ '+(d.error||'Échec')+'\n'+JSON.stringify(d.tiktok||d,null,1),false)};
+x.onerror=()=>{$('go').disabled=false;show('❌ Coupure réseau, réessaie.',false)};x.send(fd)};
+</script></body></html>
