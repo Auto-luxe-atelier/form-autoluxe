@@ -3,6 +3,19 @@ const TT_API='https://n8n-hetzner.duckdns.org/webhook/tiktok-publier';
 const TT_LOGIN='https://n8n-hetzner.duckdns.org/webhook/tiktok-connexion-autoluxe?ret=pp';
 const $=id=>document.getElementById(id);
 const SB='https://supabase.n8n-hetzner.duckdns.org/storage/v1/object/public/publications/statut/';
+const LIEN_API='https://n8n-hetzner.duckdns.org/webhook/lien-upload';
+// Depot direct dans le stockage : pas de limite de duree cote n8n, la qualite d'origine est conservee.
+function putFichier(url,b,onp){return new Promise(ok=>{const x=new XMLHttpRequest();x.open('PUT',url);x.setRequestHeader('Content-Type',b.type||'application/octet-stream');if(onp)x.upload.onprogress=onp;reqs.push(x);x.onload=()=>ok(x.status>=200&&x.status<300);x.onerror=()=>ok(false);x.send(b)})}
+async function deposer(b,nom,onp){
+  try{
+    const r=await fetch(LIEN_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:nom})});
+    if(!r.ok)return null;
+    const d=await r.json();
+    if(!d||!d.envoi)return null;
+    const fait=await putFichier(d.envoi,b,onp);
+    return fait?d.lien:null;
+  }catch(e){return null}
+}
 function suivre(job,plat,id,libelle,n){fetch(SB+job+'-'+plat+'.json?t='+Date.now()).then(r=>r.ok?r.json():null).then(d=>{if(d&&typeof d.ok!=='undefined'){setRow(id,d.ok?('\u2705 '+libelle):('\u274c '+(d.error||'\u00c9chec')),d.ok?'ok':'err');return}if(n>80){setRow(id,'\u23f3 Toujours en cours','wait');return}setTimeout(()=>suivre(job,plat,id,libelle,n+1),3000)}).catch(()=>{if(n<=80)setTimeout(()=>suivre(job,plat,id,libelle,n+1),3000)})}
 const TPL="Votre ciel de toit est encore blanc ou beige ? 🤍➡️🖤\nPassez au noir et ajoutez un ciel étoilé : votre habitacle change complètement d'ambiance.\n\n✨ Ciel étoilé fibre optique, jusqu'à 500 étoiles\n🖤 Changement de couleur du ciel de toit : blanc ➜ noir, en tissu ou en Alcantara\n✔️ Finition d'origine • Garantie 24 mois\n\n📍 Auto Luxe Atelier – Chéraga, Alger\n📩 Écrivez-nous en privé pour un devis\n\nسقف طوموبيلتك مازال أبيض؟ 🤍\nردّوه أكحل 🖤 وزيدولو سما النجوم ✨ الطوموبيل تولي حاجة أخرى!\n📍 الشراقة – الجزائر | راسلونا في الخاص\n\n#cieletoile #cieldetoit #alcantara #starlight #autoluxeatelier #alger #algerie #dz #سقف_السيارة #تعديل_السيارات";
 const LBL={PUBLIC_TO_EVERYONE:'Tout le monde',MUTUAL_FOLLOW_FRIENDS:'Amis (abonnés mutuels)',FOLLOWER_OF_CREATOR:'Abonnés',SELF_ONLY:'Moi uniquement'};
@@ -111,7 +124,7 @@ function compresseVideo(file,onprog){return new Promise(ok=>{
   v.onloadedmetadata=()=>{
     const iw=v.videoWidth,ih=v.videoHeight;
     if(!iw||!ih||!v.duration)return ok(null);
-    const k=Math.min(1,1280/Math.max(iw,ih));
+    const k=Math.min(1,1920/Math.max(iw,ih));
     const W=Math.round(iw*k/2)*2,H=Math.round(ih*k/2)*2;
     const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
     let ac=null,dest=null;
@@ -119,7 +132,7 @@ function compresseVideo(file,onprog){return new Promise(ok=>{
     const st=new MediaStream();
     c.captureStream(30).getVideoTracks().forEach(t=>st.addTrack(t));
     if(dest)dest.stream.getAudioTracks().forEach(t=>st.addTrack(t));
-    let rec;try{rec=new MediaRecorder(st,{mimeType:mime,videoBitsPerSecond:2500000,audioBitsPerSecond:96000})}catch(e){return ok(null)}
+    let rec;try{rec=new MediaRecorder(st,{mimeType:mime,videoBitsPerSecond:3000000,audioBitsPerSecond:96000})}catch(e){return ok(null)}
     const parts=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};
     let fini=false;
     rec.onstop=()=>{if(fini)return;fini=true;try{if(ac)ac.close()}catch(e){};ok(parts.length?new Blob(parts,{type:'video/mp4'}):null)};
@@ -188,7 +201,7 @@ async function run(){
   const ovl=txtOverlay(),opos=txtPos();
   let envoiBlob=blob;
   if(ovl&&!isVideo){try{envoiBlob=await ajouteTexte(blob,ovl,opos)}catch(e){}}
-  if(isVideo&&blob.size>45*1048576){
+  if(isVideo&&blob.size>50*1048576){
     row('prep','Allègement');setRow('prep','⏳ Patientez, laissez la page ouverte…','wait');
     let cv=null;try{cv=await compresseVideo(blob,p=>setRow('prep','⏳ Allègement… '+Math.round(p*100)+' %','wait'))}catch(e){}
     if(cv&&cv.size&&cv.size<blob.size){envoiBlob=cv;setRow('prep','✅ '+(blob.size/1048576).toFixed(0)+' Mo → '+(cv.size/1048576).toFixed(0)+' Mo','ok')}
@@ -199,17 +212,20 @@ async function run(){
     if(cibles.includes('fb'))row('fb','Facebook');if(cibles.includes('story'))row('story','Story Facebook');if(cibles.includes('ig'))row('ig','Instagram');if(cibles.includes('igstory'))row('igstory','Story Instagram');if(cibles.includes('yt'))row('yt','YouTube Shorts');
     prog.meta=[0,envoiBlob.size];
     jobs.push(async()=>{
-      const fd=new FormData();fd.append('video',envoiBlob,fname);
+      const fd=new FormData();
+      const uM=await deposer(envoiBlob,fname,e=>{if(e.lengthComputable){prog.meta=[e.loaded,e.total];upd()}});
+      if(!uM){cibles.forEach(c=>setRow(c,'❌ Envoi au stockage impossible','err'));return}
+      fd.append('media_url',uM);
       const veutStory=cibles.includes('story')||cibles.includes('igstory');
-      if(veutStory&&!isVideo){try{const sb=await toStory(blob,ovl,opos);fd.append('video',sb,'story.jpg')}catch(e){}}
+      if(veutStory&&!isVideo){try{const sb=await toStory(blob,ovl,opos);const uS=await deposer(sb,'story.jpg');if(uS)fd.append('story_url',uS)}catch(e){}}
       if(veutStory&&isVideo){
         const maj=p=>{const t='\u23f3 Pr\u00e9paration\u2026 '+Math.round(p*100)+' %';if(cibles.includes('story'))setRow('story',t,'wait');if(cibles.includes('igstory'))setRow('igstory',t,'wait')};
         maj(0);let sv=null;try{sv=await toStoryVideo(envoiBlob,maj,ovl,opos)}catch(e){}
-        if(sv)fd.append('video',sv,'story.mp4');
+        if(sv){const uS=await deposer(sv,'story.mp4');if(uS)fd.append('story_url',uS)}
         const t2='\u23f3 Envoi\u2026';if(cibles.includes('story'))setRow('story',t2,'wait');if(cibles.includes('igstory'))setRow('igstory',t2,'wait');
       }
       fd.append('caption',cap);fd.append('cibles',cibles.join(','));fd.append('job',job);
-      const r=await xhr(FB_API,fd,e=>{if(e.lengthComputable){prog.meta=[e.loaded,e.total];upd()}});
+      const r=await xhr(FB_API,fd,null);
       prog.meta=[envoiBlob.size,envoiBlob.size];upd();
       const fb=r.data&&r.data.facebook_feed;
       if(cibles.includes('fb')){if(fb&&(fb.id||fb.post_id))setRow('fb','\u2705 Publi\u00e9','ok');else setRow('fb','\u274c '+((fb&&fb.error&&fb.error.message)||(r.status?'\u00c9chec':'Coupure r\u00e9seau')),'err')}
