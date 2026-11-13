@@ -34,11 +34,9 @@ button.go:disabled{opacity:.45;cursor:not-allowed}.btn2{width:100%;padding:12px;
 .r .s{text-align:right}.r .s.ok{color:var(--ok)}.r .s.err{color:var(--err)}.r .s.wait{color:var(--muted)}</style>
 </head>
 <body>
-<header><div class="eyebrow">Auto Luxe Atelier</div><h1>Publier Partout</h1><p>Un fichier. Un clic. Toutes les plateformes.</p></header>
+<header><div class="eyebrow">Auto Luxe Atelier</div><h1>Publier Partout</h1><p>Cochez, écrivez, puis choisissez le fichier en dernier.</p></header>
 
 <div class="card">
-  <label class="drop" id="drop"><input type="file" id="file" accept="video/*,image/*"><div class="ic">🎬</div><div class="lb" id="dl">Choisir une vidéo ou une photo</div><div class="sb" id="ds">Depuis la galerie ou la caméra</div></label>
-  <div id="prev"></div>
   <div class="lab">Texte de la publication</div>
   <textarea id="cap" maxlength="2200" placeholder="Légende (véhicule, service…)"></textarea>
   <button class="tpl" id="tplBtn" type="button">Insérer le modèle « ciel étoilé »</button>
@@ -79,6 +77,13 @@ button.go:disabled{opacity:.45;cursor:not-allowed}.btn2{width:100%;padding:12px;
     </div>
     <div class="legal" id="ttLegal"></div>
   </div>
+</div>
+
+<div class="card">
+  <h2>Fichier à publier</h2>
+  <label class="drop" id="drop"><input type="file" id="file" accept="video/*,image/*"><div class="ic">🎬</div><div class="lb" id="dl">Choisir une vidéo ou une photo</div><div class="sb" id="ds">Depuis la galerie ou la caméra</div></label>
+  <div id="prev"></div>
+  <div class="legal">Dès que le fichier est prêt, la publication démarre toute seule.</div>
 </div>
 
 <button class="go" id="go" disabled>Publier partout</button>
