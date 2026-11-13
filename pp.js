@@ -30,6 +30,48 @@ function showTT(){$('ttLogin').style.display=S?'none':'block';$('ttBody').style.
 
 function toJpeg(file){return new Promise((ok,ko)=>{const img=new Image();img.onload=()=>{let w=img.naturalWidth,h=img.naturalHeight;const k=Math.min(1,1920/Math.max(w,h),1080/Math.min(w,h));w=Math.round(w*k);h=Math.round(h*k);
   const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);c.toBlob(b=>b?ok(b):ko('conversion'),'image/jpeg',0.92)};img.onerror=()=>ko('image illisible');img.src=URL.createObjectURL(file)})}
+function mimeVideo(){
+  const l=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4'];
+  for(const m of l){if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m))return m}
+  return null;
+}
+// Remet une video horizontale au format 9:16 pour les stories : image entiere au centre, fond floute.
+function toStoryVideo(file,onprog){return new Promise(ok=>{
+  const mime=mimeVideo();
+  if(!mime)return ok(null);
+  const v=document.createElement('video');v.src=URL.createObjectURL(file);v.playsInline=true;v.preload='auto';
+  v.onerror=()=>ok(null);
+  v.onloadedmetadata=()=>{
+    const iw=v.videoWidth,ih=v.videoHeight;
+    if(!iw||!ih)return ok(null);
+    if(ih/iw>=1.6)return ok(null);
+    if(!v.duration||v.duration>120)return ok(null);
+    const W=1080,H=1920;
+    const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+    const bg=document.createElement('canvas');bg.width=W;bg.height=H;const bx=bg.getContext('2d');
+    const kc=Math.max(W/iw,H/ih),bw=iw*kc,bh=ih*kc;
+    const k=Math.min(W/iw,H/ih),fw=iw*k,fh=ih*k;
+    let ac=null,dest=null;
+    try{ac=new (window.AudioContext||window.webkitAudioContext)();const s=ac.createMediaElementSource(v);dest=ac.createMediaStreamDestination();s.connect(dest)}catch(e){}
+    const st=new MediaStream();
+    c.captureStream(30).getVideoTracks().forEach(t=>st.addTrack(t));
+    if(dest)dest.stream.getAudioTracks().forEach(t=>st.addTrack(t));
+    let rec;try{rec=new MediaRecorder(st,{mimeType:mime,videoBitsPerSecond:6000000})}catch(e){return ok(null)}
+    const parts=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};
+    let fini=false;
+    rec.onstop=()=>{if(fini)return;fini=true;try{if(ac)ac.close()}catch(e){};ok(parts.length?new Blob(parts,{type:'video/mp4'}):null)};
+    let raf=0,fondPret=false;
+    const draw=()=>{
+      if(!fondPret&&v.currentTime>0){bx.fillStyle='#0d0d0d';bx.fillRect(0,0,W,H);try{bx.filter='blur(42px)';bx.drawImage(v,(W-bw)/2,(H-bh)/2,bw,bh);bx.filter='none'}catch(e){};fondPret=true}
+      x.drawImage(bg,0,0);
+      try{x.drawImage(v,(W-fw)/2,(H-fh)/2,fw,fh)}catch(e){}
+      if(onprog&&v.duration)onprog(Math.min(1,v.currentTime/v.duration));
+      raf=requestAnimationFrame(draw);
+    };
+    v.onended=()=>{cancelAnimationFrame(raf);setTimeout(()=>{try{rec.stop()}catch(e){ok(null)}},300)};
+    v.play().then(()=>{try{rec.start(500)}catch(e){return ok(null)};draw()}).catch(()=>ok(null));
+  };
+})}
 function toStory(src){return new Promise((ok,ko)=>{const img=new Image();img.onload=()=>{
   const W=1080,H=1920;const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
   x.fillStyle='#0d0d0d';x.fillRect(0,0,W,H);
@@ -84,7 +126,14 @@ async function run(){
     prog.meta=[0,blob.size];
     jobs.push(async()=>{
       const fd=new FormData();fd.append('video',blob,fname);
-      if(!isVideo&&(cibles.includes('story')||cibles.includes('igstory'))){try{const sb=await toStory(blob);fd.append('video',sb,'story.jpg')}catch(e){}}
+      const veutStory=cibles.includes('story')||cibles.includes('igstory');
+      if(veutStory&&!isVideo){try{const sb=await toStory(blob);fd.append('video',sb,'story.jpg')}catch(e){}}
+      if(veutStory&&isVideo){
+        const maj=p=>{const t='\u23f3 Mise au format 9:16\u2026 '+Math.round(p*100)+' %';if(cibles.includes('story'))setRow('story',t,'wait');if(cibles.includes('igstory'))setRow('igstory',t,'wait')};
+        maj(0);let sv=null;try{sv=await toStoryVideo(blob,maj)}catch(e){}
+        if(sv)fd.append('video',sv,'story.mp4');
+        const t2='\u23f3 Envoi\u2026';if(cibles.includes('story'))setRow('story',t2,'wait');if(cibles.includes('igstory'))setRow('igstory',t2,'wait');
+      }
       fd.append('caption',cap);fd.append('cibles',cibles.join(','));fd.append('job',job);
       const r=await xhr(FB_API,fd,e=>{if(e.lengthComputable){prog.meta=[e.loaded,e.total];upd()}});
       prog.meta=[blob.size,blob.size];upd();
