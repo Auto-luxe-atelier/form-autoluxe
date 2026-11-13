@@ -68,19 +68,28 @@ $('go').onclick=async()=>{
   const jobs=[];
   if(cibles.length){
     if(cibles.includes('fb'))row('fb','Facebook');if(cibles.includes('story'))row('story','Story Facebook');if(cibles.includes('ig'))row('ig','Instagram');
-    const fd=new FormData();fd.append('video',blob,fname);fd.append('caption',cap);fd.append('cibles',cibles.join(','));
-    jobs.push(xhr(FB_API,fd,e=>{if(e.lengthComputable){prog.fb=[e.loaded,e.total];upd()}}).then(r=>{
+    prog.meta=[0,blob.size];
+    jobs.push(async()=>{
+      const fd=new FormData();fd.append('video',blob,fname);fd.append('caption',cap);fd.append('cibles',cibles.join(','));
+      const r=await xhr(FB_API,fd,e=>{if(e.lengthComputable){prog.meta=[e.loaded,e.total];upd()}});
+      prog.meta=[blob.size,blob.size];upd();
       const fb=r.data&&r.data.facebook_feed;
-      if(cibles.includes('fb')){if(fb&&(fb.id||fb.post_id))setRow('fb','✅ Publié','ok');else setRow('fb','❌ '+((fb&&fb.error&&fb.error.message)||(r.status?'Échec':'Coupure réseau')),'err')}
-      if(cibles.includes('story'))setRow('story',r.status===200?'✅ Envoyée':'❌ Échec',r.status===200?'ok':'err');
-      if(cibles.includes('ig'))setRow('ig',r.status===200?'⏳ En cours · confirmation WhatsApp':'❌ Échec',r.status===200?'wait':'err');
-    }));
+      if(cibles.includes('fb')){if(fb&&(fb.id||fb.post_id))setRow('fb','\u2705 Publi\u00e9','ok');else setRow('fb','\u274c '+((fb&&fb.error&&fb.error.message)||(r.status?'\u00c9chec':'Coupure r\u00e9seau')),'err')}
+      if(cibles.includes('story'))setRow('story',r.status===200?'\u2705 Envoy\u00e9e':'\u274c \u00c9chec',r.status===200?'ok':'err');
+      if(cibles.includes('ig'))setRow('ig',r.status===200?'\u23f3 En cours \u00b7 confirmation WhatsApp':'\u274c \u00c9chec',r.status===200?'wait':'err');
+    });
   }
   if(wantTT){
-    row('tt','TikTok');const d=ttDirect();const f={mode:d?'direct':'brouillon'};
+    row('tt','TikTok');prog.tt=[0,blob.size];
+    const d=ttDirect();const f={mode:d?'direct':'brouillon'};
     if(d){f.titre=cap;f.privacy=$('ttPriv').value;f.disable_comment=!$('ttCom').checked;f.disable_duet=!$('ttDuet').checked;f.disable_stitch=!$('ttStitch').checked;f.brand_organic=$('ttDisc').checked&&$('ttOwn').checked;f.brand_content=$('ttDisc').checked&&$('ttBrand').checked}
-    jobs.push(tt(f,blob,e=>{if(e.lengthComputable){prog.tt=[e.loaded,e.total];upd()}}).then(r=>{if(!r.ok)setRow('tt','❌ '+(r.error||'Échec'),'err');else{setRow('tt','⏳ TikTok traite…','wait');pollTT(r.publish_id,0)}}));
+    jobs.push(async()=>{
+      const r=await tt(f,blob,e=>{if(e.lengthComputable){prog.tt=[e.loaded,e.total];upd()}});
+      prog.tt=[blob.size,blob.size];upd();
+      if(!r.ok)setRow('tt','\u274c '+(r.error||'\u00c9chec'),'err');else{setRow('tt','\u23f3 TikTok traite\u2026','wait');pollTT(r.publish_id,0)}
+    });
   }
-  await Promise.all(jobs);$('fill').style.width='100%';$('pct').textContent='100 %';busy=false;refresh();
+  for(const j of jobs){try{await j()}catch(e){}}
+  $('fill').style.width='100%';$('pct').textContent='100 %';busy=false;refresh();
 };
 initTT();refresh();
