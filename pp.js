@@ -30,6 +30,13 @@ function showTT(){$('ttLogin').style.display=S?'none':'block';$('ttBody').style.
 
 function toJpeg(file){return new Promise((ok,ko)=>{const img=new Image();img.onload=()=>{let w=img.naturalWidth,h=img.naturalHeight;const k=Math.min(1,1920/Math.max(w,h),1080/Math.min(w,h));w=Math.round(w*k);h=Math.round(h*k);
   const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);c.toBlob(b=>b?ok(b):ko('conversion'),'image/jpeg',0.92)};img.onerror=()=>ko('image illisible');img.src=URL.createObjectURL(file)})}
+function toStory(src){return new Promise((ok,ko)=>{const img=new Image();img.onload=()=>{
+  const W=1080,H=1920;const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  x.fillStyle='#0d0d0d';x.fillRect(0,0,W,H);
+  const iw=img.naturalWidth,ih=img.naturalHeight;
+  try{const kc=Math.max(W/iw,H/ih);const bw=iw*kc,bh=ih*kc;x.filter='blur(42px)';x.drawImage(img,(W-bw)/2,(H-bh)/2,bw,bh);x.filter='none'}catch(e){}
+  const k=Math.min(W/iw,H/ih);const w=iw*k,h=ih*k;x.drawImage(img,(W-w)/2,(H-h)/2,w,h);
+  c.toBlob(b=>b?ok(b):ko('story'),'image/jpeg',0.92)};img.onerror=()=>ko('image');img.src=URL.createObjectURL(src)})}
 $('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('prev').innerHTML='';vidDur=0;pendingAuto=true;$('res').innerHTML='';
   if(f.type.startsWith('image/')){isVideo=false;blob=await toJpeg(f);fname='photo.jpg';const i=document.createElement('img');i.src=URL.createObjectURL(blob);$('prev').appendChild(i)}
   else{isVideo=true;blob=f;fname=f.name||'video.mp4';const v=document.createElement('video');v.src=URL.createObjectURL(f);v.controls=true;v.playsInline=true;v.onloadedmetadata=()=>{vidDur=v.duration||0;refresh()};$('prev').appendChild(v)}
@@ -37,8 +44,9 @@ $('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('prev').in
 
 const ttDirect=()=>document.querySelector('input[name=ttMode]:checked').value==='direct';
 function refresh(){
-  $('rowYt').classList.toggle('off',!isVideo);if(!isVideo)$('dYt').checked=false;$('dYt').disabled=!isVideo;
-  $('rowStory').classList.toggle('off',isVideo);if(isVideo)$('dStory').checked=false;$('dStory').disabled=isVideo;
+  const aFichier=!!blob;
+  const ytOff=aFichier&&!isVideo;$('rowYt').classList.toggle('off',ytOff);if(ytOff)$('dYt').checked=false;$('dYt').disabled=ytOff;
+  const stOff=aFichier&&isVideo;$('rowStory').classList.toggle('off',stOff);if(stOff)$('dStory').checked=false;$('dStory').disabled=stOff;
   const wantTT=$('dTt').checked;$('ttCard').classList.toggle('on',wantTT);
   const d=ttDirect();$('ttDirect').style.display=d?'block':'none';
   document.querySelectorAll('.ttv').forEach(r=>r.style.display=isVideo?'':'none');
@@ -75,7 +83,9 @@ async function run(){
     if(cibles.includes('fb'))row('fb','Facebook');if(cibles.includes('story'))row('story','Story Facebook');if(cibles.includes('ig'))row('ig','Instagram');if(cibles.includes('igstory'))row('igstory','Story Instagram');if(cibles.includes('yt'))row('yt','YouTube Shorts');
     prog.meta=[0,blob.size];
     jobs.push(async()=>{
-      const fd=new FormData();fd.append('video',blob,fname);fd.append('caption',cap);fd.append('cibles',cibles.join(','));fd.append('job',job);
+      const fd=new FormData();fd.append('video',blob,fname);
+      if(!isVideo&&(cibles.includes('story')||cibles.includes('igstory'))){try{const sb=await toStory(blob);fd.append('video',sb,'story.jpg')}catch(e){}}
+      fd.append('caption',cap);fd.append('cibles',cibles.join(','));fd.append('job',job);
       const r=await xhr(FB_API,fd,e=>{if(e.lengthComputable){prog.meta=[e.loaded,e.total];upd()}});
       prog.meta=[blob.size,blob.size];upd();
       const fb=r.data&&r.data.facebook_feed;
