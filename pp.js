@@ -4,7 +4,7 @@ const TT_LOGIN='https://n8n-hetzner.duckdns.org/webhook/tiktok-connexion-autolux
 const $=id=>document.getElementById(id);
 const TPL="Votre ciel de toit est encore blanc ou beige ? 🤍➡️🖤\nPassez au noir et ajoutez un ciel étoilé : votre habitacle change complètement d'ambiance.\n\n✨ Ciel étoilé fibre optique, jusqu'à 500 étoiles\n🖤 Changement de couleur du ciel de toit : blanc ➜ noir, en tissu ou en Alcantara\n✔️ Finition d'origine • Garantie 24 mois\n\n📍 Auto Luxe Atelier – Chéraga, Alger\n📩 Écrivez-nous en privé pour un devis\n\nسقف طوموبيلتك مازال أبيض؟ 🤍\nردّوه أكحل 🖤 وزيدولو سما النجوم ✨ الطوموبيل تولي حاجة أخرى!\n📍 الشراقة – الجزائر | راسلونا في الخاص\n\n#cieletoile #cieldetoit #alcantara #starlight #autoluxeatelier #alger #algerie #dz #سقف_السيارة #تعديل_السيارات";
 const LBL={PUBLIC_TO_EVERYONE:'Tout le monde',MUTUAL_FOLLOW_FRIENDS:'Amis (abonnés mutuels)',FOLLOWER_OF_CREATOR:'Abonnés',SELF_ONLY:'Moi uniquement'};
-let S='',C=null,blob=null,fname='',isVideo=false,vidDur=0,busy=false;
+let S='',C=null,blob=null,fname='',isVideo=false,vidDur=0,busy=false,pendingAuto=false;
 try{const h=new URLSearchParams(location.hash.slice(1));if(h.get('s')){localStorage.setItem('tt_s',h.get('s'));history.replaceState(null,'',location.pathname)}S=localStorage.getItem('tt_s')||''}catch(e){}
 
 function xhr(url,fd,onp){return new Promise(ok=>{const x=new XMLHttpRequest();x.open('POST',url);if(onp)x.upload.onprogress=onp;
@@ -28,7 +28,7 @@ function showTT(){$('ttLogin').style.display=S?'none':'block';$('ttBody').style.
 
 function toJpeg(file){return new Promise((ok,ko)=>{const img=new Image();img.onload=()=>{let w=img.naturalWidth,h=img.naturalHeight;const k=Math.min(1,1920/Math.max(w,h),1080/Math.min(w,h));w=Math.round(w*k);h=Math.round(h*k);
   const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);c.toBlob(b=>b?ok(b):ko('conversion'),'image/jpeg',0.92)};img.onerror=()=>ko('image illisible');img.src=URL.createObjectURL(file)})}
-$('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('prev').innerHTML='';vidDur=0;
+$('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('prev').innerHTML='';vidDur=0;pendingAuto=true;$('res').innerHTML='';
   if(f.type.startsWith('image/')){isVideo=false;blob=await toJpeg(f);fname='photo.jpg';const i=document.createElement('img');i.src=URL.createObjectURL(blob);$('prev').appendChild(i)}
   else{isVideo=true;blob=f;fname=f.name||'video.mp4';const v=document.createElement('video');v.src=URL.createObjectURL(f);v.controls=true;v.playsInline=true;v.onloadedmetadata=()=>{vidDur=v.duration||0;refresh()};$('prev').appendChild(v)}
   $('drop').classList.add('has');$('dl').textContent=f.name;$('ds').textContent=(f.size/1048576).toFixed(1)+' Mo · '+(isVideo?'vidéo':'photo');refresh()};
@@ -48,6 +48,7 @@ function refresh(){
   let ok=!!blob&&any&&!busy;
   if(wantTT){const max=(C&&C.max_video_post_duration_sec)||600;ok=ok&&!!S&&!!C&&!(isVideo&&vidDur>max);if(d)ok=ok&&!!$('ttPriv').value&&!(disc&&!own&&!brand)}
   $('go').disabled=!ok;
+  if(pendingAuto&&ok&&!busy){pendingAuto=false;setTimeout(run,250)}
 }
 ['dFb','dStory','dIg','dIgStory','dYt','dTt','ttPriv','ttDisc','ttOwn','ttBrand','cap'].forEach(id=>$(id).addEventListener('change',refresh));
 document.querySelectorAll('input[name=ttMode]').forEach(r=>r.addEventListener('change',refresh));
@@ -62,8 +63,8 @@ async function pollTT(pid,n){const d=await tt({action:'status',publish_id:pid});
   if(n>40)return setRow('tt','⏳ Toujours en traitement','wait');
   setRow('tt','⏳ TikTok traite…','wait');setTimeout(()=>pollTT(pid,n+1),3000)}
 
-$('go').onclick=async()=>{
-  busy=true;refresh();$('res').innerHTML='';$('bar').style.display='block';$('pct').style.display='block';$('fill').style.width='0';$('pct').textContent='0 %';
+async function run(){
+  pendingAuto=false;busy=true;refresh();$('res').innerHTML='';$('bar').style.display='block';$('pct').style.display='block';$('fill').style.width='0';$('pct').textContent='0 %';
   const cap=$('cap').value;const cibles=[];if($('dFb').checked)cibles.push('fb');if($('dStory').checked)cibles.push('story');if($('dIg').checked)cibles.push('ig');if($('dIgStory').checked)cibles.push('igstory');if($('dYt').checked)cibles.push('yt');
   const wantTT=$('dTt').checked;const prog={};const upd=()=>{let l=0,t=0;for(const k in prog){l+=prog[k][0];t+=prog[k][1]}const p=t?Math.round(l/t*100):0;$('fill').style.width=p+'%';$('pct').textContent=p+' %'};
   const jobs=[];
@@ -94,5 +95,6 @@ $('go').onclick=async()=>{
   }
   for(const j of jobs){try{await j()}catch(e){}}
   $('fill').style.width='100%';$('pct').textContent='100 %';busy=false;refresh();
-};
+}
+$('go').onclick=run;
 initTT();refresh();
