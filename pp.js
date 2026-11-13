@@ -132,7 +132,7 @@ function compresseVideo(file,onprog){return new Promise(ok=>{
     const st=new MediaStream();
     c.captureStream(30).getVideoTracks().forEach(t=>st.addTrack(t));
     if(dest)dest.stream.getAudioTracks().forEach(t=>st.addTrack(t));
-    const cible=Math.max(900000,Math.min(6000000,Math.floor(45*1048576*8/v.duration)));
+    const cible=Math.max(800000,Math.min(6000000,Math.floor(36*1048576*8/v.duration)));
     let rec;try{rec=new MediaRecorder(st,{mimeType:mime,videoBitsPerSecond:cible,audioBitsPerSecond:96000})}catch(e){return ok(null)}
     const parts=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};
     let fini=false;
@@ -247,7 +247,7 @@ async function run(){
   const ovl=txtOverlay(),opos=txtPos();
   let envoiBlob=blob;
   if(ovl&&!isVideo){try{envoiBlob=await ajouteTexte(blob,ovl,opos)}catch(e){}}
-  if(isVideo&&blob.size>45*1048576){
+  if(isVideo&&blob.size>47*1048576){
     row('prep','Allègement');setRow('prep','⏳ Patientez, laissez la page ouverte…','wait');
     let cv=null;try{cv=await compresseVideo(blob,p=>setRow('prep','⏳ Allègement… '+Math.round(p*100)+' %','wait'))}catch(e){}
     if(cv&&cv.size&&cv.size<blob.size){envoiBlob=cv;setRow('prep','✅ '+(blob.size/1048576).toFixed(0)+' Mo → '+(cv.size/1048576).toFixed(0)+' Mo','ok')}
