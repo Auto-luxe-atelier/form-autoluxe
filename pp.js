@@ -1,97 +1,86 @@
-const WEBHOOK_URL = 'https://n8n-hetzner.duckdns.org/webhook/publier-partout';
-const MAX_TRIES = 3;
-const form = document.getElementById('publishForm');
-const videoInput = document.getElementById('videoInput');
-const dropZone = document.getElementById('dropZone');
-const dropLabel = document.getElementById('dropLabel');
-const dropSub = document.getElementById('dropSub');
-const statusEl = document.getElementById('status');
-const submitBtn = document.getElementById('submitBtn');
-const progress = document.getElementById('progress');
-const fill = document.getElementById('fill');
-const pct = document.getElementById('pct');
-const captionEl = document.getElementById('caption');
-const DEFAULT_LABEL = 'Choisir une vidéo ou une photo';
-const DEFAULT_SUB = 'Depuis la galerie ou la caméra';
-function setProgress(value, state) {
-fill.style.width = value + '%';
-pct.textContent = value + ' %';
-fill.className = 'fill' + (state ? ' ' + state : '');
+const FB_API='https://n8n-hetzner.duckdns.org/webhook/publier-partout';
+const TT_API='https://n8n-hetzner.duckdns.org/webhook/tiktok-publier';
+const TT_LOGIN='https://n8n-hetzner.duckdns.org/webhook/tiktok-connexion-autoluxe?ret=pp';
+const $=id=>document.getElementById(id);
+const TPL="Votre ciel de toit est encore blanc ou beige ? 🤍➡️🖤\nPassez au noir et ajoutez un ciel étoilé : votre habitacle change complètement d'ambiance.\n\n✨ Ciel étoilé fibre optique, jusqu'à 500 étoiles\n🖤 Changement de couleur du ciel de toit : blanc ➜ noir, en tissu ou en Alcantara\n✔️ Finition d'origine • Garantie 24 mois\n\n📍 Auto Luxe Atelier – Chéraga, Alger\n📩 Écrivez-nous en privé pour un devis\n\nسقف طوموبيلتك مازال أبيض؟ 🤍\nردّوه أكحل 🖤 وزيدولو سما النجوم ✨ الطوموبيل تولي حاجة أخرى!\n📍 الشراقة – الجزائر | راسلونا في الخاص\n\n#cieletoile #cieldetoit #alcantara #starlight #autoluxeatelier #alger #algerie #dz #سقف_السيارة #تعديل_السيارات";
+const LBL={PUBLIC_TO_EVERYONE:'Tout le monde',MUTUAL_FOLLOW_FRIENDS:'Amis (abonnés mutuels)',FOLLOWER_OF_CREATOR:'Abonnés',SELF_ONLY:'Moi uniquement'};
+let S='',C=null,blob=null,fname='',isVideo=false,vidDur=0,busy=false;
+try{const h=new URLSearchParams(location.hash.slice(1));if(h.get('s')){localStorage.setItem('tt_s',h.get('s'));history.replaceState(null,'',location.pathname)}S=localStorage.getItem('tt_s')||''}catch(e){}
+
+function xhr(url,fd,onp){return new Promise(ok=>{const x=new XMLHttpRequest();x.open('POST',url);if(onp)x.upload.onprogress=onp;
+  x.onload=()=>{let d=null;try{d=JSON.parse(x.responseText)}catch(e){};ok({status:x.status,data:d})};x.onerror=()=>ok({status:0,data:null});x.send(fd)})}
+function tt(fields,file,onp){const fd=new FormData();fd.append('s',S);for(const k in fields)fd.append(k,fields[k]);if(file)fd.append('media',file,fname);return xhr(TT_API,fd,onp).then(r=>r.data||{ok:false,error:'Coupure réseau'})}
+
+$('tplBtn').onclick=()=>{$('cap').value=TPL;refresh()};
+$('ttLoginBtn').onclick=()=>location.href=TT_LOGIN;
+$('ttOut').onclick=async()=>{await tt({action:'logout'});try{localStorage.removeItem('tt_s')}catch(e){};S='';C=null;showTT()};
+
+async function initTT(){
+  if(!S){showTT();return}
+  const d=await tt({action:'creator'});
+  if(!d.ok){if(d.need_login){try{localStorage.removeItem('tt_s')}catch(e){}S=''}else{$('ttBlocked').textContent='⚠️ Ce compte ne peut pas publier pour le moment : '+(d.error||'');$('ttBlocked').style.display='block'}showTT();return}
+  C=d.creator;$('ttAv').src=C.creator_avatar_url||'';$('ttNick').textContent=C.creator_nickname||'';$('ttUser').textContent='@'+(C.creator_username||'');
+  $('ttPriv').length=1;for(const p of (C.privacy_level_options||[])){const o=document.createElement('option');o.value=p;o.textContent=LBL[p]||p;$('ttPriv').appendChild(o)}
+  [['comment_disabled','ttCom'],['duet_disabled','ttDuet'],['stitch_disabled','ttStitch']].forEach(([k,id])=>{if(C[k]){$(id).checked=false;$(id).disabled=true;$(id).closest('.dest').classList.add('off')}});
+  showTT();
 }
-function resetForm() {
-form.reset();
-dropZone.classList.remove('has-file');
-dropLabel.textContent = DEFAULT_LABEL;
-dropSub.textContent = DEFAULT_SUB;
+function showTT(){$('ttLogin').style.display=S?'none':'block';$('ttBody').style.display=S?'block':'none';refresh()}
+
+function toJpeg(file){return new Promise((ok,ko)=>{const img=new Image();img.onload=()=>{let w=img.naturalWidth,h=img.naturalHeight;const k=Math.min(1,1920/Math.max(w,h),1080/Math.min(w,h));w=Math.round(w*k);h=Math.round(h*k);
+  const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);c.toBlob(b=>b?ok(b):ko('conversion'),'image/jpeg',0.92)};img.onerror=()=>ko('image illisible');img.src=URL.createObjectURL(file)})}
+$('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('prev').innerHTML='';vidDur=0;
+  if(f.type.startsWith('image/')){isVideo=false;blob=await toJpeg(f);fname='photo.jpg';const i=document.createElement('img');i.src=URL.createObjectURL(blob);$('prev').appendChild(i)}
+  else{isVideo=true;blob=f;fname=f.name||'video.mp4';const v=document.createElement('video');v.src=URL.createObjectURL(f);v.controls=true;v.playsInline=true;v.onloadedmetadata=()=>{vidDur=v.duration||0;refresh()};$('prev').appendChild(v)}
+  $('drop').classList.add('has');$('dl').textContent=f.name;$('ds').textContent=(f.size/1048576).toFixed(1)+' Mo · '+(isVideo?'vidéo':'photo');refresh()};
+
+const ttDirect=()=>document.querySelector('input[name=ttMode]:checked').value==='direct';
+function refresh(){
+  $('rowStory').classList.toggle('off',isVideo);if(isVideo)$('dStory').checked=false;$('dStory').disabled=isVideo;
+  const wantTT=$('dTt').checked;$('ttCard').classList.toggle('on',wantTT);
+  const d=ttDirect();$('ttDirect').style.display=d?'block':'none';
+  document.querySelectorAll('.ttv').forEach(r=>r.style.display=isVideo?'':'none');
+  const disc=$('ttDisc').checked,own=$('ttOwn').checked,brand=$('ttBrand').checked;$('ttDiscBox').style.display=disc?'block':'none';
+  const so=[...$('ttPriv').options].find(o=>o.value==='SELF_ONLY');if(so){so.disabled=disc&&brand;if(disc&&brand&&$('ttPriv').value==='SELF_ONLY')$('ttPriv').value=''}
+  $('ttDiscNote').textContent=disc&&!own&&!brand?'Choisissez au moins une option.':disc&&brand?'Étiquette « Partenariat rémunéré ».':disc&&own?'Étiquette « Contenu promotionnel ».':'';
+  $('ttLegal').innerHTML=d?('En publiant, vous acceptez '+(disc&&brand?'la <a href="https://www.tiktok.com/legal/page/global/bc-policy/en" target="_blank">Politique relative au contenu de marque</a> et ':'')+'la <a href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en" target="_blank">Confirmation d\'utilisation de la musique</a> de TikTok.<br>Aucune musique n\'est ajoutée.'):'TikTok : la publication arrive dans votre boîte de réception TikTok pour être finalisée.';
+  const any=$('dFb').checked||$('dStory').checked||$('dIg').checked||wantTT;
+  let ok=!!blob&&any&&!busy;
+  if(wantTT){const max=(C&&C.max_video_post_duration_sec)||600;ok=ok&&!!S&&!!C&&!(isVideo&&vidDur>max);if(d)ok=ok&&!!$('ttPriv').value&&!(disc&&!own&&!brand)}
+  $('go').disabled=!ok;
 }
-function finish(ok, detail) {
-setProgress(100, ok ? 'done' : 'failed');
-statusEl.className = ok ? 'status ok' : 'status err';
-statusEl.textContent = ok ? '✓ Publié sur Facebook.' : (detail || 'Échec de la publication.');
-if (ok) resetForm();
-submitBtn.disabled = false;
-}
-videoInput.addEventListener('change', () => {
-const file = videoInput.files[0];
-if (file) {
-dropZone.classList.add('has-file');
-dropLabel.textContent = file.name;
-dropSub.textContent = (file.size / (1024 * 1024)).toFixed(1) + ' Mo';
-}
-});
-function send(file, caption, attempt) {
-const formData = new FormData();
-formData.append('video', file, file.name);
-formData.append('caption', caption);
-const xhr = new XMLHttpRequest();
-xhr.open('POST', WEBHOOK_URL);
-xhr.timeout = 600000;
-const suffix = attempt > 1 ? ' (essai ' + attempt + ')' : '';
-xhr.upload.addEventListener('progress', (ev) => {
-if (!ev.lengthComputable) return;
-setProgress(Math.round((ev.loaded / ev.total) * 100));
-statusEl.textContent = 'Envoi vers le serveur...' + suffix;
-});
-xhr.upload.addEventListener('load', () => {
-setProgress(100);
-statusEl.textContent = 'Publication sur Facebook...' + suffix;
-});
-xhr.addEventListener('load', () => {
-let ok = xhr.status >= 200 && xhr.status < 300;
-let detail = '';
-try {
-const data = JSON.parse(xhr.responseText);
-const fb = data.facebook_feed || data;
-if (fb && fb.error) {
-ok = false;
-detail = 'Échec — ' + (fb.error.message || '');
-}
-} catch (err) {
-}
-finish(ok, detail);
-});
-function retryOrFail(msg) {
-if (attempt < MAX_TRIES) {
-statusEl.className = 'status pending';
-statusEl.textContent = 'Coupure — nouvel essai...';
-setProgress(0);
-setTimeout(() => send(file, caption, attempt + 1), 1500);
-} else {
-finish(false, msg);
-}
-}
-xhr.addEventListener('error', () => retryOrFail('Connexion impossible après ' + MAX_TRIES + ' essais.'));
-xhr.addEventListener('timeout', () => retryOrFail('Délai dépassé — fichier trop lourd ?'));
-xhr.send(formData);
-}
-form.addEventListener('submit', (e) => {
-e.preventDefault();
-const file = videoInput.files[0];
-if (!file) return;
-submitBtn.disabled = true;
-progress.classList.add('visible');
-setProgress(0);
-statusEl.className = 'status pending';
-statusEl.textContent = 'Préparation...';
-send(file, captionEl.value, 1);
-});
+['dFb','dStory','dIg','dTt','ttPriv','ttDisc','ttOwn','ttBrand','cap'].forEach(id=>$(id).addEventListener('change',refresh));
+document.querySelectorAll('input[name=ttMode]').forEach(r=>r.addEventListener('change',refresh));
+
+function row(id,name){const r=document.createElement('div');r.className='r';r.id='r_'+id;r.innerHTML='<span>'+name+'</span><span class="s wait">En attente…</span>';$('res').appendChild(r)}
+function setRow(id,t,cls){const s=document.querySelector('#r_'+id+' .s');if(s){s.textContent=t;s.className='s '+cls}}
+
+async function pollTT(pid,n){const d=await tt({action:'status',publish_id:pid});const st=d.status&&d.status.status;
+  if(st==='PUBLISH_COMPLETE')return setRow('tt','✅ Publié','ok');
+  if(st==='SEND_TO_USER_INBOX')return setRow('tt','✅ Dans ta boîte TikTok','ok');
+  if(st==='FAILED')return setRow('tt','❌ '+((d.status&&d.status.fail_reason)||'Refusé'),'err');
+  if(n>40)return setRow('tt','⏳ Toujours en traitement','wait');
+  setRow('tt','⏳ TikTok traite…','wait');setTimeout(()=>pollTT(pid,n+1),3000)}
+
+$('go').onclick=async()=>{
+  busy=true;refresh();$('res').innerHTML='';$('bar').style.display='block';$('pct').style.display='block';$('fill').style.width='0';$('pct').textContent='0 %';
+  const cap=$('cap').value;const cibles=[];if($('dFb').checked)cibles.push('fb');if($('dStory').checked)cibles.push('story');if($('dIg').checked)cibles.push('ig');
+  const wantTT=$('dTt').checked;const prog={};const upd=()=>{let l=0,t=0;for(const k in prog){l+=prog[k][0];t+=prog[k][1]}const p=t?Math.round(l/t*100):0;$('fill').style.width=p+'%';$('pct').textContent=p+' %'};
+  const jobs=[];
+  if(cibles.length){
+    if(cibles.includes('fb'))row('fb','Facebook');if(cibles.includes('story'))row('story','Story Facebook');if(cibles.includes('ig'))row('ig','Instagram');
+    const fd=new FormData();fd.append('video',blob,fname);fd.append('caption',cap);fd.append('cibles',cibles.join(','));
+    jobs.push(xhr(FB_API,fd,e=>{if(e.lengthComputable){prog.fb=[e.loaded,e.total];upd()}}).then(r=>{
+      const fb=r.data&&r.data.facebook_feed;
+      if(cibles.includes('fb')){if(fb&&(fb.id||fb.post_id))setRow('fb','✅ Publié','ok');else setRow('fb','❌ '+((fb&&fb.error&&fb.error.message)||(r.status?'Échec':'Coupure réseau')),'err')}
+      if(cibles.includes('story'))setRow('story',r.status===200?'✅ Envoyée':'❌ Échec',r.status===200?'ok':'err');
+      if(cibles.includes('ig'))setRow('ig',r.status===200?'⏳ En cours · confirmation WhatsApp':'❌ Échec',r.status===200?'wait':'err');
+    }));
+  }
+  if(wantTT){
+    row('tt','TikTok');const d=ttDirect();const f={mode:d?'direct':'brouillon'};
+    if(d){f.titre=cap;f.privacy=$('ttPriv').value;f.disable_comment=!$('ttCom').checked;f.disable_duet=!$('ttDuet').checked;f.disable_stitch=!$('ttStitch').checked;f.brand_organic=$('ttDisc').checked&&$('ttOwn').checked;f.brand_content=$('ttDisc').checked&&$('ttBrand').checked}
+    jobs.push(tt(f,blob,e=>{if(e.lengthComputable){prog.tt=[e.loaded,e.total];upd()}}).then(r=>{if(!r.ok)setRow('tt','❌ '+(r.error||'Échec'),'err');else{setRow('tt','⏳ TikTok traite…','wait');pollTT(r.publish_id,0)}}));
+  }
+  await Promise.all(jobs);$('fill').style.width='100%';$('pct').textContent='100 %';busy=false;refresh();
+};
+initTT();refresh();
