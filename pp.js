@@ -2,6 +2,8 @@ const FB_API='https://n8n-hetzner.duckdns.org/webhook/publier-partout';
 const TT_API='https://n8n-hetzner.duckdns.org/webhook/tiktok-publier';
 const TT_LOGIN='https://n8n-hetzner.duckdns.org/webhook/tiktok-connexion-autoluxe?ret=pp';
 const $=id=>document.getElementById(id);
+const SB='https://supabase.n8n-hetzner.duckdns.org/storage/v1/object/public/publications/statut/';
+function suivre(job,plat,id,libelle,n){fetch(SB+job+'-'+plat+'.json?t='+Date.now()).then(r=>r.ok?r.json():null).then(d=>{if(d&&typeof d.ok!=='undefined'){setRow(id,d.ok?('\u2705 '+libelle):('\u274c '+(d.error||'\u00c9chec')),d.ok?'ok':'err');return}if(n>80){setRow(id,'\u23f3 Toujours en cours','wait');return}setTimeout(()=>suivre(job,plat,id,libelle,n+1),3000)}).catch(()=>{if(n<=80)setTimeout(()=>suivre(job,plat,id,libelle,n+1),3000)})}
 const TPL="Votre ciel de toit est encore blanc ou beige ? 🤍➡️🖤\nPassez au noir et ajoutez un ciel étoilé : votre habitacle change complètement d'ambiance.\n\n✨ Ciel étoilé fibre optique, jusqu'à 500 étoiles\n🖤 Changement de couleur du ciel de toit : blanc ➜ noir, en tissu ou en Alcantara\n✔️ Finition d'origine • Garantie 24 mois\n\n📍 Auto Luxe Atelier – Chéraga, Alger\n📩 Écrivez-nous en privé pour un devis\n\nسقف طوموبيلتك مازال أبيض؟ 🤍\nردّوه أكحل 🖤 وزيدولو سما النجوم ✨ الطوموبيل تولي حاجة أخرى!\n📍 الشراقة – الجزائر | راسلونا في الخاص\n\n#cieletoile #cieldetoit #alcantara #starlight #autoluxeatelier #alger #algerie #dz #سقف_السيارة #تعديل_السيارات";
 const LBL={PUBLIC_TO_EVERYONE:'Tout le monde',MUTUAL_FOLLOW_FRIENDS:'Amis (abonnés mutuels)',FOLLOWER_OF_CREATOR:'Abonnés',SELF_ONLY:'Moi uniquement'};
 let S='',C=null,blob=null,fname='',isVideo=false,vidDur=0,busy=false,pendingAuto=false;
@@ -65,6 +67,7 @@ async function pollTT(pid,n){const d=await tt({action:'status',publish_id:pid});
 
 async function run(){
   pendingAuto=false;busy=true;refresh();$('res').innerHTML='';$('bar').style.display='block';$('pct').style.display='block';$('fill').style.width='0';$('pct').textContent='0 %';
+  const job='j'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
   const cap=$('cap').value;const cibles=[];if($('dFb').checked)cibles.push('fb');if($('dStory').checked)cibles.push('story');if($('dIg').checked)cibles.push('ig');if($('dIgStory').checked)cibles.push('igstory');if($('dYt').checked)cibles.push('yt');
   const wantTT=$('dTt').checked;const prog={};const upd=()=>{let l=0,t=0;for(const k in prog){l+=prog[k][0];t+=prog[k][1]}const p=t?Math.round(l/t*100):0;$('fill').style.width=p+'%';$('pct').textContent=p+' %'};
   const jobs=[];
@@ -72,15 +75,16 @@ async function run(){
     if(cibles.includes('fb'))row('fb','Facebook');if(cibles.includes('story'))row('story','Story Facebook');if(cibles.includes('ig'))row('ig','Instagram');if(cibles.includes('igstory'))row('igstory','Story Instagram');if(cibles.includes('yt'))row('yt','YouTube Shorts');
     prog.meta=[0,blob.size];
     jobs.push(async()=>{
-      const fd=new FormData();fd.append('video',blob,fname);fd.append('caption',cap);fd.append('cibles',cibles.join(','));
+      const fd=new FormData();fd.append('video',blob,fname);fd.append('caption',cap);fd.append('cibles',cibles.join(','));fd.append('job',job);
       const r=await xhr(FB_API,fd,e=>{if(e.lengthComputable){prog.meta=[e.loaded,e.total];upd()}});
       prog.meta=[blob.size,blob.size];upd();
       const fb=r.data&&r.data.facebook_feed;
       if(cibles.includes('fb')){if(fb&&(fb.id||fb.post_id))setRow('fb','\u2705 Publi\u00e9','ok');else setRow('fb','\u274c '+((fb&&fb.error&&fb.error.message)||(r.status?'\u00c9chec':'Coupure r\u00e9seau')),'err')}
       if(cibles.includes('story'))setRow('story',r.status===200?'\u2705 Envoy\u00e9e':'\u274c \u00c9chec',r.status===200?'ok':'err');
-      if(cibles.includes('yt'))setRow('yt',r.status===200?'\u23f3 En cours \u00b7 confirmation WhatsApp':'\u274c \u00c9chec',r.status===200?'wait':'err');
-      if(cibles.includes('igstory'))setRow('igstory',r.status===200?'\u23f3 En cours \u00b7 confirmation WhatsApp':'\u274c \u00c9chec',r.status===200?'wait':'err');
-      if(cibles.includes('ig'))setRow('ig',r.status===200?'\u23f3 En cours \u00b7 confirmation WhatsApp':'\u274c \u00c9chec',r.status===200?'wait':'err');
+      const ok200=r.status===200;
+      if(cibles.includes('yt')){if(ok200){setRow('yt','\u23f3 YouTube traite\u2026','wait');suivre(job,'yt','yt','Envoy\u00e9e',0)}else setRow('yt','\u274c \u00c9chec','err')}
+      if(cibles.includes('igstory')){if(ok200){setRow('igstory','\u23f3 Instagram traite\u2026','wait');suivre(job,'igstory','igstory','Publi\u00e9e',0)}else setRow('igstory','\u274c \u00c9chec','err')}
+      if(cibles.includes('ig')){if(ok200){setRow('ig','\u23f3 Instagram traite\u2026','wait');suivre(job,'ig','ig','Publi\u00e9',0)}else setRow('ig','\u274c \u00c9chec','err')}
     });
   }
   if(wantTT){
