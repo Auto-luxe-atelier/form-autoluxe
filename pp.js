@@ -46,7 +46,7 @@ const ttDirect=()=>document.querySelector('input[name=ttMode]:checked').value===
 function refresh(){
   const aFichier=!!blob;
   const ytOff=aFichier&&!isVideo;$('rowYt').classList.toggle('off',ytOff);if(ytOff)$('dYt').checked=false;$('dYt').disabled=ytOff;
-  const stOff=aFichier&&isVideo;$('rowStory').classList.toggle('off',stOff);if(stOff)$('dStory').checked=false;$('dStory').disabled=stOff;
+  $('rowStory').classList.toggle('off',false);$('dStory').disabled=false;
   const wantTT=$('dTt').checked;$('ttCard').classList.toggle('on',wantTT);
   const d=ttDirect();$('ttDirect').style.display=d?'block':'none';
   document.querySelectorAll('.ttv').forEach(r=>r.style.display=isVideo?'':'none');
