@@ -32,8 +32,8 @@ function toJpeg(file){return new Promise((ok,ko)=>{const img=new Image();img.onl
   const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);c.toBlob(b=>b?ok(b):ko('conversion'),'image/jpeg',0.92)};img.onerror=()=>ko('image illisible');img.src=URL.createObjectURL(file)})}
 function txtOverlay(){const e=$('ovl');return e?e.value.trim():''}
 function txtPos(){const r=document.querySelector('input[name=ovlPos]:checked');return r?r.value:'bas'}
-// Ecrit le texte sur l'image, sur un bandeau sombre, avec retour a la ligne automatique.
-function dessineTexte(x,W,H,txt,pos){
+// Place le texte dans la bande noire quand il y en a une, sinon sur l'image.
+function dessineTexte(x,W,H,txt,pos,media){
   if(!txt)return;
   const taille=Math.round(W*0.072);
   x.save();x.textAlign='center';x.textBaseline='middle';
@@ -41,10 +41,16 @@ function dessineTexte(x,W,H,txt,pos){
   const max=W*0.86,lignes=[];let cur='';
   for(const m of txt.split(/\s+/)){const t=cur?cur+' '+m:m;if(x.measureText(t).width>max&&cur){lignes.push(cur);cur=m}else cur=t}
   if(cur)lignes.push(cur);
-  const lh=taille*1.3,hTot=lignes.length*lh;
+  const lh=taille*1.3,hTot=lignes.length*lh,besoin=hTot+lh*0.9;
   const haut=pos==='haut';
-  const yTop=haut?H*0.10:H*0.90-hTot;
-  x.fillStyle='rgba(0,0,0,.45)';x.fillRect(0,yTop-lh*0.45,W,hTot+lh*0.9);
+  const bande=media?(haut?media.y:H-(media.y+media.h)):0;
+  let yTop;
+  if(media&&bande>=besoin){
+    yTop=haut?(media.y-besoin)/2+lh*0.45:media.y+media.h+(bande-besoin)/2+lh*0.45;
+  }else{
+    yTop=haut?H*0.10:H*0.90-hTot;
+    x.fillStyle='rgba(0,0,0,.5)';x.fillRect(0,yTop-lh*0.45,W,hTot+lh*0.9);
+  }
   x.fillStyle='#fff';x.shadowColor='rgba(0,0,0,.85)';x.shadowBlur=taille*0.3;
   let y=yTop+lh/2;
   for(const l of lignes){x.fillText(l,W/2,y);y+=lh}
@@ -73,9 +79,7 @@ function toStoryVideo(file,onprog,txt,pos){return new Promise(ok=>{
     if(!v.duration||v.duration>120)return ok(null);
     const W=1080,H=1920;
     const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
-    const bg=document.createElement('canvas');bg.width=W;bg.height=H;const bx=bg.getContext('2d');
-    const kc=Math.max(W/iw,H/ih),bw=iw*kc,bh=ih*kc;
-    const k=Math.min(W/iw,H/ih),fw=iw*k,fh=ih*k;
+    const k=Math.min(W/iw,H/ih),fw=iw*k,fh=ih*k,fy=(H-fh)/2;
     let ac=null,dest=null;
     try{ac=new (window.AudioContext||window.webkitAudioContext)();const s=ac.createMediaElementSource(v);dest=ac.createMediaStreamDestination();s.connect(dest)}catch(e){}
     const st=new MediaStream();
@@ -85,12 +89,11 @@ function toStoryVideo(file,onprog,txt,pos){return new Promise(ok=>{
     const parts=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};
     let fini=false;
     rec.onstop=()=>{if(fini)return;fini=true;try{if(ac)ac.close()}catch(e){};ok(parts.length?new Blob(parts,{type:'video/mp4'}):null)};
-    let raf=0,fondPret=false;
+    let raf=0;
     const draw=()=>{
-      if(!fondPret&&v.currentTime>0){bx.fillStyle='#0d0d0d';bx.fillRect(0,0,W,H);try{bx.filter='blur(42px)';bx.drawImage(v,(W-bw)/2,(H-bh)/2,bw,bh);bx.filter='none'}catch(e){};fondPret=true}
-      x.drawImage(bg,0,0);
-      try{x.drawImage(v,(W-fw)/2,(H-fh)/2,fw,fh)}catch(e){}
-      dessineTexte(x,W,H,txt,pos);
+      x.fillStyle='#000';x.fillRect(0,0,W,H);
+      try{x.drawImage(v,(W-fw)/2,fy,fw,fh)}catch(e){}
+      dessineTexte(x,W,H,txt,pos,{y:fy,h:fh});
       if(onprog&&v.duration)onprog(Math.min(1,v.currentTime/v.duration));
       raf=requestAnimationFrame(draw);
     };
