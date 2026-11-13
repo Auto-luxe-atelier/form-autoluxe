@@ -30,13 +30,38 @@ function showTT(){$('ttLogin').style.display=S?'none':'block';$('ttBody').style.
 
 function toJpeg(file){return new Promise((ok,ko)=>{const img=new Image();img.onload=()=>{let w=img.naturalWidth,h=img.naturalHeight;const k=Math.min(1,1920/Math.max(w,h),1080/Math.min(w,h));w=Math.round(w*k);h=Math.round(h*k);
   const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);c.toBlob(b=>b?ok(b):ko('conversion'),'image/jpeg',0.92)};img.onerror=()=>ko('image illisible');img.src=URL.createObjectURL(file)})}
+function txtOverlay(){const e=$('ovl');return e?e.value.trim():''}
+function txtPos(){const r=document.querySelector('input[name=ovlPos]:checked');return r?r.value:'bas'}
+// Ecrit le texte sur l'image, sur un bandeau sombre, avec retour a la ligne automatique.
+function dessineTexte(x,W,H,txt,pos){
+  if(!txt)return;
+  const taille=Math.round(W*0.072);
+  x.save();x.textAlign='center';x.textBaseline='middle';
+  x.font='700 '+taille+'px system-ui,"Segoe UI",Roboto,Arial,sans-serif';
+  const max=W*0.86,lignes=[];let cur='';
+  for(const m of txt.split(/\s+/)){const t=cur?cur+' '+m:m;if(x.measureText(t).width>max&&cur){lignes.push(cur);cur=m}else cur=t}
+  if(cur)lignes.push(cur);
+  const lh=taille*1.3,hTot=lignes.length*lh;
+  const haut=pos==='haut';
+  const yTop=haut?H*0.10:H*0.90-hTot;
+  x.fillStyle='rgba(0,0,0,.45)';x.fillRect(0,yTop-lh*0.45,W,hTot+lh*0.9);
+  x.fillStyle='#fff';x.shadowColor='rgba(0,0,0,.85)';x.shadowBlur=taille*0.3;
+  let y=yTop+lh/2;
+  for(const l of lignes){x.fillText(l,W/2,y);y+=lh}
+  x.restore();
+}
+// Reecrit une photo avec le texte incruste, a sa taille d'origine.
+function ajouteTexte(src,txt,pos){return new Promise((ok,ko)=>{const img=new Image();img.onload=()=>{
+  const W=img.naturalWidth,H=img.naturalHeight;const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  x.drawImage(img,0,0,W,H);dessineTexte(x,W,H,txt,pos);
+  c.toBlob(b=>b?ok(b):ko('texte'),'image/jpeg',0.92)};img.onerror=()=>ko('image');img.src=URL.createObjectURL(src)})}
 function mimeVideo(){
   const l=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4'];
   for(const m of l){if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m))return m}
   return null;
 }
 // Remet une video horizontale au format 9:16 pour les stories : image entiere au centre, fond floute.
-function toStoryVideo(file,onprog){return new Promise(ok=>{
+function toStoryVideo(file,onprog,txt,pos){return new Promise(ok=>{
   const mime=mimeVideo();
   if(!mime)return ok(null);
   const v=document.createElement('video');v.src=URL.createObjectURL(file);v.playsInline=true;v.preload='auto';
@@ -65,6 +90,7 @@ function toStoryVideo(file,onprog){return new Promise(ok=>{
       if(!fondPret&&v.currentTime>0){bx.fillStyle='#0d0d0d';bx.fillRect(0,0,W,H);try{bx.filter='blur(42px)';bx.drawImage(v,(W-bw)/2,(H-bh)/2,bw,bh);bx.filter='none'}catch(e){};fondPret=true}
       x.drawImage(bg,0,0);
       try{x.drawImage(v,(W-fw)/2,(H-fh)/2,fw,fh)}catch(e){}
+      dessineTexte(x,W,H,txt,pos);
       if(onprog&&v.duration)onprog(Math.min(1,v.currentTime/v.duration));
       raf=requestAnimationFrame(draw);
     };
@@ -72,12 +98,13 @@ function toStoryVideo(file,onprog){return new Promise(ok=>{
     v.play().then(()=>{try{rec.start(500)}catch(e){return ok(null)};draw()}).catch(()=>ok(null));
   };
 })}
-function toStory(src){return new Promise((ok,ko)=>{const img=new Image();img.onload=()=>{
+function toStory(src,txt,pos){return new Promise((ok,ko)=>{const img=new Image();img.onload=()=>{
   const W=1080,H=1920;const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
   x.fillStyle='#0d0d0d';x.fillRect(0,0,W,H);
   const iw=img.naturalWidth,ih=img.naturalHeight;
   try{const kc=Math.max(W/iw,H/ih);const bw=iw*kc,bh=ih*kc;x.filter='blur(42px)';x.drawImage(img,(W-bw)/2,(H-bh)/2,bw,bh);x.filter='none'}catch(e){}
   const k=Math.min(W/iw,H/ih);const w=iw*k,h=ih*k;x.drawImage(img,(W-w)/2,(H-h)/2,w,h);
+  dessineTexte(x,W,H,txt,pos);
   c.toBlob(b=>b?ok(b):ko('story'),'image/jpeg',0.92)};img.onerror=()=>ko('image');img.src=URL.createObjectURL(src)})}
 $('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('prev').innerHTML='';vidDur=0;pendingAuto=true;$('res').innerHTML='';
   if(f.type.startsWith('image/')){isVideo=false;blob=await toJpeg(f);fname='photo.jpg';const i=document.createElement('img');i.src=URL.createObjectURL(blob);$('prev').appendChild(i)}
@@ -120,17 +147,20 @@ async function run(){
   const job='j'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
   const cap=$('cap').value;const cibles=[];if($('dFb').checked)cibles.push('fb');if($('dStory').checked)cibles.push('story');if($('dIg').checked)cibles.push('ig');if($('dIgStory').checked)cibles.push('igstory');if($('dYt').checked)cibles.push('yt');
   const wantTT=$('dTt').checked;const prog={};const upd=()=>{let l=0,t=0;for(const k in prog){l+=prog[k][0];t+=prog[k][1]}const p=t?Math.round(l/t*100):0;$('fill').style.width=p+'%';$('pct').textContent=p+' %'};
+  const ovl=txtOverlay(),opos=txtPos();
+  let envoiBlob=blob;
+  if(ovl&&!isVideo){try{envoiBlob=await ajouteTexte(blob,ovl,opos)}catch(e){}}
   const jobs=[];
   if(cibles.length){
     if(cibles.includes('fb'))row('fb','Facebook');if(cibles.includes('story'))row('story','Story Facebook');if(cibles.includes('ig'))row('ig','Instagram');if(cibles.includes('igstory'))row('igstory','Story Instagram');if(cibles.includes('yt'))row('yt','YouTube Shorts');
     prog.meta=[0,blob.size];
     jobs.push(async()=>{
-      const fd=new FormData();fd.append('video',blob,fname);
+      const fd=new FormData();fd.append('video',envoiBlob,fname);
       const veutStory=cibles.includes('story')||cibles.includes('igstory');
-      if(veutStory&&!isVideo){try{const sb=await toStory(blob);fd.append('video',sb,'story.jpg')}catch(e){}}
+      if(veutStory&&!isVideo){try{const sb=await toStory(blob,ovl,opos);fd.append('video',sb,'story.jpg')}catch(e){}}
       if(veutStory&&isVideo){
         const maj=p=>{const t='\u23f3 Mise au format 9:16\u2026 '+Math.round(p*100)+' %';if(cibles.includes('story'))setRow('story',t,'wait');if(cibles.includes('igstory'))setRow('igstory',t,'wait')};
-        maj(0);let sv=null;try{sv=await toStoryVideo(blob,maj)}catch(e){}
+        maj(0);let sv=null;try{sv=await toStoryVideo(blob,maj,ovl,opos)}catch(e){}
         if(sv)fd.append('video',sv,'story.mp4');
         const t2='\u23f3 Envoi\u2026';if(cibles.includes('story'))setRow('story',t2,'wait');if(cibles.includes('igstory'))setRow('igstory',t2,'wait');
       }
@@ -151,7 +181,7 @@ async function run(){
     const d=ttDirect();const f={mode:d?'direct':'brouillon'};
     if(d){f.titre=cap;f.privacy=$('ttPriv').value;f.disable_comment=!$('ttCom').checked;f.disable_duet=!$('ttDuet').checked;f.disable_stitch=!$('ttStitch').checked;f.brand_organic=$('ttDisc').checked&&$('ttOwn').checked;f.brand_content=$('ttDisc').checked&&$('ttBrand').checked}
     jobs.push(async()=>{
-      const r=await tt(f,blob,e=>{if(e.lengthComputable){prog.tt=[e.loaded,e.total];upd()}});
+      const r=await tt(f,envoiBlob,e=>{if(e.lengthComputable){prog.tt=[e.loaded,e.total];upd()}});
       prog.tt=[blob.size,blob.size];upd();
       if(!r.ok)setRow('tt','\u274c '+(r.error||'\u00c9chec'),'err');else{setRow('tt','\u23f3 TikTok traite\u2026','wait');pollTT(r.publish_id,0)}
     });
