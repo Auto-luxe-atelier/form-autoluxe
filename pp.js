@@ -3,6 +3,7 @@ const TT_API='https://n8n-hetzner.duckdns.org/webhook/tiktok-publier';
 const TT_LOGIN='https://n8n-hetzner.duckdns.org/webhook/tiktok-connexion-autoluxe?ret=pp';
 const $=id=>document.getElementById(id);
 const SB='https://supabase.n8n-hetzner.duckdns.org/storage/v1/object/public/publications/statut/';
+const STORY_API='https://n8n-hetzner.duckdns.org/webhook/stories-prep';
 const LIEN_API='https://n8n-hetzner.duckdns.org/webhook/lien-upload';
 // Depot direct dans le stockage : pas de limite de duree cote n8n, la qualite d'origine est conservee.
 function putFichier(url,b,onp){return new Promise(ok=>{const x=new XMLHttpRequest();x.open('PUT',url);x.setRequestHeader('Content-Type',b.type||'application/octet-stream');if(onp)x.upload.onprogress=onp;reqs.push(x);x.onload=()=>ok(x.status>=200&&x.status<300);x.onerror=()=>ok(false);x.send(b)})}
@@ -245,7 +246,7 @@ async function run(){
   const cap=$('cap').value;const cibles=[];if($('dFb').checked)cibles.push('fb');if($('dStory').checked)cibles.push('story');if($('dIg').checked)cibles.push('ig');if($('dIgStory').checked)cibles.push('igstory');if($('dYt').checked)cibles.push('yt');
   const wantTT=$('dTt').checked;const prog={};const upd=()=>{let l=0,t=0;for(const k in prog){l+=prog[k][0];t+=prog[k][1]}const p=t?Math.round(l/t*100):0;$('fill').style.width=p+'%';$('pct').textContent=p+' %'};
   const ovl=txtOverlay(),opos=txtPos();
-  let envoiBlob=blob;
+/*ANCIEN_DEBUT
   if(ovl&&!isVideo){try{envoiBlob=await ajouteTexte(blob,ovl,opos)}catch(e){}}
   if(isVideo&&blob.size>47*1048576){
     row('prep','Allègement');setRow('prep','⏳ Patientez, laissez la page ouverte…','wait');
@@ -306,7 +307,71 @@ async function run(){
       if(!r.ok)setRow('tt','\u274c '+(r.error||'\u00c9chec'),'err');else{setRow('tt','\u23f3 TikTok traite\u2026','wait');pollTT(r.publish_id,0)}
     });
   }
-  for(const j of jobs){if(stoppe)break;try{await j()}catch(e){}}
+ANCIEN_FIN*/
+  let envoiBlob=blob;
+  if(ovl&&!isVideo){try{envoiBlob=await ajouteTexte(blob,ovl,opos)}catch(e){}}
+  // 1) Le fichier ORIGINAL part une seule fois dans le stockage (aucune compression, aucune perte).
+  row('up','Envoi de la vidéo d\'origine');if(!isVideo)setRow('up','⏳ Envoi…','wait');
+  prog.up=[0,envoiBlob.size];
+  let uM=null;
+  for(let essai=1;essai<=3&&!uM&&!stoppe;essai++){
+    setRow('up','⏳ Envoi '+(essai>1?'(essai '+essai+') ':'')+'…','wait');
+    uM=await deposer(envoiBlob,fname,e=>{if(e.lengthComputable){prog.up=[e.loaded,e.total];upd();setRow('up','⏳ '+(e.loaded/1048576).toFixed(0)+' / '+(e.total/1048576).toFixed(0)+' Mo','wait')}});
+  }
+  if(!uM){setRow('up','❌ Envoi impossible, vérifie la connexion et relance','err');$('stop').style.display='none';busy=false;refresh();return}
+  prog.up=[envoiBlob.size,envoiBlob.size];upd();
+  setRow('up','✅ '+(envoiBlob.size/1048576).toFixed(0)+' Mo, qualité d\'origine','ok');
+  const jobs=[];
+  const storiesVid=isVideo?cibles.filter(c=>c==='story'||c==='igstory'):[];
+  const principal=cibles.filter(c=>!storiesVid.includes(c));
+  if(principal.length){
+    if(principal.includes('fb'))row('fb','Facebook');if(principal.includes('story'))row('story','Story Facebook');if(principal.includes('ig'))row('ig','Instagram');if(principal.includes('igstory'))row('igstory','Story Instagram');if(principal.includes('yt'))row('yt','YouTube Shorts');
+    jobs.push(async()=>{
+      const fd=new FormData();fd.append('media_url',uM);
+      if(!isVideo&&(principal.includes('story')||principal.includes('igstory'))){try{const sb=await toStory(blob,ovl,opos);const uS=await deposer(sb,'story.jpg');if(uS)fd.append('story_url',uS)}catch(e){}}
+      fd.append('caption',cap);fd.append('cibles',principal.join(','));fd.append('job',job);
+      const r=await xhr(FB_API,fd,null);
+      const fb=r.data&&r.data.facebook_feed;
+      if(principal.includes('fb')){if(fb&&(fb.id||fb.post_id))setRow('fb','✅ Publié','ok');else setRow('fb','❌ '+((fb&&fb.error&&fb.error.message)||(r.status?'Échec':'Coupure réseau')),'err')}
+      const ok200=r.status===200;
+      if(principal.includes('story')){if(ok200){setRow('story','⏳ Facebook traite…','wait');suivre(job,'story','story','Envoyée',0)}else setRow('story','❌ Échec','err')}
+      if(principal.includes('yt')){if(ok200){setRow('yt','⏳ YouTube traite…','wait');suivre(job,'yt','yt','Envoyée',0)}else setRow('yt','❌ Échec','err')}
+      if(principal.includes('igstory')){if(ok200){setRow('igstory','⏳ Instagram traite…','wait');suivre(job,'igstory','igstory','Publiée',0)}else setRow('igstory','❌ Échec','err')}
+      if(principal.includes('ig')){if(ok200){setRow('ig','⏳ Instagram traite…','wait');suivre(job,'ig','ig','Publié',0)}else setRow('ig','❌ Échec','err')}
+    });
+  }
+  if(storiesVid.length){
+    // 2) Les stories sont préparées sur le serveur (découpage sans ré-encodage), pas sur le téléphone.
+    row('prepst','Stories');setRow('prepst','⏳ Préparation sur le serveur…','wait');
+    jobs.push(async()=>{
+      let d=null;
+      try{const r=await fetch(STORY_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({job:job,media_url:uM})});d=await r.json()}catch(e){}
+      if(!d||!d.ok||!d.segments||!d.segments.length){setRow('prepst','❌ '+((d&&d.error)||'Préparation impossible'),'err');return}
+      const N=d.segments.length;
+      setRow('prepst','✅ '+(N>1?N+' stories de moins de 60 s':'1 story')+(d.mode==='format-9-16'?' (format 9:16)':' (qualité d\'origine)'),'ok');
+      for(let i=0;i<N;i++){
+        if(stoppe)break;
+        const j2=job+'s'+(i+1),n2=N>1?' '+(i+1)+'/'+N:'';
+        if(storiesVid.includes('story'))row('story'+i,'Story Facebook'+n2);
+        if(storiesVid.includes('igstory'))row('igstory'+i,'Story Instagram'+n2);
+        const fd2=new FormData();fd2.append('media_url',d.segments[i]);fd2.append('caption',cap);fd2.append('cibles',storiesVid.join(','));fd2.append('job',j2);
+        const r2=await xhr(FB_API,fd2,null);const o2=r2.status===200;
+        if(storiesVid.includes('story')){if(o2){setRow('story'+i,'⏳ Facebook traite…','wait');suivre(j2,'story','story'+i,'Envoyée',0)}else setRow('story'+i,'❌ Échec','err')}
+        if(storiesVid.includes('igstory')){if(o2){setRow('igstory'+i,'⏳ Instagram traite…','wait');suivre(j2,'igstory','igstory'+i,'Publiée',0)}else setRow('igstory'+i,'❌ Échec','err')}
+      }
+    });
+  }
+  if(wantTT){
+    row('tt','TikTok');setRow('tt','⏳ Envoi à TikTok…','wait');
+    const d=ttDirect();const f={mode:d?'direct':'brouillon',media_url:uM};
+    if(d){f.titre=cap;f.privacy=$('ttPriv').value;f.disable_comment=!$('ttCom').checked;f.disable_duet=!$('ttDuet').checked;f.disable_stitch=!$('ttStitch').checked;f.brand_organic=$('ttDisc').checked&&$('ttOwn').checked;f.brand_content=$('ttDisc').checked&&$('ttBrand').checked}
+    jobs.push(async()=>{
+      const r=await tt(f,null);
+      if(!r.ok)setRow('tt','❌ '+(r.error||'Échec'),'err');else{setRow('tt','⏳ TikTok traite…','wait');pollTT(r.publish_id,0)}
+    });
+  }
+  // 3) Toutes les plateformes partent en même temps.
+  await Promise.all(jobs.map(j=>j().catch(()=>{})));
   $('stop').style.display='none';
   if(!stoppe){$('fill').style.width='100%';$('pct').textContent='100 %'}
   busy=false;refresh();
